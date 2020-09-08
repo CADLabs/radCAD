@@ -1,0 +1,12 @@
+[package]
+name = "rad-cad"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "rad_cad"
+crate-type = ["cdylib"]
+
+[dependencies.pyo3]
+version = "0.11.1"
+features = ["extension-module"]
