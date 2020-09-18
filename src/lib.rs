@@ -36,6 +36,14 @@ fn print_psubs(psubs: &PyAny) -> PyResult<()> {
     Ok(())
 }
 
+// [{'a': 1.0,
+//   'b': 2.0,
+//   'simulation': 0,
+//   'subset': 0,
+//   'run': 1,
+//   'substep': 0,
+//   'timestep': 0},
+
 #[pyfunction]
 fn run(timesteps: usize, states: &PyDict, psubs: &PyList) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
@@ -45,19 +53,32 @@ fn run(timesteps: usize, states: &PyDict, psubs: &PyList) -> PyResult<PyObject> 
     result.append(intial_state);
     for timestep in 0..timesteps {
         let previous_state: &PyDict = result.get_item(timestep as isize).extract()?;
-        let next_state: &PyDict = previous_state.copy().unwrap();
-        for psub in psubs {
+        previous_state.set_item("simulation", 0);
+        previous_state.set_item("run", 1);
+        previous_state.set_item("subset", 0);
+        previous_state.set_item("timestep", timestep);
+        let substeps: &PyList = PyList::empty(py);
+        let psub_iterator = psubs.into_iter();
+        for (substep, psub) in psub_iterator.enumerate() {
+            let substate = match substep {
+                0 => previous_state.copy().unwrap(),
+                _ => substeps.get_item(substep as isize - 1).clone(),
+            };
+            substate.set_item("substep", substep);
+            substeps.insert(substep as isize, substate);
             match psub.get_item("updates") {
                 Err(_e) => println!("No such key \"updates\""),
                 Ok(updates_) => {
                     let updates: &PyDict = updates_.extract()?;
                     for (state, function) in updates {
-                        next_state.set_item(state, function.call((next_state,), None)?);
+                        substate.set_item(state, function.call((substate,), None)?);
                     }
                 }
             }
         }
-        result.append(next_state);
+        for substep in substeps {
+            result.append(substep);
+        }
     }
     Ok(result.into())
 }
