@@ -1,6 +1,12 @@
 # radCAD
 A cadCAD implementation in Rust, using PyO3 to generate Rust bindings for Python to be used as a native Python module. The performance and expressiveness of Rust, with the utility of the Python data-science stack.
 
+Goals:
+* simple API for ease of use
+* performance driven (more speed = more experiments, larger parameter sweeps, in less time)
+* cadCAD compatible (standard functions, data structures, and simulation results)
+* maintainable, testable codebase
+
 ## Development
 
 ```bash
