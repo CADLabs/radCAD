@@ -65,14 +65,56 @@ fn run(
     let gil = Python::acquire_gil();
     let py = gil.python();
     let result: &PyList = PyList::empty(py);
+
+    let param_sweep = PyList::empty(py);
+    let mut max_len = params.len();
+    
+    for value in params.values() {
+        if value.len()? > max_len {
+            max_len = value.len()?;
+        }
+    }
+
+    for sweep_index in 0..max_len {
+        let param_set = PyDict::new(py);
+        for (key, value) in params {
+            let param = if sweep_index < value.len()? {
+                value.get_item(sweep_index)?
+            } else {
+                value.get_item(value.len()? - 1)?
+            };
+            param_set.set_item(key, param)?;
+        }
+        param_sweep.append(param_set)?;
+    }
+
     for run in 0..runs {
-        result
-            .call_method(
-                "extend",
-                (single_run(timesteps, run, states, psubs, params)?,),
-                None,
-            )
-            .unwrap();
+        if param_sweep.len() > 0 {
+            for (subset, param_set) in param_sweep.iter().enumerate() {
+                result
+                    .call_method(
+                        "extend",
+                        (single_run(
+                            timesteps,
+                            run,
+                            subset,
+                            states,
+                            psubs,
+                            param_set.extract()?,
+                        )?,),
+                        None,
+                    )
+                    .unwrap();
+            }
+        } else {
+            result
+                .call_method(
+                    "extend",
+                    (single_run(timesteps, run, 0, states, psubs, params)?,),
+                    None,
+                )
+                .unwrap();
+        }
     }
     Ok(result.into())
 }
@@ -125,6 +167,7 @@ fn reduce_signals(
 fn single_run(
     timesteps: usize,
     run: usize,
+    subset: usize,
     states: &PyDict,
     psubs: &PyList,
     params: &PyDict,
@@ -134,7 +177,7 @@ fn single_run(
     let result: &PyList = PyList::empty(py);
     let intial_state: &PyDict = states;
     intial_state.set_item("simulation", 0).unwrap();
-    intial_state.set_item("subset", 0).unwrap();
+    intial_state.set_item("subset", subset).unwrap();
     intial_state.set_item("run", run + 1).unwrap();
     intial_state.set_item("substep", 0).unwrap();
     intial_state.set_item("timestep", 0).unwrap();
@@ -145,7 +188,7 @@ fn single_run(
             .cast_as::<PyDict>()?
             .copy()?;
         previous_state.set_item("simulation", 0).unwrap();
-        previous_state.set_item("subset", 0).unwrap();
+        previous_state.set_item("subset", subset).unwrap();
         previous_state.set_item("run", run + 1).unwrap();
         previous_state.set_item("timestep", timestep + 1).unwrap();
         let substeps: &PyList = PyList::empty(py);
