@@ -15,13 +15,22 @@ make release
 make release-macos
 ```
 
+## Use
+
 ```python
 import output.rad_cad as rc
+from output.rad_cad import Model, Simulation
 
 TIMESTEPS = 100_000
 RUNS = 1
 
-data = rc.run(TIMESTEPS, RUNS, states, psubs, params)
+model_a = Model(initial_state=states_a, psubs=psubs_a, params=params_a)
+model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
+
+simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
+simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
+
+data = rc.run([simulation_1, simulation_2])
 df = pd.DataFrame(data)
 ```
 
@@ -33,6 +42,8 @@ df = pd.DataFrame(data)
 * [x] cadCAD simulation data structure
 
 ## Benchmark
+
+**Note:** Not conclusive, needs multiple runs and averages taken.
 
 See `notebook.ipynb`
 

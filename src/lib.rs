@@ -8,102 +8,141 @@ use std::collections::HashMap;
 
 #[pymodule]
 fn rad_cad(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Model>()?;
+    m.add_class::<Simulation>()?;
     m.add_wrapped(wrap_pyfunction!(run))?;
-    m.add_wrapped(wrap_pyfunction!(single_run))?;
 
     Ok(())
 }
 
+#[pyclass]
+#[derive(Debug, Clone)]
+struct Model {
+    initial_state: PyObject,
+    psubs: PyObject,
+    params: PyObject
+}
+
+#[pymethods]
+impl Model {
+    #[new]
+    fn new(initial_state: PyObject, psubs: PyObject, params: PyObject) -> Self {
+        Model { initial_state, psubs, params }
+    }
+}
+
+#[pyclass]
+#[derive(Debug, Clone)]
+struct Simulation {
+    model: Model,
+    timesteps: usize,
+    runs: usize
+}
+
+#[pymethods]
+impl Simulation {
+    #[new]
+    #[args(timesteps = "100", runs = "1")]
+    fn new(timesteps: usize, runs: usize, model: Model) -> Self {
+        Simulation { timesteps, runs, model }
+    }
+}
+
 #[pyfunction]
 fn run(
-    timesteps: usize,
-    runs: usize,
-    states: &PyDict,
-    psubs: &PyList,
-    params: &PyDict,
+    simulations: &PyList
 ) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
     let py = gil.python();
     let result: &PyList = PyList::empty(py);
 
-    let param_sweep = PyList::empty(py);
-    let mut max_len = 0;
-    
-    for value in params.values() {
-        if value.len()? > max_len {
-            max_len = value.len()?;
-        }
-    }
+    for (simulation_index, simulation_) in simulations.iter().enumerate() {
+        let simulation: &Simulation = &simulation_.extract::<Simulation>()?;
+        let timesteps = simulation.timesteps;
+        let runs = simulation.runs;
+        let initial_state: &PyDict = simulation.model.initial_state.extract(py)?;
+        let psubs: &PyList = simulation.model.psubs.extract(py)?;
+        let params: &PyDict = simulation.model.params.extract(py)?;
 
-    for sweep_index in 0..max_len {
-        let param_set = PyDict::new(py);
-        for (key, value) in params {
-            let param = if sweep_index < value.len()? {
-                value.get_item(sweep_index)?
+        let param_sweep = PyList::empty(py);
+        let mut max_len = 0;
+        
+        for value in params.values() {
+            if value.len()? > max_len {
+                max_len = value.len()?;
+            }
+        }
+
+        for sweep_index in 0..max_len {
+            let param_set = PyDict::new(py);
+            for (key, value) in params {
+                let param = if sweep_index < value.len()? {
+                    value.get_item(sweep_index)?
+                } else {
+                    value.get_item(value.len()? - 1)?
+                };
+                param_set.set_item(key, param)?;
+            }
+            param_sweep.append(param_set)?;
+        }
+
+        for run in 0..runs {
+            if param_sweep.len() > 0 {
+                for (subset, param_set) in param_sweep.iter().enumerate() {
+                    result
+                        .call_method(
+                            "extend",
+                            (single_run(
+                                simulation_index,
+                                timesteps,
+                                run,
+                                subset,
+                                initial_state,
+                                psubs,
+                                param_set.extract()?,
+                            )?,),
+                            None,
+                        )
+                        .unwrap();
+                }
             } else {
-                value.get_item(value.len()? - 1)?
-            };
-            param_set.set_item(key, param)?;
-        }
-        param_sweep.append(param_set)?;
-    }
-
-    for run in 0..runs {
-        if param_sweep.len() > 0 {
-            for (subset, param_set) in param_sweep.iter().enumerate() {
                 result
                     .call_method(
                         "extend",
-                        (single_run(
-                            timesteps,
-                            run,
-                            subset,
-                            states,
-                            psubs,
-                            param_set.extract()?,
-                        )?,),
+                        (single_run(simulation_index, timesteps, run, 0, initial_state, psubs, params)?,),
                         None,
                     )
                     .unwrap();
             }
-        } else {
-            result
-                .call_method(
-                    "extend",
-                    (single_run(timesteps, run, 0, states, psubs, params)?,),
-                    None,
-                )
-                .unwrap();
         }
     }
     Ok(result.into())
 }
 
-#[pyfunction]
 fn single_run(
+    simulation: usize,
     timesteps: usize,
     run: usize,
     subset: usize,
-    states: &PyDict,
+    initial_state: &PyDict,
     psubs: &PyList,
     params: &PyDict,
 ) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
     let py = gil.python();
     let result: &PyList = PyList::empty(py);
-    let intial_state: &PyDict = states;
-    intial_state.set_item("simulation", 0).unwrap();
-    intial_state.set_item("subset", subset).unwrap();
-    intial_state.set_item("run", run + 1).unwrap();
-    intial_state.set_item("substep", 0).unwrap();
-    intial_state.set_item("timestep", 0).unwrap();
-    result.append(intial_state.copy()?).unwrap();
+    initial_state.set_item("simulation", simulation).unwrap();
+    initial_state.set_item("subset", subset).unwrap();
+    initial_state.set_item("run", run + 1).unwrap();
+    initial_state.set_item("substep", 0).unwrap();
+    initial_state.set_item("timestep", 0).unwrap();
+    result.append(initial_state.copy()?).unwrap();
     for timestep in 0..timesteps {
         let previous_state: &PyDict = result
             .get_item(isize::try_from(result.len() - 1).expect("Failed to fetch previous state"))
             .cast_as::<PyDict>()?
             .copy()?;
-        previous_state.set_item("simulation", 0).unwrap();
+        previous_state.set_item("simulation", simulation).unwrap();
         previous_state.set_item("subset", subset).unwrap();
         previous_state.set_item("run", run + 1).unwrap();
         previous_state.set_item("timestep", timestep + 1).unwrap();
