@@ -45,7 +45,14 @@ df = pd.DataFrame(data)
 
 **Note:** Not conclusive, needs multiple runs and averages taken.
 
-See `notebook.ipynb`
+```bash
+radCAD took 5.737071990966797 seconds
+cadCAD took 22.206645011901855 seconds
+Simulation output dataframes are carbon copies
+Rust is 3.8707279683550997X faster than Python
+```
+
+See `benchmark.py` and `benchmark.ipynb`.
 
 ```python
 import math
@@ -103,26 +110,30 @@ RUNS = 1
 3       0.463338        7.0           0       0    1        1         2
 4       0.463338       12.0           0       0    1        2         2
 ...          ...        ...         ...     ...  ...      ...       ...
-599998  0.003162  1499972.0           0       2    1        2     99998
-599999  0.003162  1499972.0           0       2    1        1     99999
-600000  0.003162  1499987.0           0       2    1        2     99999
-600001  0.003162  1499987.0           0       2    1        1    100000
-600002  0.003162  1500002.0           0       2    1        2    100000
+799999  0.003162   999982.0           1       1    1        2     99998
+800000  0.003162   999982.0           1       1    1        1     99999
+800001  0.003162   999992.0           1       1    1        2     99999
+800002  0.003162   999992.0           1       1    1        1    100000
+800003  0.003162  1000002.0           1       1    1        2    100000
 ```
 
 ### cadCAD
 ```bash
-Execution Mode: multi_proc
-Configuration Count: 1
-Dimensions of the first simulation: (Timesteps, Params, Runs, Vars) = (100000, 2, 3, 7)
-Execution Method: parallelize_simulations
+Execution Mode: local_proc
+Configuration Count: 2
+Dimensions of the first simulation: (Timesteps, Params, Runs, Vars) = (100000, 2, 2, 7)
+Execution Method: local_simulations
+SimIDs   : [0, 0, 1, 1]
+SubsetIDs: [0, 1, 0, 1]
+Ns       : [0, 1, 0, 1]
+ExpIDs   : [0, 0, 1, 1]
 Execution Mode: parallelized
-Total execution time: 17.63s
-17.644710063934326
+Total execution time: 22.19s
+22.206645011901855
 ```
 
 ### radCAD
 
 ```bash
-4.089609861373901 seconds
+5.737071990966797 seconds
 ```
