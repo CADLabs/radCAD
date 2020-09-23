@@ -93,6 +93,7 @@ fn run(
                         .call_method(
                             "extend",
                             (single_run(
+                                py,
                                 simulation_index,
                                 timesteps,
                                 run,
@@ -109,7 +110,7 @@ fn run(
                 result
                     .call_method(
                         "extend",
-                        (single_run(simulation_index, timesteps, run, 0, initial_state, psubs, params)?,),
+                        (single_run(py, simulation_index, timesteps, run, 0, initial_state, psubs, params)?,),
                         None,
                     )
                     .unwrap();
@@ -120,6 +121,7 @@ fn run(
 }
 
 fn single_run(
+    py: Python,
     simulation: usize,
     timesteps: usize,
     run: usize,
@@ -128,8 +130,6 @@ fn single_run(
     psubs: &PyList,
     params: &PyDict,
 ) -> PyResult<PyObject> {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
     let result: &PyList = PyList::empty(py);
     initial_state.set_item("simulation", simulation).unwrap();
     initial_state.set_item("subset", subset).unwrap();
@@ -255,3 +255,13 @@ fn reduce_signals(
             }),
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     fn internal() {
+//         assert!(true);
+//     }
+// }
