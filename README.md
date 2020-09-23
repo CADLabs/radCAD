@@ -65,6 +65,12 @@ make release
 make release-macos
 ```
 
+## Testing
+
+```bash
+python3 -m unittest tests/integration_test.py
+```
+
 ## Use
 
 ```python

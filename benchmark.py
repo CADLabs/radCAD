@@ -71,13 +71,11 @@ from cadCAD.engine import Executor
 from cadCAD import configs
 del configs[:] # Clear any prior configs
 
-config = {
+c = config_sim({
     "N": RUNS,
     "T": range(TIMESTEPS),
     "M": params
-}
-
-c = config_sim(config)
+})
 
 exp = Experiment()
 exp.append_configs(
