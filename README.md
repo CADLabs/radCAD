@@ -7,6 +7,54 @@ Goals:
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
 
+## Features
+
+* [x] Parameter sweeps
+
+```python
+params = {
+    'a': [1, 2, 3],
+    'b': [1]
+}
+```
+
+* [x] Monte Carlo runs
+
+```python
+RUNS = 100
+Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
+```
+
+* [x] A/B tests
+
+```python
+model_a = Model(initial_state=states_a, psubs=psubs_a, params=params_a)
+model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
+
+simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
+simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
+
+data = rc.run([simulation_1, simulation_2])
+```
+
+* [x] cadCAD compatibility
+* [x] cadCAD simulation data structure
+
+```bash
+               a          b  simulation  subset  run  substep  timestep
+0       1.000000        2.0           0       0    1        0         0
+1       0.540302        2.0           0       0    1        1         1
+2       0.540302        7.0           0       0    1        2         1
+3       0.463338        7.0           0       0    1        1         2
+4       0.463338       12.0           0       0    1        2         2
+...          ...        ...         ...     ...  ...      ...       ...
+799999  0.003162   999982.0           1       1    1        2     99998
+800000  0.003162   999982.0           1       1    1        1     99999
+800001  0.003162   999992.0           1       1    1        2     99999
+800002  0.003162   999992.0           1       1    1        1    100000
+800003  0.003162  1000002.0           1       1    1        2    100000
+```
+
 ## Development
 
 ```bash
@@ -33,13 +81,6 @@ simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 data = rc.run([simulation_1, simulation_2])
 df = pd.DataFrame(data)
 ```
-
-## Features
-
-* [x] Parameter sweeps
-* [x] Monte Carlo runs
-* [x] cadCAD compatibility
-* [x] cadCAD simulation data structure
 
 ## Benchmark
 
@@ -100,21 +141,6 @@ psubs = [
 
 TIMESTEPS = 100_000
 RUNS = 1
-```
-
-```bash
-               a          b  simulation  subset  run  substep  timestep
-0       1.000000        2.0           0       0    1        0         0
-1       0.540302        2.0           0       0    1        1         1
-2       0.540302        7.0           0       0    1        2         1
-3       0.463338        7.0           0       0    1        1         2
-4       0.463338       12.0           0       0    1        2         2
-...          ...        ...         ...     ...  ...      ...       ...
-799999  0.003162   999982.0           1       1    1        2     99998
-800000  0.003162   999982.0           1       1    1        1     99999
-800001  0.003162   999992.0           1       1    1        2     99999
-800002  0.003162   999992.0           1       1    1        1    100000
-800003  0.003162  1000002.0           1       1    1        2    100000
 ```
 
 ### cadCAD
