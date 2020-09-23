@@ -89,10 +89,10 @@ df = pd.DataFrame(data)
 **Note:** Not conclusive, needs multiple runs and averages taken.
 
 ```bash
-radCAD took 5.737071990966797 seconds
-cadCAD took 22.206645011901855 seconds
+radCAD took 15.0509352684021 seconds
+cadCAD took 66.59736394882202 seconds
 Simulation output dataframes are carbon copies
-Rust is 3.8707279683550997X faster than Python
+Rust is 4.424799041467966X faster than Python
 ```
 
 See `benchmark.py` and `benchmark.ipynb`.
@@ -145,23 +145,59 @@ TIMESTEPS = 100_000
 RUNS = 1
 ```
 
-### cadCAD
+### Result
 ```bash
+15.0509352684021
+                a          b  simulation  subset  run  substep  timestep
+0        1.000000        2.0           0       0    1        0         0
+1        0.540302        2.0           0       0    1        1         1
+2        0.540302        7.0           0       0    1        2         1
+3        0.463338        7.0           0       0    1        1         2
+4        0.463338       12.0           0       0    1        2         2
+...           ...        ...         ...     ...  ...      ...       ...
+2000005  0.003162   999982.0           4       1    1        2     99998
+2000006  0.003162   999982.0           4       1    1        1     99999
+2000007  0.003162   999992.0           4       1    1        2     99999
+2000008  0.003162   999992.0           4       1    1        1    100000
+2000009  0.003162  1000002.0           4       1    1        2    100000
+
+[2000010 rows x 7 columns]
+
+                  ___________    ____
+  ________ __ ___/ / ____/   |  / __ \
+ / ___/ __` / __  / /   / /| | / / / /
+/ /__/ /_/ / /_/ / /___/ ___ |/ /_/ /
+\___/\__,_/\__,_/\____/_/  |_/_____/
+by cadCAD
+
 Execution Mode: local_proc
-Configuration Count: 2
+Configuration Count: 5
 Dimensions of the first simulation: (Timesteps, Params, Runs, Vars) = (100000, 2, 2, 7)
 Execution Method: local_simulations
-SimIDs   : [0, 0, 1, 1]
-SubsetIDs: [0, 1, 0, 1]
-Ns       : [0, 1, 0, 1]
-ExpIDs   : [0, 0, 1, 1]
+SimIDs   : [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
+SubsetIDs: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+Ns       : [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+ExpIDs   : [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
 Execution Mode: parallelized
-Total execution time: 22.19s
-22.206645011901855
-```
+Total execution time: 66.56s
+66.59736394882202
+                a          b  simulation  subset  run  substep  timestep
+0        1.000000        2.0           0       0    1        0         0
+1        0.540302        2.0           0       0    1        1         1
+2        0.540302        7.0           0       0    1        2         1
+3        0.463338        7.0           0       0    1        1         2
+4        0.463338       12.0           0       0    1        2         2
+...           ...        ...         ...     ...  ...      ...       ...
+2000005  0.003162   999982.0           4       1    2        2     99998
+2000006  0.003162   999982.0           4       1    2        1     99999
+2000007  0.003162   999992.0           4       1    2        2     99999
+2000008  0.003162   999992.0           4       1    2        1    100000
+2000009  0.003162  1000002.0           4       1    2        2    100000
 
-### radCAD
+[2000010 rows x 7 columns]
 
-```bash
-5.737071990966797 seconds
+radCAD took 15.0509352684021 seconds
+cadCAD took 66.59736394882202 seconds
+Simulation output dataframes are carbon copies
+Rust is 4.424799041467966X faster than Python
 ```

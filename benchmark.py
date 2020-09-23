@@ -54,7 +54,7 @@ model = Model(initial_state=states, psubs=psubs, params=params)
 simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
 start = time.time()
-data_rc = rc.run([simulation, simulation])
+data_rc = rc.run([simulation, simulation, simulation, simulation, simulation])
 end = time.time()
 
 duration_radcad = end - start
@@ -80,6 +80,24 @@ config = {
 c = config_sim(config)
 
 exp = Experiment()
+exp.append_configs(
+    initial_state = states,
+    partial_state_update_blocks = psubs,
+    sim_configs = c
+)
+
+exp.append_configs(
+    initial_state = states,
+    partial_state_update_blocks = psubs,
+    sim_configs = c
+)
+
+exp.append_configs(
+    initial_state = states,
+    partial_state_update_blocks = psubs,
+    sim_configs = c
+)
+
 exp.append_configs(
     initial_state = states,
     partial_state_update_blocks = psubs,
