@@ -64,27 +64,8 @@ fn run(
         let psubs: &PyList = simulation.model.psubs.extract(py)?;
         let params: &PyDict = simulation.model.params.extract(py)?;
 
-        let param_sweep = PyList::empty(py);
-        let mut max_len = 0;
-        
-        for value in params.values() {
-            if value.len()? > max_len {
-                max_len = value.len()?;
-            }
-        }
-
-        for sweep_index in 0..max_len {
-            let param_set = PyDict::new(py);
-            for (key, value) in params {
-                let param = if sweep_index < value.len()? {
-                    value.get_item(sweep_index)?
-                } else {
-                    value.get_item(value.len()? - 1)?
-                };
-                param_set.set_item(key, param)?;
-            }
-            param_sweep.append(param_set)?;
-        }
+        let param_sweep_result = generate_parameter_sweep(py, params).unwrap();
+        let param_sweep: &PyList = param_sweep_result.cast_as::<PyList>(py)?;
 
         for run in 0..runs {
             if param_sweep.len() > 0 {
@@ -210,6 +191,32 @@ fn single_run(
         result.call_method("extend", (substeps,), None).unwrap();
     }
     Ok(result.into())
+}
+
+fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
+    let param_sweep = PyList::empty(py);
+    let mut max_len = 0;
+    
+    for value in params.values() {
+        if value.len()? > max_len {
+            max_len = value.len()?;
+        }
+    }
+
+    for sweep_index in 0..max_len {
+        let param_set = PyDict::new(py);
+        for (key, value) in params {
+            let param = if sweep_index < value.len()? {
+                value.get_item(sweep_index)?
+            } else {
+                value.get_item(value.len()? - 1)?
+            };
+            param_set.set_item(key, param)?;
+        }
+        param_sweep.append(param_set)?;
+    }
+
+    Ok(param_sweep.into())
 }
 
 fn reduce_signals(
