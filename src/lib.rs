@@ -235,7 +235,7 @@ fn reduce_signals(
     {
         policy_results.push(
             function
-                .call((params, substep, result, substate.copy().unwrap()), None)
+                .call((params, substep, result, substate), None)
                 .unwrap()
                 .extract()
                 .unwrap(),
