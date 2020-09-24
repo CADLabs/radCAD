@@ -153,7 +153,7 @@ RUNS = 1
 
 ### Result
 ```bash
-15.0509352684021
+11.190160989761353
                 a          b  simulation  subset  run  substep  timestep
 0        1.000000        2.0           0       0    1        0         0
 1        0.540302        2.0           0       0    1        1         1
@@ -185,8 +185,8 @@ SubsetIDs: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
 Ns       : [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
 ExpIDs   : [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
 Execution Mode: parallelized
-Total execution time: 66.56s
-66.59736394882202
+Total execution time: 68.48s
+68.51003003120422
                 a          b  simulation  subset  run  substep  timestep
 0        1.000000        2.0           0       0    1        0         0
 1        0.540302        2.0           0       0    1        1         1
@@ -202,8 +202,8 @@ Total execution time: 66.56s
 
 [2000010 rows x 7 columns]
 
-radCAD took 15.0509352684021 seconds
-cadCAD took 66.59736394882202 seconds
+radCAD took 11.190160989761353 seconds
+cadCAD took 68.51003003120422 seconds
 Simulation output dataframes are carbon copies
-Rust is 4.424799041467966X faster than Python
+Rust is 6.122345343725507X faster than Python
 ```
