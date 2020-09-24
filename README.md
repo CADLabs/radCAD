@@ -1,13 +1,20 @@
 # radCAD
 A [cadCAD](https://cadcad.org/) implementation in Rust, using PyO3 to generate Rust bindings for Python to be used as a native Python module. The performance and expressiveness of Rust, with the utility of the Python data-science stack.
 
+See https://github.com/cadCAD-org/cadCAD
+
 Goals:
 * simple API for ease of use
 * performance driven (more speed = more experiments, larger parameter sweeps, in less time)
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
 
-See https://github.com/cadCAD-org/cadCAD
+```bash
+radCAD took 11.190160989761353 seconds
+cadCAD took 68.51003003120422 seconds
+Simulation output dataframes are carbon copies
+Rust is 6.122345343725507X faster than Python
+```
 
 ## Features
 
@@ -93,13 +100,6 @@ df = pd.DataFrame(data)
 ## Benchmark
 
 **Note:** Not conclusive, needs multiple runs and averages taken.
-
-```bash
-radCAD took 15.0509352684021 seconds
-cadCAD took 66.59736394882202 seconds
-Simulation output dataframes are carbon copies
-Rust is 4.424799041467966X faster than Python
-```
 
 See `benchmark.py` and `benchmark.ipynb`.
 
