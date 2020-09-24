@@ -3,8 +3,7 @@ use pyo3::prelude::*;
 use pyo3::types::{IntoPyDict, PyDict, PyList, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
-use std::collections::HashMap;
-
+// use std::collections::HashMap;
 
 #[pymodule]
 fn rad_cad(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -20,14 +19,18 @@ fn rad_cad(_py: Python, m: &PyModule) -> PyResult<()> {
 struct Model {
     initial_state: PyObject,
     psubs: PyObject,
-    params: PyObject
+    params: PyObject,
 }
 
 #[pymethods]
 impl Model {
     #[new]
     fn new(initial_state: PyObject, psubs: PyObject, params: PyObject) -> Self {
-        Model { initial_state, psubs, params }
+        Model {
+            initial_state,
+            psubs,
+            params,
+        }
     }
 }
 
@@ -36,7 +39,7 @@ impl Model {
 struct Simulation {
     model: Model,
     timesteps: usize,
-    runs: usize
+    runs: usize,
 }
 
 #[pymethods]
@@ -44,14 +47,16 @@ impl Simulation {
     #[new]
     #[args(timesteps = "100", runs = "1")]
     fn new(timesteps: usize, runs: usize, model: Model) -> Self {
-        Simulation { timesteps, runs, model }
+        Simulation {
+            timesteps,
+            runs,
+            model,
+        }
     }
 }
 
 #[pyfunction]
-fn run(
-    simulations: &PyList
-) -> PyResult<PyObject> {
+fn run(simulations: &PyList) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
     let py = gil.python();
     let result: &PyList = PyList::empty(py);
@@ -91,7 +96,16 @@ fn run(
                 result
                     .call_method(
                         "extend",
-                        (single_run(py, simulation_index, timesteps, run, 0, initial_state, psubs, params)?,),
+                        (single_run(
+                            py,
+                            simulation_index,
+                            timesteps,
+                            run,
+                            0,
+                            initial_state,
+                            psubs,
+                            params,
+                        )?,),
                         None,
                     )
                     .unwrap();
@@ -152,13 +166,16 @@ fn single_run(
                                 result,
                                 substate,
                                 reduce_signals(
+                                    py,
                                     params,
                                     substep,
                                     result,
                                     substate,
                                     psub.cast_as::<PyDict>()?,
                                 )
-                                .into_py_dict(py)
+                                .unwrap()
+                                .extract::<&PyDict>(py)
+                                .unwrap()
                                 .clone(),
                             ),
                             None,
@@ -196,7 +213,7 @@ fn single_run(
 fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
     let param_sweep = PyList::empty(py);
     let mut max_len = 0;
-    
+
     for value in params.values() {
         if value.len()? > max_len {
             max_len = value.len()?;
@@ -220,13 +237,14 @@ fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
 }
 
 fn reduce_signals(
+    py: Python,
     params: &PyDict,
     substep: usize,
     result: &PyList,
     substate: &PyDict,
     psub: &PyDict,
-) -> HashMap<String, f64> {
-    let mut policy_results = Vec::<HashMap<String, f64>>::with_capacity(psub.len());
+) -> PyResult<PyObject> {
+    let mut policy_results = Vec::<&PyDict>::with_capacity(psub.len());
     for (_var, function) in psub
         .get_item("policies")
         .expect("Get policies failed")
@@ -242,25 +260,30 @@ fn reduce_signals(
         );
     }
 
-    match policy_results.len() {
-        0 => HashMap::new(),
+    let result: &PyDict = match policy_results.len() {
+        0 => PyDict::new(py),
         1 => policy_results.last().unwrap().clone(),
-        _ => policy_results
-            .iter_mut()
-            .fold(HashMap::new(), |mut acc, a| {
-                for (key, value) in a {
-                    match acc.get_mut(&key.to_string()) {
-                        Some(value_) => {
-                            *value_ += *value;
-                        }
-                        None => {
-                            acc.insert(key.to_string(), *value);
-                        }
+        _ => policy_results.iter().fold(PyDict::new(py), |acc, a| {
+            for (key, value) in a.iter() {
+                match acc.get_item(key) {
+                    Some(value_) => {
+                        acc.set_item(
+                            key,
+                            value_
+                                .call_method("__add__", (value,), None)
+                                .expect("reduce_signals"),
+                        )
+                        .expect("reduce_signals");
+                    }
+                    None => {
+                        acc.set_item(key, value).expect("reduce_signals");
                     }
                 }
-                acc
-            }),
-    }
+            }
+            acc
+        }),
+    };
+    Ok(result.into())
 }
 
 // #[cfg(test)]
