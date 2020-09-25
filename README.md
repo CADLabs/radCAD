@@ -90,18 +90,33 @@ data = rc.run([simulation_1, simulation_2])
 df = pd.DataFrame(data)
 ```
 
-## Benchmark
+## Benchmarking
 
-**Note:** Not conclusive, needs multiple runs and averages taken.
+### 1. `100_000` timesteps, `5` runs, `5` benchmark rounds
 
 ```bash
-radCAD took 15.0509352684021 seconds
-cadCAD took 66.59736394882202 seconds
-Simulation output dataframes are carbon copies
-Rust is 4.424799041467966X faster than Python
+python3 -m pytest tests/benchmark_test.py
+
+============================================================================================ test session starts ============================================================================================
+platform darwin -- Python 3.8.5, pytest-6.0.2, py-1.9.0, pluggy-0.13.1
+benchmark: 3.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/_/workspace/radCAD
+plugins: benchmark-3.2.3
+collected 2 items
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
 ```
 
-See `benchmark.py` and `benchmark.ipynb`.
+| Name (time in s) | Min | Max | Mean | StdDev | Median | IQR | Outliers | OPS | Rounds | Iterations |
+| ---              | --- | --- | ---  | ---    | ---    | --- | ---      | --- | ---    | ---        |
+| test_benchmark_radcad  |   11.6412 (1.0)   |   13.0923 (1.0)   |   12.4871 (1.0)   |   0.5904 (1.37)   |  12.7650 (1.0)    |  0.8761 (2.21)     |     2;0 | 0.0801 (1.0)      |     5     |      1 |
+| test_benchmark_cadcad  |   57.3148 (4.92)  |   58.4830 (4.47)  |   58.0262 (4.65)  |   0.4324 (1.0)    |  58.0742 (4.55)   |  0.3960 (1.0)      |     2;0 | 0.0172 (0.22)     |     5     |      1 |
+
+### 2. `100_000` timesteps, `5` A/B models
+
+See `benchmark.py`
 
 ```python
 import math
@@ -151,7 +166,6 @@ TIMESTEPS = 100_000
 RUNS = 1
 ```
 
-### Result
 ```bash
 11.190160989761353
                 a          b  simulation  subset  run  substep  timestep
