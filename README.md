@@ -64,6 +64,12 @@ data = rc.run([simulation_1, simulation_2])
 800003  0.003162  1000002.0           1       1    1        2    100000
 ```
 
+## Installation
+
+```bash
+pip install radCAD
+```
+
 ## Development
 
 ```bash
@@ -81,8 +87,8 @@ python3 -m unittest tests/integration_test.py
 ## Use
 
 ```python
-import output.rad_cad as rc
-from output.rad_cad import Model, Simulation
+import radCAD as rc
+from radCAD import Model, Simulation
 
 TIMESTEPS = 100_000
 RUNS = 1
