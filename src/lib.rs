@@ -1,6 +1,9 @@
+#![allow(non_snake_case)]
+#![allow(clippy::too_many_arguments)]
+
 use pyo3::exceptions::TypeError;
 use pyo3::prelude::*;
-use pyo3::types::{IntoPyDict, PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
 // use std::collections::HashMap;
@@ -73,7 +76,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
         let param_sweep: &PyList = param_sweep_result.cast_as::<PyList>(py)?;
 
         for run in 0..runs {
-            if param_sweep.len() > 0 {
+            if !param_sweep.is_empty() {
                 for (subset, param_set) in param_sweep.iter().enumerate() {
                     result
                         .call_method(
@@ -174,9 +177,9 @@ fn single_run(
                                     psub.cast_as::<PyDict>()?,
                                 )
                                 .unwrap()
+                                .clone()
                                 .extract::<&PyDict>(py)
-                                .unwrap()
-                                .clone(),
+                                .unwrap(),
                             ),
                             None,
                         )?
@@ -262,7 +265,7 @@ fn reduce_signals(
 
     let result: &PyDict = match policy_results.len() {
         0 => PyDict::new(py),
-        1 => policy_results.last().unwrap().clone(),
+        1 => policy_results.last().clone().unwrap(),
         _ => policy_results.iter().fold(PyDict::new(py), |acc, a| {
             for (key, value) in a.iter() {
                 match acc.get_item(key) {
