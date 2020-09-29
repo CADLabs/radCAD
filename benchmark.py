@@ -47,8 +47,8 @@ psubs = [
 TIMESTEPS = 100_000
 RUNS = 1
 
-import output.rad_cad as rc
-from output.rad_cad import Model, Simulation
+import radCAD as rc
+from radCAD import Model, Simulation
 
 model = Model(initial_state=states, psubs=psubs, params=params)
 simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)

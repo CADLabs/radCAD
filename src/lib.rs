@@ -6,7 +6,7 @@ use std::convert::TryFrom;
 // use std::collections::HashMap;
 
 #[pymodule]
-fn rad_cad(_py: Python, m: &PyModule) -> PyResult<()> {
+fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Model>()?;
     m.add_class::<Simulation>()?;
     m.add_wrapped(wrap_pyfunction!(run))?;
