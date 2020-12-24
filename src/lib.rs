@@ -6,13 +6,15 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
-// use std::collections::HashMap;
+
 
 #[pymodule]
 fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Model>()?;
     m.add_class::<Simulation>()?;
     m.add_wrapped(wrap_pyfunction!(run))?;
+    m.add_wrapped(wrap_pyfunction!(single_run))?;
+    m.add_wrapped(wrap_pyfunction!(generate_parameter_sweep))?;
 
     Ok(())
 }
@@ -20,8 +22,11 @@ fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
 #[pyclass]
 #[derive(Debug, Clone)]
 struct Model {
+    #[pyo3(get, set)]
     initial_state: PyObject,
+    #[pyo3(get, set)]
     psubs: PyObject,
+    #[pyo3(get, set)]
     params: PyObject,
 }
 
@@ -40,8 +45,11 @@ impl Model {
 #[pyclass]
 #[derive(Debug, Clone)]
 struct Simulation {
+    #[pyo3(get, set)]
     model: Model,
+    #[pyo3(get, set)]
     timesteps: usize,
+    #[pyo3(get, set)]
     runs: usize,
 }
 
@@ -118,6 +126,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
     Ok(result.into())
 }
 
+#[pyfunction]
 fn single_run(
     py: Python,
     simulation: usize,
@@ -213,6 +222,7 @@ fn single_run(
     Ok(result.into())
 }
 
+#[pyfunction]
 fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
     let param_sweep = PyList::empty(py);
     let mut max_len = 0;
