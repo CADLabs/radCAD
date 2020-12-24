@@ -1,3 +1,4 @@
+radCAD==0.1.1
 cadCAD==0.4.23
 matplotlib==3.3.0
 jupyterlab==2.2.0
@@ -6,3 +7,5 @@ ipykernel
 ipywidgets>=7.5
 plotly==4.9.0
 scipy
+pytest==6.2.1
+pytest-benchmark==3.2.3
