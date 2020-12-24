@@ -3,7 +3,7 @@ release:
 
 release-macos:
 	cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup
-	cp target/release/librad_cad.dylib output/rad_cad.so
+	cp target/release/libradCAD.dylib output/radCAD.so
 
 test:
 	python3 -m unittest tests/integration_test.py
