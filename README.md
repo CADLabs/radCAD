@@ -47,10 +47,10 @@ simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 data = run([simulation_1, simulation_2])
 ```
 
-* [x] Multiple backends: 
+* [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
+* [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 
-* [x] cadCAD compatibility
-* [x] cadCAD simulation data structure
+* [x] cadCAD compatibility and familiar data structure
 
 ```bash
                a          b  simulation  subset  run  substep  timestep
