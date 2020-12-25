@@ -23,6 +23,7 @@ class Backend(Enum):
 
 
 def run(simulations, processes=cpu_count, backend=Backend.DEFAULT):
+    simulations = [simulations] if isinstance(simulations, core.Simulation) else simulations
     if not isinstance(backend, Backend):
         raise Exception(f"Execution backend must be one of {Backend.list()}")
     configs = [
