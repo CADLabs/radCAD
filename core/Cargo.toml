@@ -1,6 +1,6 @@
 [package]
-name = "radCAD"
-version = "0.1.1"
+name = "radCAD-core"
+version = "0.1.2"
 edition = "2018"
 authors = ["Benjamin Scholtz"]
 license-file = "./LICENSE"

@@ -9,3 +9,5 @@ plotly==4.9.0
 scipy
 pytest==6.2.1
 pytest-benchmark==3.2.3
+black
+maturin

@@ -5,8 +5,8 @@ import sys
 
 import pandas as pd
 
-import output.rad_cad as rc
-from output.rad_cad import Model, Simulation
+from radcad import Model, Simulation
+from radcad.engine import run
 
 from cadCAD.configuration.utils import config_sim
 from cadCAD.configuration import Experiment
@@ -14,7 +14,7 @@ from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
 
-from test_cases import basic
+from tests.test_cases import basic
 
 states = basic.states
 psubs = basic.psubs
@@ -27,7 +27,7 @@ class TestLongRunningSimulation(unittest.TestCase):
     def test_long_running_simulation_radcad(self):
         model = Model(initial_state=states, psubs=psubs, params=params)
         simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-        rc.run([simulation])
+        run([simulation])
 
         self.assertTrue(True)
 

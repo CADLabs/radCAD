@@ -2,8 +2,8 @@ import pytest
 
 import pandas as pd
 
-import output.rad_cad as rc
-from output.rad_cad import Model, Simulation
+from radcad import Model, Simulation
+from radcad.engine import run
 
 from cadCAD.configuration.utils import config_sim
 from cadCAD.configuration import Experiment
@@ -11,7 +11,7 @@ from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
 
-from test_cases import benchmark_model
+from tests.test_cases import benchmark_model
 
 states = benchmark_model.states
 psubs = benchmark_model.psubs
@@ -46,7 +46,7 @@ def test_benchmark_cadcad(benchmark):
     benchmark.pedantic(cadcad_simulation, iterations=1, rounds=5)
 
 def radcad_simulation():
-    data_radcad = rc.run([simulation_radcad])
+    data_radcad = run([simulation_radcad])
 
 def cadcad_simulation():
     data_cadcad, tensor_field, sessions = simulation_cadcad.execute()
