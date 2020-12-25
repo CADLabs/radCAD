@@ -1,4 +1,6 @@
 # radCAD
+**NEW:** radCAD now has support for parallel processing using `multiprocessing` (default) and `pathos` backends, as well as remote execution in a cluster (AWS, GCP, Kubernetes, see [Ray - Fast and Simple Distributed Computing](https://ray.io/)) using the `ray` backend! Documentation is a WIP, but there is a passing test in `tests/test_backend.py` for referrence.
+
 A [cadCAD](https://cadcad.org/) implementation in Rust, using PyO3 to generate Rust bindings for Python to be used as a native Python module. The performance and expressiveness of Rust, with the utility of the Python data-science stack.
 
 See https://github.com/cadCAD-org/cadCAD
@@ -43,7 +45,7 @@ model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
 simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
 simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 
-data = rc.run([simulation_1, simulation_2])
+data = run([simulation_1, simulation_2])
 ```
 
 * [x] cadCAD compatibility
