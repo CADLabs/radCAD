@@ -73,33 +73,6 @@ data = run([simulation_1, simulation_2])
 pip install radcad
 ```
 
-## Development
-
-Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/):
-```bash
-cd core/
-nix-shell
-make release
-# or
-make release-macos
-```
-
-Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
-```bash
-poetry --help
-poetry install
-poetry env use python3
-poetry shell
-```
-
-## Testing
-
-```bash
-poetry shell
-python3 -m pytest
-python3 -m unittest
-```
-
 ## Use
 
 ```python
@@ -133,7 +106,7 @@ ray exec cluster/aws/minimal.yaml 'echo "hello world"'
 ```
 
 Change the execution backend to `RAY_REMOTE`:
-```bash
+```python
 from radcad.engine import run, Backend
 import ray
 
@@ -146,6 +119,33 @@ result = run(simulation, backend=Backend.RAY_REMOTE)
 Finally, spin down the cluster:
 ```bash
 ray down cluster/ray-aws.yaml
+```
+
+## Development
+
+Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/):
+```bash
+cd core/
+nix-shell
+make release
+# or
+make release-macos
+```
+
+Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
+```bash
+poetry --help
+poetry install
+poetry env use python3
+poetry shell
+```
+
+## Testing
+
+```bash
+poetry shell
+python3 -m pytest
+python3 -m unittest
 ```
 
 ## Benchmarking
