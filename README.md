@@ -30,8 +30,8 @@ params = {
 * [x] Monte Carlo runs
 
 ```python
-RUNS = 100
-Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
+RUNS = 100 # Set to the number of Monte Carlo Runs
+Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 ```
 
 * [x] A/B tests
@@ -43,8 +43,11 @@ model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
 simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
 simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 
-data = rc.run([simulation_1, simulation_2])
+# Simulate any number of models in parallel
+data = run([simulation_1, simulation_2])
 ```
+
+* [x] Multiple backends: 
 
 * [x] cadCAD compatibility
 * [x] cadCAD simulation data structure
@@ -67,40 +70,49 @@ data = rc.run([simulation_1, simulation_2])
 ## Installation
 
 ```bash
-pip install radCAD
+pip install radcad
 ```
 
 ## Development
 
+Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/):
 ```bash
+cd core/
+nix-shell
 make release
 # or
 make release-macos
 ```
 
+Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
+```bash
+poetry --help
+poetry install
+poetry env use python3
+poetry shell
+```
+
 ## Testing
 
 ```bash
-python3 -m unittest tests/integration_test.py
+poetry shell
+python3 -m pytest
+python3 -m unittest
 ```
 
 ## Use
 
 ```python
-import radCAD as rc
-from radCAD import Model, Simulation
+from radcad import Model, Simulation
+from radcad.engine import run
 
-TIMESTEPS = 100_000
-RUNS = 1
+model = Model(initial_state=initial_state, psubs=psubs, params=params)
+simulation = Simulation(model=model, timesteps=100_000, runs=1)
 
-model_a = Model(initial_state=states_a, psubs=psubs_a, params=params_a)
-model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
+result = run(simulation)
+# Or, multiple simulations: run([simulation_1, simulation_2, simulation_3])
 
-simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
-simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
-
-data = rc.run([simulation_1, simulation_2])
-df = pd.DataFrame(data)
+df = pd.DataFrame(result)
 ```
 
 ## Benchmarking
@@ -128,7 +140,7 @@ Legend:
 
 ### 2. `100_000` timesteps, `5` A/B models
 
-See `benchmark.py`
+See `benchmarks/benchmark.py`
 
 ```python
 import math
