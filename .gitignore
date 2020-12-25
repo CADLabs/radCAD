@@ -153,3 +153,4 @@ cython_debug/
 # Misc.
 .vscode/
 scratchpad**
+.envrc

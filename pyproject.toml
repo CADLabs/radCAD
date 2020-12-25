@@ -14,6 +14,7 @@ python = "^3.8"
 pathos = "^0.2.7"
 ray = "^1.1.0"
 pandas = "^1.1.5"
+boto3 = "^1.16.43"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

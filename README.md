@@ -115,6 +115,39 @@ result = run(simulation)
 df = pd.DataFrame(result)
 ```
 
+### Remote Cluster Execution (using Ray)
+
+Export the following AWS credentials (or see Ray documentation for alternative providers):
+```bash
+BACKEND=AWS
+AWS_ACCESS_KEY_ID=***
+AWS_SECRET_ACCESS_KEY=***
+```
+
+Start a new cluster (or use existing):
+```bash
+# Cluster config: single m5.large EC2 instance, us-west-2 region
+ray up cluster/aws/minimal.yaml
+# Test the connection
+ray exec cluster/aws/minimal.yaml 'echo "hello world"'
+```
+
+Change the execution backend to `RAY_REMOTE`:
+```bash
+from radcad.engine import run, Backend
+import ray
+
+# Connect to cluster head
+ray.init(address='***:6379', _redis_password='***')
+
+result = run(simulation, backend=Backend.RAY_REMOTE)
+```
+
+Finally, spin down the cluster:
+```bash
+ray down cluster/ray-aws.yaml
+```
+
 ## Benchmarking
 
 ### 1. `100_000` timesteps, `5` runs, `5` benchmark rounds

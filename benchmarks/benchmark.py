@@ -45,7 +45,7 @@ psubs = [
 ]
 
 TIMESTEPS = 100_000
-RUNS = 10
+RUNS = 2
 
 from radcad import Model, Simulation
 from radcad.engine import run
@@ -67,14 +67,11 @@ if __name__ == '__main__':
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
     start = time.time()
-    # data_rc = rc.run([simulation, simulation, simulation, simulation, simulation])
-    # simulations = [simulation, simulation, simulation, simulation, simulation]
-    simulations = [simulation]
+    simulations = [simulation, simulation]
     data_rc = run(simulations)
     end = time.time()
 
     duration_radcad = end - start
-    print(duration_radcad)
 
     df_radcad = pd.DataFrame(data_rc)
     print(df_radcad)
@@ -94,32 +91,11 @@ if __name__ == '__main__':
         sim_configs = c
     )
 
-    # exp.append_configs(
-    #     initial_state = states,
-    #     partial_state_update_blocks = psubs,
-    #     sim_configs = c
-    # )
-
-    # exp.append_configs(
-    #     initial_state = states,
-    #     partial_state_update_blocks = psubs,
-    #     sim_configs = c
-    # )
-
-    # exp.append_configs(
-    #     initial_state = states,
-    #     partial_state_update_blocks = psubs,
-    #     sim_configs = c
-    # )
-
-    # exp.append_configs(
-    #     initial_state = states,
-    #     partial_state_update_blocks = psubs,
-    #     sim_configs = c
-    # )
-
-    # print(len(configs))
-    # print(configs)
+    exp.append_configs(
+        initial_state = states,
+        partial_state_update_blocks = psubs,
+        sim_configs = c
+    )
 
     exec_mode = ExecutionMode()
     local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
@@ -130,12 +106,11 @@ if __name__ == '__main__':
     end = time.time()
 
     duration_cadcad = end - start
-    print(duration_cadcad)
 
     df_cadcad = pd.DataFrame(data)
     print(df_cadcad)
 
-    assert_frame_equal(df_radcad, df_cadcad)
+    assert_frame_equal(df_radcad.drop(['simulation', 'run'], axis=1), df_cadcad.drop(['simulation', 'run'], axis=1))
 
     print()
     print(f'radCAD took {duration_radcad} seconds')

@@ -19,11 +19,17 @@ class Backend(Enum):
     DEFAULT = 0
     MULTIPROCESSING = 1
     RAY = 2
-    PATHOS = 3
+    RAY_REMOTE = 3
+    PATHOS = 4
 
 
 def run(simulations, processes=cpu_count, backend=Backend.DEFAULT):
     simulations = [simulations] if isinstance(simulations, core.Simulation) else simulations
+    print(f'''
+    Simulation count: {len(simulations)}
+    Backend: {backend}
+    CPU count: {processes}
+    ''')
     if not isinstance(backend, Backend):
         raise Exception(f"Execution backend must be one of {Backend.list()}")
     configs = [
@@ -38,8 +44,11 @@ def run(simulations, processes=cpu_count, backend=Backend.DEFAULT):
     ]
     result = []
 
-    if backend == Backend.RAY:
-        ray.init()
+    if backend in [Backend.RAY, Backend.RAY_REMOTE]:
+        if backend == Backend.RAY_REMOTE:
+            print("Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)")
+        else:
+            ray.init(num_cpus=processes, ignore_reinit_error=True)
 
         @ray.remote
         def proxy_single_run_ray(args):
