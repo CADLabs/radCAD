@@ -18,7 +18,7 @@ install:
 #  -
 
 script:
-  - poetry run python3 -m pytest --cov=radcad tests
+  - poetry run python3 -m pytest tests # --cov=radcad
 
-after_success:
-  - poetry run coveralls
+# after_success:
+  # - poetry run coveralls
