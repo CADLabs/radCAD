@@ -5,6 +5,7 @@ python:
 
 before_install:
   - sh <(curl -L https://nixos.org/nix/install)
+  - . /home/travis/.nix-profile/etc/profile.d/nix.sh
   - pip install poetry
 
 install:
