@@ -1,5 +1,6 @@
 release:
 	cargo build --release
+	cp target/release/libradCAD.dylib output/radCAD.so
 
 release-macos:
 	cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup

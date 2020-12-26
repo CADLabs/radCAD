@@ -4,14 +4,18 @@ python:
   - "3.8"
 
 before_install:
+  - sh <(curl -L https://nixos.org/nix/install) --daemon
   - pip install poetry
 
 install:
   - poetry install
 
-# before_script:
-#  - poetry shell
+before_script:
+ - nix-shell
 
 script:
-  - poetry run python3 -m pytest tests
+  - make release
+  - poetry run python3 -m pytest --cov=radcad tests
 
+after_success:
+  - poetry run coveralls
