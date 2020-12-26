@@ -3,10 +3,10 @@ name = "radcad"
 version = "0.1.1"
 description = ""
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
-include = ["core/output/radCAD.so"]
+include = ["core/output/radCAD.*"]
 packages = [
     { include = "radcad" },
-    { include = "core/output/radCAD.so" },
+    { include = "core/output/radCAD.*" },
 ]
 
 [tool.poetry.dependencies]

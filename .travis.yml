@@ -8,7 +8,7 @@ before_install:
   - . /home/travis/.nix-profile/etc/profile.d/nix.sh
   - pip install poetry
   - pushd core
-  - nix-shell --command "make setup && make release"
+  - nix-shell --command "make setup && make release-linux"
   - popd
 
 install:

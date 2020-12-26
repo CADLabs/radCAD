@@ -2,9 +2,13 @@ setup:
 	rustup install stable
 	rustup default stable
 
-release:
+release-linux:
 	cargo build --release
-	cp target/release/libradCAD.dylib output/radCAD.so
+	cp target/release/libradCAD.so output/radCAD.so
+
+release-windows:
+	cargo build --release
+	cp target/release/libradCAD.dll output/radCAD.pyd
 
 release-macos:
 	cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup
