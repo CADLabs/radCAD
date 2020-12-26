@@ -1,5 +1,6 @@
 setup:
-	setup
+	rustup install stable
+	rustup default stable
 
 release:
 	cargo build --release
