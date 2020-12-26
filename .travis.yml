@@ -10,11 +10,12 @@ before_install:
 install:
   - poetry install
 
-before_script:
- - nix-shell
- - make setup
+# before_script:
+#  -
 
 script:
+  - nix-shell
+  - make setup
   - make release
   - poetry run python3 -m pytest --cov=radcad tests
 
