@@ -15,7 +15,9 @@ install:
 #  -
 
 script:
-  - nix-shell core/shell.nix --command "make setup && make release"
+  - pushd core
+  - nix-shell --command "make setup && make release"
+  - popd core
   - poetry run python3 -m pytest --cov=radcad tests
 
 after_success:
