@@ -126,9 +126,9 @@ Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/
 ```bash
 cd core/
 nix-shell
-make release
-# or
-make release-macos
+make setup
+make release # For Linux
+make release-macos # For macOS
 ```
 
 Set up and enter the Python environment with [Poetry](https://python-poetry.org/):

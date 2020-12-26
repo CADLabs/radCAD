@@ -7,6 +7,9 @@ before_install:
   - sh <(curl -L https://nixos.org/nix/install)
   - . /home/travis/.nix-profile/etc/profile.d/nix.sh
   - pip install poetry
+  - pushd core
+  - nix-shell --command "make setup && make release"
+  - popd
 
 install:
   - poetry install
@@ -15,9 +18,6 @@ install:
 #  -
 
 script:
-  - pushd core
-  - nix-shell --command "make setup && make release"
-  - popd
   - poetry run python3 -m pytest --cov=radcad tests
 
 after_success:
