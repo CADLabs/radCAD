@@ -13,6 +13,10 @@ Goals:
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
 
+## What is radCAD?
+
+radCAD extends on cadCAD, a framework for dynamical systems modelling & simulation. See cadcad.education/ for the most comprehensive cadCAD beginner course.
+
 ## Features
 
 * [x] Parameter sweeps
