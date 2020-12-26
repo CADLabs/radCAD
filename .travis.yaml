@@ -9,9 +9,9 @@ before_install:
 install:
   - poetry install
 
-before_script:
-  - poetry shell
+# before_script:
+#  - poetry shell
 
 script:
-  - python3 -m pytest
+  - poetry run python3 -m pytest tests
 

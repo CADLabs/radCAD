@@ -11,7 +11,7 @@ RAY_ADDRESS = os.getenv('RAY_ADDRESS')
 RAY_REDIS_PASSWORD = os.getenv('RAY_REDIS_PASSWORD')
 
 
-@pytest.mark.skip(reason="Requires AWS credentials")
+@pytest.mark.skipif(not RAY_ADDRESS or not RAY_REDIS_PASSWORD, reason="requires AWS credentials")
 def test_run_ray_remote():
     states = basic.states
     state_update_blocks = basic.state_update_blocks
