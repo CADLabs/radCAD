@@ -1,3 +1,6 @@
+setup:
+	setup
+
 release:
 	cargo build --release
 	cp target/release/libradCAD.dylib output/radCAD.so

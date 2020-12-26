@@ -4,7 +4,7 @@ python:
   - "3.8"
 
 before_install:
-  - sh <(curl -L https://nixos.org/nix/install) --daemon
+  - sh <(curl -L https://nixos.org/nix/install)
   - pip install poetry
 
 install:
@@ -12,6 +12,7 @@ install:
 
 before_script:
  - nix-shell
+ - make setup
 
 script:
   - make release
