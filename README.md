@@ -15,7 +15,7 @@ Goals:
 
 ## What is radCAD?
 
-radCAD extends on cadCAD, a framework for dynamical systems modelling & simulation. See cadcad.education/ for the most comprehensive cadCAD beginner course.
+radCAD extends on cadCAD, a framework for dynamical systems modelling & simulation. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
 ## Features
 
