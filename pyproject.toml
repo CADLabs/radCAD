@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 include = ["core/output/radCAD.so"]

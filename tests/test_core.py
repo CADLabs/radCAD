@@ -1,5 +1,9 @@
+import radcad.core as core
 from radcad.core import generate_parameter_sweep
 
+from radcad import Model, Simulation
+from radcad.engine import run
+from tests.test_cases import basic
 
 def test_generate_parameter_sweep():
     params = {
@@ -23,3 +27,14 @@ def test_generate_parameter_sweep():
     }
     param_sweep = generate_parameter_sweep(params)
     assert param_sweep == [{'a': 0, 'b': 0, 'c': 0}, {'a': 1, 'b': 1, 'c': 0}, {'a': 2, 'b': 1, 'c': 0}]
+
+def test_run():
+    states = basic.states
+    psubs = basic.psubs
+    params = basic.params
+    TIMESTEPS = basic.TIMESTEPS
+    RUNS = basic.RUNS
+
+    model = Model(initial_state=states, psubs=psubs, params=params)
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    assert core.run([simulation]) == run([simulation])

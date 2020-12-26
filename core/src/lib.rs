@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(clippy::too_many_arguments)]
 
-use pyo3::exceptions::TypeError;
+use pyo3::exceptions::{KeyError, TypeError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::wrap_pyfunction;
@@ -169,6 +169,11 @@ fn single_run(
                 .cast_as::<PyDict>()
                 .expect("Get variables failed")
             {
+                if !initial_state.contains(state)? {
+                    return Err(PyErr::new::<KeyError, _>(
+                        "Invalid state key in partial state update block",
+                    ));
+                };
                 let state_update: &PyTuple = match function.is_callable() {
                     true => function
                         .call(
@@ -201,10 +206,15 @@ fn single_run(
                 };
                 let state_key = state_update.get_item(0);
                 let state_value = state_update.get_item(1);
+                if !initial_state.contains(state_key)? {
+                    return Err(PyErr::new::<KeyError, _>(
+                        "Invalid state key returned from state update function",
+                    ));
+                };
                 match state == state_key {
                     true => substate.set_item(state_key, state_value).unwrap(),
                     false => {
-                        return Err(PyErr::new::<TypeError, _>(
+                        return Err(PyErr::new::<KeyError, _>(
                             "PSUB state key doesn't match function state key",
                         ))
                     }
