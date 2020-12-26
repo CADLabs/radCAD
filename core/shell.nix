@@ -8,8 +8,8 @@ stdenv.mkDerivation {
   buildInputs = [
     nixpkgs.latest.rustChannels.stable.rust
     rustfmt
-    #rustup
-    #cargo 
+    rustup
+    cargo
   ];
   shellHook = ''
     alias help="
