@@ -14,12 +14,12 @@ from cadCAD import configs
 from tests.test_cases import basic
 
 states = basic.states
-psubs = basic.psubs
+state_update_blocks = basic.state_update_blocks
 params = basic.params
 TIMESTEPS = 10_000
 RUNS = 10
 
-model = Model(initial_state=states, psubs=psubs, params=params)
+model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
 simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
 def test_benchmark_radcad(benchmark):

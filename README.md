@@ -37,8 +37,8 @@ Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 * [x] A/B tests
 
 ```python
-model_a = Model(initial_state=states_a, psubs=psubs_a, params=params_a)
-model_b = Model(initial_state=states_b, psubs=psubs_b, params=params_b)
+model_a = Model(initial_state=states_a, state_update_blocks=state_update_blocks_a, params=params_a)
+model_b = Model(initial_state=states_b, state_update_blocks=state_update_blocks_b, params=params_b)
 
 simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
 simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
@@ -106,7 +106,7 @@ python3 -m unittest
 from radcad import Model, Simulation
 from radcad.engine import run
 
-model = Model(initial_state=initial_state, psubs=psubs, params=params)
+model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation = Simulation(model=model, timesteps=100_000, runs=1)
 
 result = run(simulation)
@@ -198,7 +198,7 @@ states = {
     'b': 2.0
 }
 
-psubs = [
+state_update_blocks = [
     {
         'policies': {},
         'variables': {

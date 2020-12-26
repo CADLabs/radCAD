@@ -14,12 +14,12 @@ from cadCAD import configs
 from tests.test_cases import benchmark_model
 
 states = benchmark_model.states
-psubs = benchmark_model.psubs
+state_update_blocks = benchmark_model.state_update_blocks
 params = benchmark_model.params
 TIMESTEPS = benchmark_model.TIMESTEPS
 RUNS = benchmark_model.RUNS
 
-model = Model(initial_state=states, psubs=psubs, params=params)
+model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
 simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
 c = config_sim({
@@ -31,7 +31,7 @@ c = config_sim({
 exp = Experiment()
 exp.append_configs(
     initial_state = states,
-    partial_state_update_blocks = psubs,
+    partial_state_update_blocks = state_update_blocks,
     sim_configs = c
 )
 

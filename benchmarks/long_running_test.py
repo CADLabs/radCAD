@@ -17,7 +17,7 @@ from cadCAD import configs
 from tests.test_cases import basic
 
 states = basic.states
-psubs = basic.psubs
+state_update_blocks = basic.state_update_blocks
 params = basic.params
 TIMESTEPS = sys.maxsize
 RUNS = 1
@@ -25,7 +25,7 @@ RUNS = 1
 class TestLongRunningSimulation(unittest.TestCase):
 
     def test_long_running_simulation_radcad(self):
-        model = Model(initial_state=states, psubs=psubs, params=params)
+        model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
         simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
         run([simulation])
 
@@ -42,7 +42,7 @@ class TestLongRunningSimulation(unittest.TestCase):
         exp = Experiment()
         exp.append_configs(
             initial_state = states,
-            partial_state_update_blocks = psubs,
+            partial_state_update_blocks = state_update_blocks,
             sim_configs = c
         )
 

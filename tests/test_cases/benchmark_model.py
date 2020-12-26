@@ -21,7 +21,7 @@ states = {
     'b': 2.0
 }
 
-psubs = [
+state_update_blocks = [
     {
         'policies': {},
         'variables': {

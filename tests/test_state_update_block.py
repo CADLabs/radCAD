@@ -5,7 +5,7 @@ import pytest
 
 def test_invalid_state_update_function():
     states = basic.states
-    psubs = [
+    state_update_blocks = [
         {
             'policies': {
                 'p': basic.policy,
@@ -19,7 +19,7 @@ def test_invalid_state_update_function():
     TIMESTEPS = basic.TIMESTEPS
     RUNS = basic.RUNS
 
-    model = Model(initial_state=states, psubs=psubs, params=params)
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
     with pytest.raises(KeyError) as err:
@@ -27,7 +27,7 @@ def test_invalid_state_update_function():
 
 def test_invalid_state():
     states = basic.states
-    psubs = [
+    state_update_blocks = [
         {
             'policies': {
                 'p': basic.policy,
@@ -41,7 +41,7 @@ def test_invalid_state():
     TIMESTEPS = basic.TIMESTEPS
     RUNS = basic.RUNS
 
-    model = Model(initial_state=states, psubs=psubs, params=params)
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
     with pytest.raises(KeyError) as err:

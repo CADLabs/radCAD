@@ -25,7 +25,7 @@ struct Model {
     #[pyo3(get, set)]
     initial_state: PyObject,
     #[pyo3(get, set)]
-    psubs: PyObject,
+    state_update_blocks: PyObject,
     #[pyo3(get, set)]
     params: PyObject,
 }
@@ -33,10 +33,10 @@ struct Model {
 #[pymethods]
 impl Model {
     #[new]
-    fn new(initial_state: PyObject, psubs: PyObject, params: PyObject) -> Self {
+    fn new(initial_state: PyObject, state_update_blocks: PyObject, params: PyObject) -> Self {
         Model {
             initial_state,
-            psubs,
+            state_update_blocks,
             params,
         }
     }
@@ -77,7 +77,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
         let timesteps = simulation.timesteps;
         let runs = simulation.runs;
         let initial_state: &PyDict = simulation.model.initial_state.extract(py)?;
-        let psubs: &PyList = simulation.model.psubs.extract(py)?;
+        let state_update_blocks: &PyList = simulation.model.state_update_blocks.extract(py)?;
         let params: &PyDict = simulation.model.params.extract(py)?;
 
         let param_sweep_result = generate_parameter_sweep(py, params).unwrap();
@@ -96,7 +96,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                                 run,
                                 subset,
                                 initial_state,
-                                psubs,
+                                state_update_blocks,
                                 param_set.extract()?,
                             )?,),
                             None,
@@ -114,7 +114,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                             run,
                             0,
                             initial_state,
-                            psubs,
+                            state_update_blocks,
                             params,
                         )?,),
                         None,
@@ -134,7 +134,7 @@ fn single_run(
     run: usize,
     subset: usize,
     initial_state: &PyDict,
-    psubs: &PyList,
+    state_update_blocks: &PyList,
     params: &PyDict,
 ) -> PyResult<PyObject> {
     let result: &PyList = PyList::empty(py);
@@ -154,7 +154,7 @@ fn single_run(
         previous_state.set_item("run", run + 1).unwrap();
         previous_state.set_item("timestep", timestep + 1).unwrap();
         let substeps: &PyList = PyList::empty(py);
-        for (substep, psub) in psubs.into_iter().enumerate() {
+        for (substep, psu) in state_update_blocks.into_iter().enumerate() {
             let substate: &PyDict = match substep {
                 0 => previous_state.cast_as::<PyDict>()?.copy()?,
                 _ => substeps
@@ -163,7 +163,7 @@ fn single_run(
                     .copy()?,
             };
             substate.set_item("substep", substep + 1).unwrap();
-            for (state, function) in psub
+            for (state, function) in psu
                 .get_item("variables")
                 .expect("Get variables failed")
                 .cast_as::<PyDict>()
@@ -188,7 +188,7 @@ fn single_run(
                                     substep,
                                     result,
                                     substate,
-                                    psub.cast_as::<PyDict>()?,
+                                    psu.cast_as::<PyDict>()?,
                                 )
                                 .unwrap()
                                 .clone()
@@ -215,7 +215,7 @@ fn single_run(
                     true => substate.set_item(state_key, state_value).unwrap(),
                     false => {
                         return Err(PyErr::new::<KeyError, _>(
-                            "PSUB state key doesn't match function state key",
+                            "PSU state key doesn't match function state key",
                         ))
                     }
                 }
@@ -265,10 +265,10 @@ fn reduce_signals(
     substep: usize,
     result: &PyList,
     substate: &PyDict,
-    psub: &PyDict,
+    psu: &PyDict,
 ) -> PyResult<PyObject> {
-    let mut policy_results = Vec::<&PyDict>::with_capacity(psub.len());
-    for (_var, function) in psub
+    let mut policy_results = Vec::<&PyDict>::with_capacity(psu.len());
+    for (_var, function) in psu
         .get_item("policies")
         .expect("Get policies failed")
         .cast_as::<PyDict>()

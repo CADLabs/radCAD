@@ -35,7 +35,7 @@ def run(simulations, processes=cpu_count, backend=Backend.DEFAULT):
     configs = [
         (
             sim.model.initial_state,
-            sim.model.psubs,
+            sim.model.state_update_blocks,
             sim.model.params,
             sim.timesteps,
             sim.runs,
@@ -75,8 +75,8 @@ def proxy_single_run(args):
 
 
 def get_simulation_from_config(config):
-    states, psubs, params, timesteps, runs = config
-    model = core.Model(initial_state=states, psubs=psubs, params=params)
+    states, state_update_blocks, params, timesteps, runs = config
+    model = core.Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     return core.Simulation(model=model, timesteps=timesteps, runs=runs)
 
 
@@ -87,7 +87,7 @@ def run_stream(configs):
         timesteps = simulation.timesteps
         runs = simulation.runs
         initial_state = simulation.model.initial_state
-        psubs = simulation.model.psubs
+        state_update_blocks = simulation.model.state_update_blocks
         params = simulation.model.params
         param_sweep = core.generate_parameter_sweep(params)
 
@@ -100,7 +100,7 @@ def run_stream(configs):
                         run,
                         subset,
                         initial_state,
-                        psubs,
+                        state_update_blocks,
                         param_set,
                     )
             else:
@@ -110,6 +110,6 @@ def run_stream(configs):
                     run,
                     0,
                     initial_state,
-                    psubs,
+                    state_update_blocks,
                     params,
                 )

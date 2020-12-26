@@ -1,0 +1,17 @@
+language: python
+dist: xenial
+python:
+  - "3.8"
+
+before_install:
+  - pip install poetry
+
+install:
+  - poetry install
+
+before_script:
+  - poetry shell
+
+script:
+  - python3 -m pytest
+

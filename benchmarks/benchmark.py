@@ -23,7 +23,7 @@ states = {
     'b': 2.0
 }
 
-psubs = [
+state_update_blocks = [
     {
         'policies': {},
         'variables': {
@@ -63,7 +63,7 @@ from pandas.testing import assert_frame_equal
 if __name__ == '__main__':
     # radCAD
 
-    model = Model(initial_state=states, psubs=psubs, params=params)
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
     start = time.time()
@@ -87,13 +87,13 @@ if __name__ == '__main__':
     exp = Experiment()
     exp.append_configs(
         initial_state = states,
-        partial_state_update_blocks = psubs,
+        partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
 
     exp.append_configs(
         initial_state = states,
-        partial_state_update_blocks = psubs,
+        partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
 

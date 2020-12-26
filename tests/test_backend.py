@@ -6,12 +6,12 @@ import pandas as pd
 
 def test_backend_equality():
     states = basic.states
-    psubs = basic.psubs
+    state_update_blocks = basic.state_update_blocks
     params = basic.params
     TIMESTEPS = basic.TIMESTEPS
     RUNS = basic.RUNS
 
-    model = Model(initial_state=states, psubs=psubs, params=params)
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     
     df_multiprocessing = pd.DataFrame(run([simulation], backend=Backend.MULTIPROCESSING))
@@ -23,12 +23,12 @@ def test_backend_equality():
 
 def test_backend_single_process():
     states = basic.states
-    psubs = basic.psubs
+    state_update_blocks = basic.state_update_blocks
     params = basic.params
     TIMESTEPS = basic.TIMESTEPS
     RUNS = basic.RUNS
 
-    model = Model(initial_state=states, psubs=psubs, params=params)
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     
     processes = 1
