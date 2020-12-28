@@ -91,6 +91,13 @@ result = run(simulation)
 df = pd.DataFrame(result)
 ```
 
+### Selecting single or multi-process modes
+
+By default `radCAD` sets the number of parallel processes to the number of system CPUs less one, but this can be customized as follows:
+```python
+run(simulation, processes=1)
+```
+
 ### Remote Cluster Execution (using Ray)
 
 Export the following AWS credentials (or see Ray documentation for alternative providers):
