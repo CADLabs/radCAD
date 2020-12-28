@@ -1,5 +1,5 @@
-from radcad import Model, Simulation
-from radcad.engine import run, Backend
+from radcad import Model, Simulation, Experiment
+from radcad.engine import Backend
 from tests.test_cases import basic
 import pandas as pd
 import ray
@@ -21,11 +21,12 @@ def test_run_ray_remote():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment(simulation)
 
     if not RAY_ADDRESS or not RAY_REDIS_PASSWORD:
         assert False, "RAY_ADDRESS or RAY_REDIS_PASSWORD not set"
     ray.init(address=RAY_ADDRESS, _redis_password=RAY_REDIS_PASSWORD)
-    result = run(simulation, backend=Backend.RAY_REMOTE)
+    result = experiment.run(backend=Backend.RAY_REMOTE)
 
     df = pd.DataFrame(result)
     print(df)
