@@ -24,14 +24,14 @@ class Experiment():
             raise Exception(f"Invalid Experiment option in {kwargs}")
     
     def run(self):
-        return self.engine.run(experiment=self)
+        return self.engine._run(experiment=self)
 
     def add_simulations(self, simulations):
         if not isinstance(simulations, list):
             simulations = [simulations]
         if any(not isinstance(sim, Simulation) for sim in simulations):
             raise Exception("Invalid simulation added")
-        self.simulations = simulations
+        self.simulations.extend(simulations)
     
     def clear_simulations(self):
         cleared = True if self.simulations else False

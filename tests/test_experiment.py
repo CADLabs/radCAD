@@ -25,7 +25,9 @@ def test_experiment_init():
 
 def test_add_simulations():
     experiment = Experiment()
-    experiment.add_simulations([simulation, simulation, simulation])
+    experiment.add_simulations([simulation, simulation])
+    assert experiment.get_simulations() == [simulation, simulation]
+    experiment.add_simulations(simulation)
     assert experiment.get_simulations() == [simulation, simulation, simulation]
 
 def test_clear_simulations():
