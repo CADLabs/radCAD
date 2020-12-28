@@ -47,11 +47,11 @@ state_update_blocks = [
 TIMESTEPS = 100_000
 RUNS = 2
 
-from radcad import Model, Simulation
+from radcad import Model, Simulation, Experiment
 from radcad.engine import run
 
 from cadCAD.configuration.utils import config_sim
-from cadCAD.configuration import Experiment
+from cadCAD.configuration import Experiment as cadCADExperiment
 from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 
@@ -65,10 +65,10 @@ if __name__ == '__main__':
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment([simulation, simulation])
 
     start = time.time()
-    simulations = [simulation, simulation]
-    data_rc = run(simulations)
+    data_rc = experiment.run()
     end = time.time()
 
     duration_radcad = end - start
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         "M": params
     })
 
-    exp = Experiment()
+    exp = cadCADExperiment()
     exp.append_configs(
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,

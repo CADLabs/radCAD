@@ -1,4 +1,4 @@
-from radcad import Model, Simulation, Experiment
+from radcad import Model, Simulation, Experiment, Engine
 from radcad.engine import Backend
 from tests.test_cases import basic
 import pandas as pd
@@ -15,9 +15,14 @@ def test_backend_equality():
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     experiment = Experiment(simulation)
     
-    df_multiprocessing = pd.DataFrame(experiment.run(backend=Backend.MULTIPROCESSING))
-    df_ray = pd.DataFrame(experiment.run(backend=Backend.RAY))
-    df_pathos = pd.DataFrame(experiment.run(backend=Backend.PATHOS))
+    experiment.engine = Engine(backend=Backend.MULTIPROCESSING)
+    df_multiprocessing = pd.DataFrame(experiment.run())
+
+    experiment.engine = Engine(backend=Backend.RAY)
+    df_ray = pd.DataFrame(experiment.run())
+
+    experiment.engine = Engine(backend=Backend.PATHOS)
+    df_pathos = pd.DataFrame(experiment.run())
 
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
@@ -35,9 +40,14 @@ def test_backend_single_process():
     
     processes = 1
 
-    df_multiprocessing = pd.DataFrame(experiment.run(backend=Backend.MULTIPROCESSING, processes=processes))
-    df_ray = pd.DataFrame(experiment.run(backend=Backend.RAY, processes=processes))
-    df_pathos = pd.DataFrame(experiment.run(backend=Backend.PATHOS, processes=processes))
+    experiment.engine = Engine(backend=Backend.MULTIPROCESSING, processes=processes)
+    df_multiprocessing = pd.DataFrame(experiment.run())
+
+    experiment.engine = Engine(backend=Backend.RAY, processes=processes)
+    df_ray = pd.DataFrame(experiment.run())
+
+    experiment.engine = Engine(backend=Backend.PATHOS, processes=processes)
+    df_pathos = pd.DataFrame(experiment.run())
 
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)

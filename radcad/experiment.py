@@ -1,11 +1,14 @@
-import radcad.engine as engine
-from radcad import Simulation
+from radcad.core import Simulation
+from radcad.engine import Engine
+
 
 class Experiment():
     """
     An Experiment.
     """
     def __init__(self, simulations=[], **kwargs):
+        self.engine = kwargs.pop('engine', Engine())
+
         self.simulations = []
         # Add and validate simulations
         self.add_simulations(simulations)
@@ -20,8 +23,8 @@ class Experiment():
         if kwargs:
             raise Exception(f"Invalid Experiment option in {kwargs}")
     
-    def run(self, **kwargs):
-        return engine.run(experiment=self, **kwargs)
+    def run(self):
+        return self.engine.run(experiment=self)
 
     def add_simulations(self, simulations):
         if not isinstance(simulations, list):
@@ -39,26 +42,26 @@ class Experiment():
         return self.simulations
 
     # Hooks receive: params, substep, state_history, previous_state
-    def __before_experiment(self, **kwargs):
+    def _before_experiment(self, engine=None):
         if self.before_experiment:
-            self.before_experiment(**kwargs)
+            self.before_experiment(engine=engine)
 
-    def __after_experiment(self, params, substep, state_history, previous_state):
+    def _after_experiment(self, engine=None):
         if self.after_experiment:
-            self.after_experiment(**kwargs)
+            self.after_experiment(engine=engine)
 
-    def __before_simulation(self, params, substep, state_history, previous_state):
+    def _before_simulation(self, simulation=None, simulation_index=-1):
         if self.before_simulation:
-            self.before_simulation(**kwargs)
+            self.before_simulation(simulation=simulation, simulation_index=simulation_index)
 
-    def __after_simulation(self, params, substep, state_history, previous_state):
+    def _after_simulation(self, simulation=None, simulation_index=-1):
         if self.after_simulation:
-            self.after_simulation(**kwargs)
+            self.after_simulation(simulation=simulation, simulation_index=simulation_index)
 
-    def __before_run(self, params, substep, state_history, previous_state):
+    def _before_run(self, simulation=None, run_index=-1):
         if self.before_run:
-            self.before_run(**kwargs)
+            self.before_run(simulation=simulation, run_index=run_index)
 
-    def __after_run(self, params, substep, state_history, previous_state):
+    def _after_run(self, simulation=None, run_index=-1):
         if self.after_run:
-            self.after_run(**kwargs)
+            self.after_run(simulation=simulation, run_index=run_index)

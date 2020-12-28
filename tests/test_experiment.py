@@ -1,4 +1,4 @@
-from radcad import Model, Simulation, Experiment
+from radcad import Model, Simulation, Experiment, Engine
 from tests.test_cases import basic
 
 states = basic.states
@@ -35,3 +35,19 @@ def test_clear_simulations():
     assert experiment.get_simulations() == []
     assert not experiment.clear_simulations()
     assert experiment.get_simulations() == []
+
+def test_hooks(capfd):
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=3)
+    experiment = Experiment(simulation)
+
+    experiment.before_experiment = lambda engine=None: print(f"Before experiment with {len(engine.experiment.simulations)} simulations")
+    experiment.after_experiment = lambda engine=None: print(f"After experiment with {len(engine.experiment.simulations)} simulations")
+    experiment.before_simulation = lambda simulation=None, simulation_index=-1: print(f"Before simulation {simulation_index} with params {simulation.model.params}")
+    experiment.after_simulation = lambda simulation=None, simulation_index=-1: print(f"After simulation {simulation_index} with params {simulation.model.params}")
+    experiment.before_run = lambda run_index=-1, simulation=None: print(f"Before run {run_index}")
+    experiment.after_run = lambda run_index=-1, simulation=None: print(f"After run {run_index}")
+    
+    experiment.run()
+    # out, err = capfd.readouterr()
+
+    assert True

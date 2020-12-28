@@ -2,11 +2,10 @@ import pytest
 
 import pandas as pd
 
-from radcad import Model, Simulation
-from radcad.engine import run
+from radcad import Model, Simulation, Experiment
 
 from cadCAD.configuration.utils import config_sim
-from cadCAD.configuration import Experiment
+from cadCAD.configuration import Experiment as cadCADExperiment
 from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
@@ -21,6 +20,7 @@ RUNS = benchmark_model.RUNS
 
 model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
 simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+experiment = Experiment(simulation_radcad)
 
 c = config_sim({
     "N": RUNS,
@@ -28,7 +28,7 @@ c = config_sim({
     "M": params
 })
 
-exp = Experiment()
+exp = cadCADExperiment()
 exp.append_configs(
     initial_state = states,
     partial_state_update_blocks = state_update_blocks,
@@ -46,7 +46,7 @@ def test_benchmark_cadcad(benchmark):
     benchmark.pedantic(cadcad_simulation, iterations=1, rounds=5)
 
 def radcad_simulation():
-    data_radcad = run([simulation_radcad])
+    data_radcad = experiment.run()
 
 def cadcad_simulation():
     data_cadcad, tensor_field, sessions = simulation_cadcad.execute()

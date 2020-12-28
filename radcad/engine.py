@@ -22,26 +22,22 @@ class Backend(Enum):
     RAY_REMOTE = 3
     PATHOS = 4
 
-def Engine():
-    def __init__(self):
+class Engine():
+    def __init__(self, **kwargs):
         self.experiment = None
+        self.processes = kwargs.pop('processes', cpu_count)
+        self.backend = kwargs.pop('backend', Backend.DEFAULT)
 
-    def run(self, experiment, **kwargs):
+    def _run(self, experiment=None, **kwargs):
+        if not experiment:
+            raise Exception("Experiment required as argument")
         self.experiment = experiment
-
-        processes = kwargs.pop('processes', cpu_count)
-        backend = kwargs.pop('backend', Backend.DEFAULT)
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
 
         simulations = experiment.simulations
-        print(f'''
-        Simulation count: {len(simulations)}
-        Backend: {backend}
-        CPU count: {processes}
-        ''')
-        if not isinstance(backend, Backend):
+        if not isinstance(self.backend, Backend):
             raise Exception(f"Execution backend must be one of {Backend.list()}")
         configs = [
             (
@@ -55,44 +51,49 @@ def Engine():
         ]
         result = []
 
-        if backend in [Backend.RAY, Backend.RAY_REMOTE]:
-            if backend == Backend.RAY_REMOTE:
+        self.experiment._before_experiment(engine=self)
+
+        if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
+            if self.backend == Backend.RAY_REMOTE:
                 print("Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)")
             else:
-                ray.init(num_cpus=processes, ignore_reinit_error=True)
+                ray.init(num_cpus=self.processes, ignore_reinit_error=True)
 
-            @ray.remote
-            def proxy_single_run_ray(args):
-                return core.single_run(*args)
-
-            futures = [self.proxy_single_run_ray.remote(config) for config in self.run_stream(configs)]
+            futures = [Engine._proxy_single_run_ray.remote(config) for config in self._run_stream(configs)]
             result = flatten(ray.get(futures))
-        elif backend == Backend.PATHOS:
-            with PathosPool(processes=processes) as pool:
-                mapped = pool.map(self.proxy_single_run, self.run_stream(configs))
+        elif self.backend == Backend.PATHOS:
+            with PathosPool(processes=self.processes) as pool:
+                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
                 result = flatten(mapped)
-        elif backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
-            with Pool(processes=processes) as pool:
-                mapped = pool.map(self.proxy_single_run, self.run_stream(configs))
+        elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
+            with Pool(processes=self.processes) as pool:
+                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
                 result = flatten(mapped)
         else:
             raise Exception(f"Execution backend must be one of {Backend.list()}")
 
+        self.experiment._after_experiment(engine=self)
+
         return result
 
 
-    def proxy_single_run(args):
+    @ray.remote
+    def _proxy_single_run_ray(args):
         return core.single_run(*args)
 
 
-    def get_simulation_from_config(config):
+    def _proxy_single_run(args):
+        return core.single_run(*args)
+
+
+    def _get_simulation_from_config(config):
         states, state_update_blocks, params, timesteps, runs = config
         model = core.Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
         return core.Simulation(model=model, timesteps=timesteps, runs=runs)
 
 
-    def run_stream(configs):
-        simulations = [get_simulation_from_config(config) for config in configs]
+    def _run_stream(self, configs):
+        simulations = [Engine._get_simulation_from_config(config) for config in configs]
 
         for simulation_index, simulation in enumerate(simulations):
             timesteps = simulation.timesteps
@@ -102,13 +103,16 @@ def Engine():
             params = simulation.model.params
             param_sweep = core.generate_parameter_sweep(params)
 
-            for run in range(0, runs):
+            self.experiment._before_simulation(simulation=simulation, simulation_index=simulation_index)
+
+            for run_index in range(0, runs):
+                self.experiment._before_run(simulation=simulation, run_index=run_index)
                 if param_sweep:
                     for subset, param_set in enumerate(param_sweep):
                         yield (
                             simulation_index,
                             timesteps,
-                            run,
+                            run_index,
                             subset,
                             initial_state,
                             state_update_blocks,
@@ -118,9 +122,12 @@ def Engine():
                     yield (
                         simulation_index,
                         timesteps,
-                        run,
+                        run_index,
                         0,
                         initial_state,
                         state_update_blocks,
                         params,
                     )
+                self.experiment._after_run(simulation=simulation, run_index=run_index)
+            
+            self.experiment._after_simulation(simulation=simulation, simulation_index=simulation_index)
