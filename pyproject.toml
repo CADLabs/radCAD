@@ -21,6 +21,7 @@ pytest = "^5.2"
 cadCAD = "^0.4.23"
 coveralls = "^2.2.0"
 pytest-cov = "^2.10.1"
+pytest-benchmark = "^3.2.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

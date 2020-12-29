@@ -22,94 +22,112 @@ class Backend(Enum):
     RAY_REMOTE = 3
     PATHOS = 4
 
+class Engine():
+    def __init__(self, **kwargs):
+        self.experiment = None
+        self.processes = kwargs.pop('processes', cpu_count)
+        self.backend = kwargs.pop('backend', Backend.DEFAULT)
 
-def run(simulations, processes=cpu_count, backend=Backend.DEFAULT):
-    simulations = [simulations] if isinstance(simulations, core.Simulation) else simulations
-    print(f'''
-    Simulation count: {len(simulations)}
-    Backend: {backend}
-    CPU count: {processes}
-    ''')
-    if not isinstance(backend, Backend):
-        raise Exception(f"Execution backend must be one of {Backend.list()}")
-    configs = [
-        (
-            sim.model.initial_state,
-            sim.model.state_update_blocks,
-            sim.model.params,
-            sim.timesteps,
-            sim.runs,
-        )
-        for sim in simulations
-    ]
-    result = []
+    def _run(self, experiment=None, **kwargs):
+        if not experiment:
+            raise Exception("Experiment required as argument")
+        self.experiment = experiment
 
-    if backend in [Backend.RAY, Backend.RAY_REMOTE]:
-        if backend == Backend.RAY_REMOTE:
-            print("Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)")
+        if kwargs:
+            raise Exception(f"Invalid Engine option in {kwargs}")
+
+        simulations = experiment.simulations
+        if not isinstance(self.backend, Backend):
+            raise Exception(f"Execution backend must be one of {Backend.list()}")
+        configs = [
+            (
+                sim.model.initial_state,
+                sim.model.state_update_blocks,
+                sim.model.params,
+                sim.timesteps,
+                sim.runs,
+            )
+            for sim in simulations
+        ]
+        result = []
+
+        self.experiment._before_experiment(engine=self)
+
+        if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
+            if self.backend == Backend.RAY_REMOTE:
+                print("Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)")
+            else:
+                ray.init(num_cpus=self.processes, ignore_reinit_error=True)
+
+            futures = [Engine._proxy_single_run_ray.remote(config) for config in self._run_stream(configs)]
+            result = flatten(ray.get(futures))
+        elif self.backend == Backend.PATHOS:
+            with PathosPool(processes=self.processes) as pool:
+                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
+                result = flatten(mapped)
+        elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
+            with Pool(processes=self.processes) as pool:
+                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
+                result = flatten(mapped)
         else:
-            ray.init(num_cpus=processes, ignore_reinit_error=True)
+            raise Exception(f"Execution backend must be one of {Backend.list()}")
 
-        @ray.remote
-        def proxy_single_run_ray(args):
-            return core.single_run(*args)
+        self.experiment._after_experiment(engine=self)
 
-        futures = [proxy_single_run_ray.remote(config) for config in run_stream(configs)]
-        result = flatten(ray.get(futures))
-    elif backend == Backend.PATHOS:
-        with PathosPool(processes=processes) as pool:
-            mapped = pool.map(proxy_single_run, run_stream(configs))
-            result = flatten(mapped)
-    elif backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
-        with Pool(processes=processes) as pool:
-            mapped = pool.map(proxy_single_run, run_stream(configs))
-            result = flatten(mapped)
-    else:
-        raise Exception(f"Execution backend must be one of {Backend.list()}")
-
-    return result
+        return result
 
 
-def proxy_single_run(args):
-    return core.single_run(*args)
+    @ray.remote
+    def _proxy_single_run_ray(args):
+        return core.single_run(*args)
 
 
-def get_simulation_from_config(config):
-    states, state_update_blocks, params, timesteps, runs = config
-    model = core.Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
-    return core.Simulation(model=model, timesteps=timesteps, runs=runs)
+    def _proxy_single_run(args):
+        return core.single_run(*args)
 
 
-def run_stream(configs):
-    simulations = [get_simulation_from_config(config) for config in configs]
+    def _get_simulation_from_config(config):
+        states, state_update_blocks, params, timesteps, runs = config
+        model = core.Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
+        return core.Simulation(model=model, timesteps=timesteps, runs=runs)
 
-    for simulation_index, simulation in enumerate(simulations):
-        timesteps = simulation.timesteps
-        runs = simulation.runs
-        initial_state = simulation.model.initial_state
-        state_update_blocks = simulation.model.state_update_blocks
-        params = simulation.model.params
-        param_sweep = core.generate_parameter_sweep(params)
 
-        for run in range(0, runs):
-            if param_sweep:
-                for subset, param_set in enumerate(param_sweep):
+    def _run_stream(self, configs):
+        simulations = [Engine._get_simulation_from_config(config) for config in configs]
+
+        for simulation_index, simulation in enumerate(simulations):
+            timesteps = simulation.timesteps
+            runs = simulation.runs
+            initial_state = simulation.model.initial_state
+            state_update_blocks = simulation.model.state_update_blocks
+            params = simulation.model.params
+            param_sweep = core.generate_parameter_sweep(params)
+
+            self.experiment._before_simulation(simulation=simulation, simulation_index=simulation_index)
+
+            for run_index in range(0, runs):
+                self.experiment._before_run(simulation=simulation, run_index=run_index)
+                if param_sweep:
+                    for subset, param_set in enumerate(param_sweep):
+                        yield (
+                            simulation_index,
+                            timesteps,
+                            run_index,
+                            subset,
+                            initial_state,
+                            state_update_blocks,
+                            param_set,
+                        )
+                else:
                     yield (
                         simulation_index,
                         timesteps,
-                        run,
-                        subset,
+                        run_index,
+                        0,
                         initial_state,
                         state_update_blocks,
-                        param_set,
+                        params,
                     )
-            else:
-                yield (
-                    simulation_index,
-                    timesteps,
-                    run,
-                    0,
-                    initial_state,
-                    state_update_blocks,
-                    params,
-                )
+                self.experiment._after_run(simulation=simulation, run_index=run_index)
+            
+            self.experiment._after_simulation(simulation=simulation, simulation_index=simulation_index)

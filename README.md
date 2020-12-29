@@ -47,7 +47,8 @@ simulation_1 = Simulation(model=model_a, timesteps=TIMESTEPS, runs=RUNS)
 simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 
 # Simulate any number of models in parallel
-data = run([simulation_1, simulation_2])
+experiment = Experiment([simulation_1, simulation_2])
+data = experiment.run()
 ```
 
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
@@ -78,24 +79,36 @@ pip install radcad
 
 ## Use
 
+`radCAD` provides the following classes:
+1. A system is represented in some form as a `Model`
+2. A `Model` can be simulated using a `Simulation`
+3. An `Experiment` consists of one or more `Simulation`s
+4. An `Experiment` is run by the `Engine`
+
+So, the hierarchy is as follows `Model` > `Simulation` > `Experiment` > `Engine`.
+
 ```python
 from radcad import Model, Simulation
 from radcad.engine import run
 
 model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation = Simulation(model=model, timesteps=100_000, runs=1)
+experiment = Experiment(simulation)
 
-result = run(simulation)
-# Or, multiple simulations: run([simulation_1, simulation_2, simulation_3])
+result = experiment.run()
+# Or, multiple simulations: Experiment([simulation_1, simulation_2, simulation_3])
 
 df = pd.DataFrame(result)
 ```
 
 ### Selecting single or multi-process modes
 
-By default `radCAD` sets the number of parallel processes to the number of system CPUs less one, but this can be customized as follows:
+By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
-run(simulation, processes=1)
+from radacad import Engine
+
+experiment.engine = Engine(processes=1)
+experiment.run()
 ```
 
 ### Remote Cluster Execution (using Ray)
@@ -117,13 +130,16 @@ ray exec cluster/aws/minimal.yaml 'echo "hello world"'
 
 Change the execution backend to `RAY_REMOTE`:
 ```python
-from radcad.engine import run, Backend
+from radcad.engine import Engine, Backend
 import ray
 
 # Connect to cluster head
 ray.init(address='***:6379', _redis_password='***')
 
-result = run(simulation, backend=Backend.RAY_REMOTE)
+...
+
+experiment.engine = Engine(backend=Backend.RAY_REMOTE)
+result = experiment.run()
 ```
 
 Finally, spin down the cluster:

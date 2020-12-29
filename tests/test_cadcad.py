@@ -3,11 +3,10 @@ from pandas.testing import assert_frame_equal
 
 import pandas as pd
 
-from radcad import Model, Simulation
-from radcad.engine import run
+from radcad import Model, Simulation, Experiment
 
 from cadCAD.configuration.utils import config_sim
-from cadCAD.configuration import Experiment
+from cadCAD.configuration import Experiment as cadCADExperiment
 from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
@@ -23,7 +22,8 @@ def test_simulation_dataframe_structure():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    data_radcad = run([simulation])
+    experiment = Experiment(simulation)
+    data_radcad = experiment.run()
 
     df_radcad = pd.DataFrame(data_radcad)
 
@@ -33,7 +33,7 @@ def test_simulation_dataframe_structure():
         "M": params
     })
 
-    exp = Experiment()
+    exp = cadCADExperiment()
     exp.append_configs(
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,

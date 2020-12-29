@@ -1,5 +1,4 @@
-from radcad import Model, Simulation
-from radcad.engine import run
+from radcad import Model, Simulation, Experiment
 from tests.test_cases import basic
 
 def test_run():
@@ -11,4 +10,6 @@ def test_run():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    assert run(simulation) == run([simulation])
+    experiment = Experiment(simulations=[simulation])
+    experiment.run()
+    assert True
