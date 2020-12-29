@@ -88,8 +88,7 @@ pip install radcad
 So, the hierarchy is as follows `Model` > `Simulation` > `Experiment` > `Engine`.
 
 ```python
-from radcad import Model, Simulation
-from radcad.engine import run
+from radcad import Model, Simulation, Experiment
 
 model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation = Simulation(model=model, timesteps=100_000, runs=1)
