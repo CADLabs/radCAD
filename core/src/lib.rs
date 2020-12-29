@@ -19,7 +19,7 @@ fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Debug, Clone)]
 struct Model {
     #[pyo3(get, set)]
@@ -42,7 +42,7 @@ impl Model {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Debug, Clone)]
 struct Simulation {
     #[pyo3(get, set)]

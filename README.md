@@ -27,7 +27,8 @@ params = {
     'b': [1, 2],
     'c': [1]
 }
-# Creates a parameter sweep of [{'a': 1, 'b': 1, 'c': 1}, {'a': 2, 'b': 2, 'c': 1}, {'a': 3, 'b': 2, 'c': 1}]
+# Creates a parameter sweep of:
+# [{'a': 1, 'b': 1, 'c': 1}, {'a': 2, 'b': 2, 'c': 1}, {'a': 3, 'b': 2, 'c': 1}]
 ```
 
 * [x] Monte Carlo runs
@@ -83,7 +84,7 @@ pip install radcad
 1. A system is represented in some form as a `Model`
 2. A `Model` can be simulated using a `Simulation`
 3. An `Experiment` consists of one or more `Simulation`s
-4. An `Experiment` is run by the `Engine`
+4. An `Experiment` or a `Simulation` is run by the `Engine`
 
 So, the hierarchy is as follows `Model` > `Simulation` > `Experiment` > `Engine`.
 
@@ -92,10 +93,11 @@ from radcad import Model, Simulation, Experiment
 
 model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation = Simulation(model=model, timesteps=100_000, runs=1)
-experiment = Experiment(simulation)
 
-result = experiment.run()
-# Or, multiple simulations: Experiment([simulation_1, simulation_2, simulation_3])
+result = simulation.run()
+# Or, multiple simulations:
+# experiment = Experiment([simulation_1, simulation_2, simulation_3])
+# result = experiment.run()
 
 df = pd.DataFrame(result)
 ```
@@ -105,6 +107,8 @@ df = pd.DataFrame(result)
 By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
 from radacad import Engine
+
+...
 
 experiment.engine = Engine(processes=1)
 experiment.run()
