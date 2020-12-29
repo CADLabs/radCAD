@@ -54,6 +54,16 @@ data = experiment.run()
 
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
+* [x] (WIP) Hooks to easily extend the functionality
+
+```python
+experiment.before_experiment = lambda engine=None: print(f"Before experiment with {len(engine.experiment.simulations)} simulations")
+experiment.after_experiment = lambda engine=None: print(f"After experiment with {len(engine.experiment.simulations)} simulations")
+experiment.before_simulation = lambda simulation=None, simulation_index=-1: print(f"Before simulation {simulation_index} with params {simulation.model.params}")
+experiment.after_simulation = lambda simulation=None, simulation_index=-1: print(f"After simulation {simulation_index} with params {simulation.model.params}")
+experiment.before_run = lambda run_index=-1, simulation=None: print(f"Before run {run_index}")
+experiment.after_run = lambda run_index=-1, simulation=None: print(f"After run {run_index}")
+```
 
 * [x] cadCAD compatibility and familiar data structure
 
