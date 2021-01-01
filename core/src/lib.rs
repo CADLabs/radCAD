@@ -3,7 +3,7 @@
 
 use pyo3::exceptions::{KeyError, TypeError};
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList, PyTuple, PyString};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
 
@@ -168,6 +168,7 @@ fn single_run(
                 .expect("Get variables failed")
                 .cast_as::<PyDict>()
                 .expect("Get variables failed")
+                .iter()
             {
                 if !initial_state.contains(state)? {
                     return Err(PyErr::new::<KeyError, _>(
@@ -211,11 +212,11 @@ fn single_run(
                         "Invalid state key returned from state update function",
                     ));
                 };
-                match state == state_key {
+                match state.downcast::<PyString>()?.to_string()? == state_key.downcast::<PyString>()?.to_string()? {
                     true => substate.set_item(state_key, state_value).unwrap(),
-                    false => {
+                    _ => {
                         return Err(PyErr::new::<KeyError, _>(
-                            "PSU state key doesn't match function state key",
+                            format!("PSU state key {} doesn't match function state key {}", state, state_key),
                         ))
                     }
                 }
@@ -245,7 +246,7 @@ fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
 
     for sweep_index in 0..max_len {
         let param_set = PyDict::new(py);
-        for (key, value) in params {
+        for (key, value) in params.iter() {
             let param = if sweep_index < value.len()? {
                 value.get_item(sweep_index)?
             } else {
@@ -273,6 +274,7 @@ fn reduce_signals(
         .expect("Get policies failed")
         .cast_as::<PyDict>()
         .expect("Get policies failed")
+        .iter()
     {
         policy_results.push(
             function
