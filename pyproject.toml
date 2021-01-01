@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "radcad"
-version = "0.1.2"
-description = ""
+version = "0.1.4"
+description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 include = ["core/output/radCAD.*"]
 packages = [
@@ -22,6 +22,7 @@ cadCAD = "^0.4.23"
 coveralls = "^2.2.0"
 pytest-cov = "^2.10.1"
 pytest-benchmark = "^3.2.3"
+matplotlib = "^3.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
