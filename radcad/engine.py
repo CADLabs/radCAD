@@ -1,7 +1,6 @@
 import radcad.core as core
 
 import multiprocessing
-from multiprocessing import Pool
 
 # Pathos re-writes the core code in Python rather than C, for ease of maintenance at cost of performance
 from pathos.multiprocessing import ProcessPool as PathosPool
@@ -66,7 +65,7 @@ class Engine():
                 mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
                 result = flatten(mapped)
         elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
-            with Pool(processes=self.processes) as pool:
+            with multiprocessing.get_context("spawn").Pool(processes=self.processes) as pool:
                 mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
                 result = flatten(mapped)
         else:
