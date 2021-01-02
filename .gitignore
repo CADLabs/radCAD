@@ -155,3 +155,4 @@ cython_debug/
 scratchpad**
 .envrc
 .coveralls.yml
+.DS_Store

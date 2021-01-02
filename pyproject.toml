@@ -23,6 +23,10 @@ coveralls = "^2.2.0"
 pytest-cov = "^2.10.1"
 pytest-benchmark = "^3.2.3"
 matplotlib = "^3.3.3"
+plotly = "^4.14.1"
+ipykernel = "^5.4.2"
+celluloid = "^0.2.0"
+ipywidgets = ">=7.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
