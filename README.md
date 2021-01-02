@@ -17,6 +17,18 @@ Goals:
 
 radCAD extends on cadCAD, a framework for dynamical systems modelling & simulation. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
+## Example Models
+
+### Game of Life
+
+See `examples/game-of-life.ipynb`.
+
+![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life.gif)
+
+### Predator-Prey
+
+See `examples/predator-prey.ipynb`.
+
 ## Features
 
 * [x] Parameter sweeps
@@ -180,12 +192,27 @@ poetry env use python3
 poetry shell
 ```
 
+### Pip or alternative package managers
+
+See `requirements.txt`.
+
+Export `requirements.txt` using Poetry:
+```bash
+poetry export --without-hashes -f requirements.txt --output requirements.txt
+```
+
 ## Testing
 
 ```bash
 poetry shell
 python3 -m pytest
 python3 -m unittest
+```
+
+## Jupyter Notebooks
+
+```bash
+poetry run python -m ipykernel install --user --name python3-radcad
 ```
 
 ## Benchmarking
