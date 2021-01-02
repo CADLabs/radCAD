@@ -21,13 +21,14 @@ radCAD extends on cadCAD, a framework for dynamical systems modelling & simulati
 
 ### Game of Life
 
-See `examples/game-of-life.ipynb`.
+See `examples/game-of-life/game-of-life.ipynb`
 
-![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life.gif)
+![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/game-of-life.gif)
+![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/gosper-glider-gun.gif)
 
 ### Predator-Prey
 
-See `examples/predator-prey.ipynb`.
+See `examples/predator-prey.ipynb`
 
 ## Features
 
