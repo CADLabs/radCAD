@@ -3,19 +3,15 @@
 [![Build Status](https://travis-ci.com/BenSchZA/radCAD.svg?branch=master)](https://travis-ci.com/BenSchZA/radCAD)
 [![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master)](https://coveralls.io/github/BenSchZA/radCAD?branch=master)
 
-A [cadCAD](https://cadcad.org/) implementation in Rust, using PyO3 to generate Rust bindings for Python to be used as a native Python module. The performance and expressiveness of Rust, with the utility of the Python data-science stack.
+A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
-See https://github.com/cadCAD-org/cadCAD
+radCAD extends on [cadCAD](https://github.com/cadCAD-org/cadCAD). It uses Rust for the core, using PyO3 to generate Rust bindings for Python to be used as a native Python module - the performance and expressiveness of Rust, with the utility of the Python data-science stack.
 
 Goals:
 * simple API for ease of use
 * performance driven (more speed = more experiments, larger parameter sweeps, in less time)
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
-
-## What is radCAD?
-
-radCAD extends on cadCAD, a framework for dynamical systems modelling & simulation. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
 ## Example Models
 
