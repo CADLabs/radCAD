@@ -19,14 +19,23 @@ radCAD extends on cadCAD, a framework for dynamical systems modelling & simulati
 
 ## Example Models
 
-### Game of Life
+### [Game of Life](https://www.conwaylife.com/)
+
+A simple game where at each timestep, the following transitions occur:
+
+1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+2. Any live cell with two or three live neighbours lives on to the next generation.
+3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
 See `examples/game-of-life/game-of-life.ipynb`
 
 ![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/game-of-life.gif)
 ![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/gosper-glider-gun.gif)
 
-### Predator-Prey
+### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
+
+A simple model that applies the two Lotka-Volterra differential equations, frequently used to describe the dynamics of biological systems in which two species interact:
 
 See `examples/predator-prey.ipynb`
 
