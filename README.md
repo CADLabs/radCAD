@@ -67,7 +67,7 @@ simulation_2 = Simulation(model=model_b, timesteps=TIMESTEPS, runs=RUNS)
 
 # Simulate any number of models in parallel
 experiment = Experiment([simulation_1, simulation_2])
-data = experiment.run()
+result = experiment.run()
 ```
 
 * [x] cadCAD compatibility and familiar data structure
@@ -141,7 +141,7 @@ from radacad import Engine
 ...
 
 experiment.engine = Engine(processes=1)
-experiment.run()
+result = experiment.run()
 ```
 
 ### Remote Cluster Execution (using Ray)
