@@ -25,6 +25,7 @@ features = ["extension-module"]
 [dependencies]
 rayon = "1.1"
 num = "0.2.1"
+log = "0.4.11"
 #rustpython-vm = "0.1.2"
 #rustpython-compiler = "0.1.2"
 #inline-python = "0.6.0"

@@ -24,8 +24,12 @@ def test_backend_equality():
     experiment.engine = Engine(backend=Backend.PATHOS)
     df_pathos = pd.DataFrame(experiment.run())
 
+    experiment.engine = Engine(backend=Backend.BASIC)
+    df_basic = pd.DataFrame(experiment.run())
+
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
+    assert df_multiprocessing.equals(df_basic)
 
 def test_backend_single_process():
     states = basic.states
