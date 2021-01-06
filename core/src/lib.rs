@@ -1,13 +1,12 @@
 #![allow(non_snake_case)]
 #![allow(clippy::too_many_arguments)]
 
+use log::info;
 use pyo3::exceptions::{KeyError, RuntimeError, TypeError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
-use log::info;
-
 
 #[pymodule]
 fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -214,12 +213,13 @@ fn single_run(
                             ),
                             None,
                         ) {
-                            Ok(v) => v
-                                .extract()
-                                .expect("Failed to extract state update function result"),
-                            Err(e) => {
-                                return Err(PyErr::new::<RuntimeError, _>(e));
-                            }
+                            Ok(v) => match v.extract() {
+                                Ok(v) => v,
+                                Err(_e) => return Err(PyErr::new::<RuntimeError, _>(
+                                    "Failed to extract state update function result as tuple",
+                                )),
+                            },
+                            Err(e) => return Err(PyErr::new::<RuntimeError, _>(e)),
                         }
                     }
                     false => {
@@ -308,14 +308,12 @@ fn reduce_signals(
     {
         match function.call((params, substep, result, substate), None) {
             Ok(v) => {
-                policy_results.push(
-                    match v.extract::<&PyDict>() {
-                        Ok(v) => v,
-                        Err(_e) => {
-                            return Err(PyErr::new::<RuntimeError, _>("Failed to extract policy function result as dictionary"));
-                        }
-                    }
-                );
+                policy_results.push(match v.extract::<&PyDict>() {
+                    Ok(v) => v,
+                    Err(_e) => return Err(PyErr::new::<RuntimeError, _>(
+                        "Failed to extract policy function result as dictionary",
+                    )),
+                });
             }
             Err(e) => {
                 // e.restore(py);
