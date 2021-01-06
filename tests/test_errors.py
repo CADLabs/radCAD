@@ -1,5 +1,11 @@
 from radcad import Model, Simulation, Experiment
+from radcad.engine import Engine, Backend
 import pytest
+import logging
+
+FORMAT = '%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(message)s'
+logging.basicConfig(format=FORMAT)
+logging.getLogger().setLevel(logging.INFO)
 
 
 def update_state_a(params, substep, state_history, previous_state, policy_input):
@@ -91,6 +97,6 @@ def test_policy_result_type_error():
     model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 
-    with pytest.raises(TypeError) as e:
+    with pytest.raises(RuntimeError) as e:
         result = simulation.run()
-    assert str(e.value) == "Forced exception from policy function"
+    assert str(e.value) == "Failed to extract policy function result as dictionary"
