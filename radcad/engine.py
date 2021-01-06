@@ -20,6 +20,7 @@ class Backend(Enum):
     RAY = 2
     RAY_REMOTE = 3
     PATHOS = 4
+    BASIC = 5
 
 class Engine():
     def __init__(self, **kwargs):
@@ -68,6 +69,8 @@ class Engine():
             with multiprocessing.get_context("spawn").Pool(processes=self.processes) as pool:
                 mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
                 result = flatten(mapped)
+        elif self.backend in [Backend.BASIC]:
+            result = flatten([Engine._proxy_single_run(config) for config in self._run_stream(configs)])
         else:
             raise Exception(f"Execution backend must be one of {Backend.list()}")
 
