@@ -8,6 +8,7 @@ use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
 
+
 #[pymodule]
 fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
     pyo3_log::init();
@@ -144,6 +145,7 @@ fn single_run(
     params: &PyDict,
 ) -> PyResult<PyObject> {
     info!("Starting run {}", run);
+    let pickle = PyModule::import(py, "pickle").expect("Failed to import Python pickle module");
     let result: &PyList = PyList::empty(py);
     initial_state.set_item("simulation", simulation).unwrap();
     initial_state.set_item("subset", subset).unwrap();
@@ -184,12 +186,14 @@ fn single_run(
                         "Invalid state key in partial state update block",
                     ));
                 };
+                let substate_dump = pickle.call1("dumps", (substate, -1,)).expect("Failed to pickle.dump substate");
+                let substate_copy: &PyDict = pickle.call1("loads", (substate_dump,)).expect("Failed to pickle.loads substate").extract().expect("Failed to extract substate deep copy");
                 let signals = match reduce_signals(
                     py,
                     params,
                     substep,
                     result,
-                    substate,
+                    substate_copy,
                     psu.cast_as::<PyDict>()
                         .expect("Failed to cast partial state update block as dictionary"),
                 ) {
@@ -205,7 +209,7 @@ fn single_run(
                                 params,
                                 substep,
                                 result,
-                                substate,
+                                substate_copy,
                                 signals
                                     .extract::<&PyDict>(py)
                                     .expect("Failed to convert policy signals to dictionary")
