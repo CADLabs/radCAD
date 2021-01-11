@@ -23,7 +23,7 @@ def loop(params, substep, state_history, previous_state):
     dims = params['dims']
     nd_slice = params['nd_slice']
     
-    full = copy.deepcopy(previous_state['full'])
+    full = previous_state['full']
     board = full[nd_slice]
     
     neighborhoods = grid_nD(full)
