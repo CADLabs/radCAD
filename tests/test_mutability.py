@@ -4,6 +4,8 @@ import pandas as pd
 
 
 def update_a(params, substep, state_history, previous_state, policy_input):
+    #a_initial = state_history[0][0]['a']
+    #a_initial.append(1)
     a = previous_state['a']
     a.append(1)
     b = previous_state['b']
@@ -23,12 +25,20 @@ def test_state_mutation():
                 'a': update_a
             }
         },
+        {
+            'policies': {},
+            'variables': {
+                'a': update_a
+            }
+        },
     ]
 
     model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params={})
     simulation = Simulation(model=model, timesteps=10)
 
-    df = pd.DataFrame(simulation.run())
+    result = simulation.run()
+    df = pd.DataFrame(result)
 
+    assert not 1 in df.iloc[0]['a']
     assert not 1 in df.iloc[10]['a']
     assert not 1 in df.iloc[10]['b']

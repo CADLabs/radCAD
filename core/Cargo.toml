@@ -22,6 +22,11 @@ crate-type = ["cdylib"]
 version = "0.11.1"
 features = ["extension-module"]
 
+#[dependencies.pyo3]
+#git = "https://github.com/PyO3/pyo3.git"
+#branch = "experimental-api"
+#features = ["extension-module"]
+
 [dependencies]
 rayon = "1.1"
 num = "0.2.1"

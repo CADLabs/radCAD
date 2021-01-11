@@ -60,17 +60,17 @@ class Engine():
                 ray.init(num_cpus=self.processes, ignore_reinit_error=True)
 
             futures = [Engine._proxy_single_run_ray.remote(config) for config in self._run_stream(configs)]
-            result = flatten(ray.get(futures))
+            result = flatten(flatten(ray.get(futures)))
         elif self.backend == Backend.PATHOS:
             with PathosPool(processes=self.processes) as pool:
                 mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
-                result = flatten(mapped)
+                result = flatten(flatten(mapped))
         elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
             with multiprocessing.get_context("spawn").Pool(processes=self.processes) as pool:
                 mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
-                result = flatten(mapped)
+                result = flatten(flatten(mapped))
         elif self.backend in [Backend.BASIC]:
-            result = flatten([Engine._proxy_single_run(config) for config in self._run_stream(configs)])
+            result = flatten(flatten([Engine._proxy_single_run(config) for config in self._run_stream(configs)]))
         else:
             raise Exception(f"Execution backend must be one of {Backend.list()}")
 
