@@ -108,7 +108,8 @@ experiment.after_run = lambda run_index=-1, simulation=None: print(f"After run {
 pip install radcad
 ```
 
-## Use
+## Documentation
+(for now, these are all the docs you'll get - please check out the examples as a tutorial)
 
 `radCAD` provides the following classes:
 1. A system is represented in some form as a `Model`
@@ -180,6 +181,14 @@ Finally, spin down the cluster:
 ray down cluster/ray-aws.yaml
 ```
 
+### Notes on state mutation
+
+The biggest performance bottleneck with radCAD, and cadCAD for that matter, is avoiding mutation of state variables by creating a deep copy of the state passed to the state update function. This avoids the state update function mutating state variables outside of the framework by creating a copy of it first -  a deep copy creates a copy of the object itself, and the key value pairs, which gets expensive.
+
+To avoid the additional overhead, mutation of state history is allowed, and left up to the developer to avoid using standard Python best practises, but mutation of the current state is disabled.
+
+See https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow for some performance benchmarks of different methods. radCAD uses `cPickle`, which is faster than using `deepcopy`, but less flexible about what types it can handle (Pickle depends on serialization) - these could be interchanged in future.
+
 ## Development
 
 Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/):
@@ -225,4 +234,4 @@ poetry run python -m ipykernel install --user --name python3-radcad
 
 ## Benchmarking
 
-See `benchmarks/`. radCAD has approximately a 10x speed increase over cadCAD locally - results may vary. Using Ray, potentially much better performance utilizing remote parallel processing.
+See [benchmarks](benchmarks/)

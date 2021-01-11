@@ -1,5 +1,6 @@
 from radcad import Model, Simulation, Experiment
 import pytest
+import pandas as pd
 
 
 def update_state_a(params, substep, state_history, previous_state, policy_input):
@@ -70,10 +71,10 @@ def policy_two_signals(params, substep, state_history, previous_state):
     return {'signal_a': 1, 'signal_b': 1}
 
 def update_a_from_signal(params, substep, state_history, previous_state, policy_input):
-    return 'a', previous_state['a'] + policy_input['signal_a']
+    return 'a', previous_state['a'] + policy_input.get('signal_a', 0)
 
 def update_b_from_signal(params, substep, state_history, previous_state, policy_input):
-    return 'b', previous_state['b'] + policy_input['signal_b']
+    return 'b', previous_state['b'] + policy_input.get('signal_b', 0)
 
 def test_regression_policy_signals():
     initial_state = {
@@ -82,6 +83,13 @@ def test_regression_policy_signals():
     }
 
     state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'a': update_a_from_signal,
+                'b': update_b_from_signal
+            }
+        },
         {
             'policies': {
                 'policy': policy_two_signals
@@ -100,6 +108,7 @@ def test_regression_policy_signals():
 
     model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    experiment = Experiment(simulation)
+    result = simulation.run()
+    df = pd.DataFrame(result)
 
-    assert isinstance(experiment.run(), list)
+    assert df.query('timestep == 10 and substep == 2')['a'].item() == 10

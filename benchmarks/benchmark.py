@@ -48,7 +48,6 @@ TIMESTEPS = 100_000
 RUNS = 2
 
 from radcad import Model, Simulation, Experiment
-from radcad.engine import run
 
 from cadCAD.configuration.utils import config_sim
 from cadCAD.configuration import Experiment as cadCADExperiment
