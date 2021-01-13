@@ -34,8 +34,8 @@ See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-lif
 A simple model that applies the two Lotka-Volterra differential equations, frequently used to describe the dynamics of biological systems in which two species interact:
 
 Original models thanks to [Danilo @danlessa](https://github.com/danlessa/)!
-* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](examples/predator-prey.ipynb)
-* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](examples/predator-prey.ipynb)
+* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](examples/predator_prey_sd/predator-prey-sd.ipynb)
+* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](examples/predator_prey_abm/predator-prey-abm.ipynb)
 
 ## Features
 
