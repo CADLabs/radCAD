@@ -26,8 +26,8 @@ A simple game where at each timestep, the following transitions occur:
 
 See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
 
-![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/game-of-life.gif)
-![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/gosper-glider-gun.gif)
+![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
+![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 ### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 
