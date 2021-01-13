@@ -24,7 +24,7 @@ A simple game where at each timestep, the following transitions occur:
 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-See [examples/game-of-life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
+See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
 
 ![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/game-of-life.gif)
 ![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game-of-life/gosper-glider-gun.gif)
@@ -33,7 +33,9 @@ See [examples/game-of-life/game-of-life.ipynb](examples/game-of-life/game-of-lif
 
 A simple model that applies the two Lotka-Volterra differential equations, frequently used to describe the dynamics of biological systems in which two species interact:
 
-See [examples/predator-prey.ipynb](examples/predator-prey.ipynb)
+Original models thanks to [Danilo @danlessa](https://github.com/danlessa/)!
+* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](examples/predator-prey.ipynb)
+* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](examples/predator-prey.ipynb)
 
 ## Features
 

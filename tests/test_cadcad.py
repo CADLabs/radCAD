@@ -22,10 +22,10 @@ def test_simulation_dataframe_structure():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    experiment = Experiment(simulation)
+    experiment = Experiment([simulation, simulation, simulation])
     data_radcad = experiment.run()
 
-    df_radcad = pd.DataFrame(data_radcad)
+    df_radcad = pd.DataFrame(data_radcad).drop(['run'], axis=1)
 
     c = config_sim({
         "N": RUNS,
@@ -39,13 +39,23 @@ def test_simulation_dataframe_structure():
         partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
+    exp.append_configs(
+        initial_state = states,
+        partial_state_update_blocks = state_update_blocks,
+        sim_configs = c
+    )
+    exp.append_configs(
+        initial_state = states,
+        partial_state_update_blocks = state_update_blocks,
+        sim_configs = c
+    )
 
     exec_mode = ExecutionMode()
     local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
     simulation = Executor(exec_context=local_mode_ctx, configs=configs)
 
     data_cadcad, tensor_field, sessions = simulation.execute()
-    df_cadcad = pd.DataFrame(data_cadcad)
+    df_cadcad = pd.DataFrame(data_cadcad).drop(['run'], axis=1)
 
     assert_frame_equal(df_radcad, df_cadcad)
     assert df_radcad.equals(df_cadcad)

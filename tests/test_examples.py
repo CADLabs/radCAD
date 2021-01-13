@@ -6,10 +6,10 @@ def check_notebook(notebook):
     return "1" in result
 
 def test_game_of_life():
-    assert check_notebook("examples/game-of-life/game-of-life.ipynb")
+    assert check_notebook("examples/game_of_life/game-of-life.ipynb")
 
-def test_predator_prey():
-    assert check_notebook("examples/predator-prey/predator-prey.ipynb")
+def test_predator_prey_sd():
+    assert check_notebook("examples/predator_prey_sd/predator-prey-sd.ipynb")
 
 def test_predator_prey_abm():
-    assert check_notebook("examples/predator-prey-abm/predator-prey-abm.ipynb")
+    assert check_notebook("examples/predator_prey_abm/predator-prey-abm.ipynb")

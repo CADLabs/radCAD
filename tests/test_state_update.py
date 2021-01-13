@@ -1,4 +1,7 @@
 from radcad import Model, Simulation, Experiment
+from radcad.engine import Engine, Backend
+
+import pandas as pd
 import pytest
 
 
@@ -10,7 +13,6 @@ def update_a(params, substep, state_history, previous_state, policy_input):
     return 'a', a
 
 def test_basic_state_update():
-    # Test that state names of more than one charachter don't fail!
     initial_state = {
         'a': a
     }
@@ -39,3 +41,44 @@ def test_basic_state_update():
 
     assert result[-2]['a'] == 9
     assert result[-1]['a'] == 10
+
+def test_multiple_partial_state_updates():
+    initial_state = {
+        'a': 0
+    }
+
+    state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'a': lambda params, substep, state_history, previous_state, policy_input: ('a', previous_state['a'] + 1),
+            }
+        },
+        {
+            'policies': {},
+            'variables': {
+                'a': lambda params, substep, state_history, previous_state, policy_input: ('a', previous_state['a'] + 1),
+            }
+        },
+        {
+            'policies': {},
+            'variables': {
+                'a': lambda params, substep, state_history, previous_state, policy_input: ('a', previous_state['a'] + 1),
+            }
+        },
+    ]
+
+    params = {}
+
+    TIMESTEPS = 10
+    RUNS = 1
+
+    model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment(simulation)
+    experiment.engine = Engine(backend=Backend.BASIC)
+    
+    result = experiment.run()
+    df = pd.DataFrame(result)
+
+    assert df.query('timestep == 10 and substep == 3')['a'].item() == 30
