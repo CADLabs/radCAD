@@ -135,6 +135,30 @@ result = simulation.run()
 df = pd.DataFrame(result)
 ```
 
+### cadCAD compatibility mode
+
+radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
+
+To use the compatibility mode, install radCAD with the `compat` dependencies:
+
+```bash
+pip install -e .[compat]
+# Or
+poetry install -E compat
+```
+
+Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
+
+```python
+from radcad.compat.cadCAD.configuration.utils import config_sim
+from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
+from radcad.compat.cadCAD.engine import ExecutionMode, ExecutionContext
+from radcad.compat.cadCAD.engine import Executor
+from radcad.compat.cadCAD import configs
+```
+
+Now run your existing cadCAD model using radCAD!
+
 ### Selecting single or multi-process modes
 
 By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
