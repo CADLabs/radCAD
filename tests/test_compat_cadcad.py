@@ -5,11 +5,11 @@ import pandas as pd
 
 from radcad import Model, Simulation, Experiment
 
-from cadCAD.configuration.utils import config_sim
-from cadCAD.configuration import Experiment as cadCADExperiment
-from cadCAD.engine import ExecutionMode, ExecutionContext
-from cadCAD.engine import Executor
-from cadCAD import configs
+from radcad.compat.cadCAD.configuration.utils import config_sim
+from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
+from radcad.compat.cadCAD.engine import ExecutionMode, ExecutionContext
+from radcad.compat.cadCAD.engine import Executor
+from radcad.compat.cadCAD import configs
 
 from tests.test_cases import basic
 
@@ -25,7 +25,7 @@ def test_simulation_dataframe_structure():
     experiment = Experiment([simulation, simulation, simulation])
     data_radcad = experiment.run()
 
-    df_radcad = pd.DataFrame(data_radcad).drop(['run'], axis=1)
+    df_radcad = pd.DataFrame(data_radcad)
 
     c = config_sim({
         "N": RUNS,
@@ -56,7 +56,7 @@ def test_simulation_dataframe_structure():
     simulation = Executor(exec_context=local_mode_ctx, configs=configs)
 
     data_cadcad, tensor_field, sessions = simulation.execute()
-    df_cadcad = pd.DataFrame(data_cadcad).drop(['run'], axis=1)
+    df_cadcad = pd.DataFrame(data_cadcad)
 
     assert_frame_equal(df_radcad, df_cadcad)
     assert df_radcad.equals(df_cadcad)
