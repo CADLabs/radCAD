@@ -34,6 +34,7 @@ def test_simulation_dataframe_structure():
     })
 
     exp = cadCADExperiment()
+    del configs[:]
     exp.append_configs(
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,
