@@ -173,7 +173,7 @@ python-versions = "~=3.5"
 name = "cadcad"
 version = "0.4.23"
 description = "cadCAD: a differential games based simulation software package for research, validation, and         Computer Aided Design of economic systems"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.8"
 
@@ -341,7 +341,7 @@ python-versions = "*"
 name = "fn"
 version = "0.4.3"
 description = "Implementation of missing features to enjoy functional programming in Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -349,7 +349,7 @@ python-versions = "*"
 name = "funcy"
 version = "1.15"
 description = "A fancy and practical functional tools"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1002,7 +1002,7 @@ twisted = ["twisted"]
 
 [[package]]
 name = "prompt-toolkit"
-version = "3.0.13"
+version = "3.0.14"
 description = "Library for building powerful interactive command lines in Python"
 category = "dev"
 optional = false
@@ -1446,12 +1446,12 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [extras]
-compat = []
+compat = ["cadCAD"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8a215d44b4a15cf8f9502f03c0fb06c5edc99841aced719971ee99a6098f11ed"
+content-hash = "d530ff1aba81cae62917b0ec046cb6f9b55f98504847f3b27db888df4dfe9db4"
 
 [metadata.files]
 aiohttp = [
@@ -2236,8 +2236,8 @@ prometheus-client = [
     {file = "prometheus_client-0.9.0.tar.gz", hash = "sha256:9da7b32f02439d8c04f7777021c304ed51d9ec180604700c1ba72a4d44dceb03"},
 ]
 prompt-toolkit = [
-    {file = "prompt_toolkit-3.0.13-py3-none-any.whl", hash = "sha256:d2b91517488f1478ee30f938303a3d60b04cc0b7c2253e7c83f1b9b7635274b4"},
-    {file = "prompt_toolkit-3.0.13.tar.gz", hash = "sha256:e2d04e0e4de0c0a8b67db89a5be6dcf81fed6ca7e8c4affca8b7a5b8595c19dd"},
+    {file = "prompt_toolkit-3.0.14-py3-none-any.whl", hash = "sha256:c96b30925025a7635471dc083ffb6af0cc67482a00611bd81aeaeeeb7e5a5e12"},
+    {file = "prompt_toolkit-3.0.14.tar.gz", hash = "sha256:7e966747c18ececaec785699626b771c1ba8344c8d31759a1915d6b12fad6525"},
 ]
 protobuf = [
     {file = "protobuf-3.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:629b03fd3caae7f815b0c66b41273f6b1900a579e2ccb41ef4493a4f5fb84f3a"},

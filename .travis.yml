@@ -12,7 +12,7 @@ before_install:
   - popd
 
 install:
-  - poetry install
+  - poetry install -E compat
 
 # before_script:
 #  -
