@@ -150,10 +150,9 @@ poetry install -E compat
 Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
 
 ```python
+from radcad.compat.cadCAD.configuration import Experiment
+from radcad.compat.cadCAD.engine import Executor, ExecutionMode, ExecutionContext
 from radcad.compat.cadCAD.configuration.utils import config_sim
-from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
-from radcad.compat.cadCAD.engine import ExecutionMode, ExecutionContext
-from radcad.compat.cadCAD.engine import Executor
 from radcad.compat.cadCAD import configs
 ```
 
