@@ -177,11 +177,24 @@ ray down cluster/ray-aws.yaml
 
 ### Exception handling
 
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions.
+
 ```python
+...
 experiment.engine = Engine(raise_exceptions=False)
+experiment.run()
 
 results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
 exceptions = experiment.exceptions # e.g. [RuntimeError("..."), RuntimeError("...")]
+```
+
+This also means you can run a specific simulation directly, and access the results later:
+```python
+predator_prey_simulation.run()
+
+...
+
+results = predator_prey_simulation.experiment.results
 ```
 
 ### Notes on state mutation
