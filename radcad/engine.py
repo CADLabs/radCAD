@@ -1,4 +1,5 @@
 import radcad.core as core
+from radcad.utils import flatten, extract_exceptions
 
 import multiprocessing
 
@@ -10,9 +11,9 @@ import ray
 
 from enum import Enum
 
-flatten = lambda list: [item for sublist in list for item in sublist]
 
 cpu_count = multiprocessing.cpu_count() - 1 or 1
+
 
 class Backend(Enum):
     DEFAULT = 0
@@ -22,11 +23,13 @@ class Backend(Enum):
     PATHOS = 4
     BASIC = 5
 
-class Engine():
+
+class Engine:
     def __init__(self, **kwargs):
         self.experiment = None
-        self.processes = kwargs.pop('processes', cpu_count)
-        self.backend = kwargs.pop('backend', Backend.DEFAULT)
+        self.processes = kwargs.pop("processes", cpu_count)
+        self.backend = kwargs.pop("backend", Backend.DEFAULT)
+        self.raise_exceptions = kwargs.pop("raise_exceptions", True)
 
     def _run(self, experiment=None, **kwargs):
         if not experiment:
@@ -55,44 +58,75 @@ class Engine():
 
         if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
             if self.backend == Backend.RAY_REMOTE:
-                print("Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)")
+                print(
+                    "Using Ray remote backend, please ensure you've initialized Ray using ray.init(address=***, ...)"
+                )
             else:
                 ray.init(num_cpus=self.processes, ignore_reinit_error=True)
 
-            futures = [Engine._proxy_single_run_ray.remote(config) for config in self._run_stream(configs)]
-            result = flatten(flatten(ray.get(futures)))
+            futures = [
+                Engine._proxy_single_run_ray.remote((config, self.raise_exceptions))
+                for config in self._run_stream(configs)
+            ]
+            result = ray.get(futures)
         elif self.backend == Backend.PATHOS:
             with PathosPool(processes=self.processes) as pool:
-                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
-                result = flatten(flatten(mapped))
+                result = pool.map(
+                    Engine._proxy_single_run,
+                    [
+                        (config, self.raise_exceptions)
+                        for config in self._run_stream(configs)
+                    ],
+                )
         elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
-            with multiprocessing.get_context("spawn").Pool(processes=self.processes) as pool:
-                mapped = pool.map(Engine._proxy_single_run, self._run_stream(configs))
-                result = flatten(flatten(mapped))
+            with multiprocessing.get_context("spawn").Pool(
+                processes=self.processes
+            ) as pool:
+                result = pool.map(
+                    Engine._proxy_single_run,
+                    [
+                        (config, self.raise_exceptions)
+                        for config in self._run_stream(configs)
+                    ],
+                )
         elif self.backend in [Backend.BASIC]:
-            result = flatten(flatten([Engine._proxy_single_run(config) for config in self._run_stream(configs)]))
+            result = [
+                Engine._proxy_single_run((config, self.raise_exceptions))
+                for config in self._run_stream(configs)
+            ]
         else:
             raise Exception(f"Execution backend must be one of {Backend.list()}")
 
         self.experiment._after_experiment(engine=self)
 
-        return result
-
+        self.experiment.results, self.experiment.exceptions = extract_exceptions(
+            flatten(flatten(result))
+        )
+        return self.experiment.results
 
     @ray.remote
     def _proxy_single_run_ray(args):
-        return core.single_run(*args)
-
+        return Engine._single_run(args)
 
     def _proxy_single_run(args):
-        return core.single_run(*args)
+        return Engine._single_run(args)
 
+    def _single_run(args):
+        run_args, raise_exceptions = args
+        try:
+            return core.single_run(*run_args)
+        except Exception as e:
+            if raise_exceptions:
+                raise e
+            else:
+                return e
 
     def _get_simulation_from_config(config):
         states, state_update_blocks, params, timesteps, runs = config
-        model = core.Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
+        model = core.Model(
+            initial_state=states, state_update_blocks=state_update_blocks, params=params
+        )
         return core.Simulation(model=model, timesteps=timesteps, runs=runs)
-
 
     def _run_stream(self, configs):
         simulations = [Engine._get_simulation_from_config(config) for config in configs]
@@ -105,7 +139,9 @@ class Engine():
             params = simulation.model.params
             param_sweep = core.generate_parameter_sweep(params)
 
-            self.experiment._before_simulation(simulation=simulation, simulation_index=simulation_index)
+            self.experiment._before_simulation(
+                simulation=simulation, simulation_index=simulation_index
+            )
 
             for run_index in range(0, runs):
                 self.experiment._before_run(simulation=simulation, run_index=run_index)
@@ -131,5 +167,7 @@ class Engine():
                         params,
                     )
                 self.experiment._after_run(simulation=simulation, run_index=run_index)
-            
-            self.experiment._after_simulation(simulation=simulation, simulation_index=simulation_index)
+
+            self.experiment._after_simulation(
+                simulation=simulation, simulation_index=simulation_index
+            )

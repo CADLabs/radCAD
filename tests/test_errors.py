@@ -129,3 +129,35 @@ def test_state_update_result_type_error():
     with pytest.raises(RuntimeError) as e:
         result = simulation.run()
     assert str(e.value) == "Failed to extract state update function result as tuple"
+
+def test_raise_exceptions_false():
+    initial_state = {
+        'state_a': 0
+    }
+
+    state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'state_a': update_state_invalid_result
+            }
+        },
+    ]
+
+    params = {}
+
+    TIMESTEPS = 10
+    RUNS = 1
+
+    model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment(simulation)
+    experiment.engine = Engine(raise_exceptions=False)
+
+    results = experiment.run()
+    _results = experiment.results
+    assert results == _results
+    exceptions = experiment.exceptions
+
+    assert any([True if isinstance(exception, RuntimeError) else False for exception in exceptions])
+    assert isinstance(results, list)

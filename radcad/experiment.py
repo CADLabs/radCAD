@@ -2,27 +2,32 @@ from radcad.core import Simulation
 from radcad.engine import Engine
 
 
-class Experiment():
+class Experiment:
     """
     An Experiment.
     """
+
     def __init__(self, simulations=[], **kwargs):
-        self.engine = kwargs.pop('engine', Engine())
+        self.engine = kwargs.pop("engine", Engine())
 
         self.simulations = []
+
+        self.results = []
+        self.exceptions = []
+
         # Add and validate simulations
         self.add_simulations(simulations)
 
-        self.before_experiment = kwargs.pop('before_experiment', None)
-        self.after_experiment = kwargs.pop('after_experiment', None)
-        self.before_simulation = kwargs.pop('before_simulation', None)
-        self.after_simulation = kwargs.pop('after_simulation', None)
-        self.before_run = kwargs.pop('before_run', None)
-        self.after_run = kwargs.pop('after_run', None) 
+        self.before_experiment = kwargs.pop("before_experiment", None)
+        self.after_experiment = kwargs.pop("after_experiment", None)
+        self.before_simulation = kwargs.pop("before_simulation", None)
+        self.after_simulation = kwargs.pop("after_simulation", None)
+        self.before_run = kwargs.pop("before_run", None)
+        self.after_run = kwargs.pop("after_run", None)
 
         if kwargs:
             raise Exception(f"Invalid Experiment option in {kwargs}")
-    
+
     def run(self):
         return self.engine._run(experiment=self)
 
@@ -32,7 +37,7 @@ class Experiment():
         if any(not isinstance(sim, Simulation) for sim in simulations):
             raise Exception("Invalid simulation added")
         self.simulations.extend(simulations)
-    
+
     def clear_simulations(self):
         cleared = True if self.simulations else False
         self.simulations = []
@@ -52,11 +57,15 @@ class Experiment():
 
     def _before_simulation(self, simulation=None, simulation_index=-1):
         if self.before_simulation:
-            self.before_simulation(simulation=simulation, simulation_index=simulation_index)
+            self.before_simulation(
+                simulation=simulation, simulation_index=simulation_index
+            )
 
     def _after_simulation(self, simulation=None, simulation_index=-1):
         if self.after_simulation:
-            self.after_simulation(simulation=simulation, simulation_index=simulation_index)
+            self.after_simulation(
+                simulation=simulation, simulation_index=simulation_index
+            )
 
     def _before_run(self, simulation=None, run_index=-1):
         if self.before_run:

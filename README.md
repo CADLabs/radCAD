@@ -91,18 +91,10 @@ result = experiment.run()
 
 ## Advanced Features
 
+* [x] Robust exception handling
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 * [x] (WIP) Hooks to easily extend the functionality
-
-```python
-experiment.before_experiment = lambda engine=None: print(f"Before experiment with {len(engine.experiment.simulations)} simulations")
-experiment.after_experiment = lambda engine=None: print(f"After experiment with {len(engine.experiment.simulations)} simulations")
-experiment.before_simulation = lambda simulation=None, simulation_index=-1: print(f"Before simulation {simulation_index} with params {simulation.model.params}")
-experiment.after_simulation = lambda simulation=None, simulation_index=-1: print(f"After simulation {simulation_index} with params {simulation.model.params}")
-experiment.before_run = lambda run_index=-1, simulation=None: print(f"Before run {run_index}")
-experiment.after_run = lambda run_index=-1, simulation=None: print(f"After run {run_index}")
-```
 
 ## Installation
 
@@ -134,29 +126,6 @@ result = simulation.run()
 
 df = pd.DataFrame(result)
 ```
-
-### cadCAD compatibility mode
-
-radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
-
-To use the compatibility mode, install radCAD with the `compat` dependencies:
-
-```bash
-pip install -e .[compat]
-# Or
-poetry install -E compat
-```
-
-Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
-
-```python
-from radcad.compat.cadCAD.configuration import Experiment
-from radcad.compat.cadCAD.engine import Executor, ExecutionMode, ExecutionContext
-from radcad.compat.cadCAD.configuration.utils import config_sim
-from radcad.compat.cadCAD import configs
-```
-
-Now run your existing cadCAD model using radCAD!
 
 ### Selecting single or multi-process modes
 
@@ -206,6 +175,28 @@ Finally, spin down the cluster:
 ray down cluster/ray-aws.yaml
 ```
 
+### Exception handling
+
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions.
+
+```python
+...
+experiment.engine = Engine(raise_exceptions=False)
+experiment.run()
+
+results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
+exceptions = experiment.exceptions # e.g. [RuntimeError("..."), RuntimeError("...")]
+```
+
+This also means you can run a specific simulation directly, and access the results later:
+```python
+predator_prey_simulation.run()
+
+...
+
+results = predator_prey_simulation.experiment.results
+```
+
 ### Notes on state mutation
 
 The biggest performance bottleneck with radCAD, and cadCAD for that matter, is avoiding mutation of state variables by creating a deep copy of the state passed to the state update function. This avoids the state update function mutating state variables outside of the framework by creating a copy of it first -  a deep copy creates a copy of the object itself, and the key value pairs, which gets expensive.
@@ -213,6 +204,29 @@ The biggest performance bottleneck with radCAD, and cadCAD for that matter, is a
 To avoid the additional overhead, mutation of state history is allowed, and left up to the developer to avoid using standard Python best practises, but mutation of the current state is disabled.
 
 See https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow for some performance benchmarks of different methods. radCAD uses `cPickle`, which is faster than using `deepcopy`, but less flexible about what types it can handle (Pickle depends on serialization) - these could be interchanged in future.
+
+### cadCAD compatibility mode
+
+radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
+
+To use the compatibility mode, install radCAD with the `compat` dependencies:
+
+```bash
+pip install -e .[compat]
+# Or
+poetry install -E compat
+```
+
+Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
+
+```python
+from radcad.compat.cadCAD.configuration import Experiment
+from radcad.compat.cadCAD.engine import Executor, ExecutionMode, ExecutionContext
+from radcad.compat.cadCAD.configuration.utils import config_sim
+from radcad.compat.cadCAD import configs
+```
+
+Now run your existing cadCAD model using radCAD!
 
 ## Development
 

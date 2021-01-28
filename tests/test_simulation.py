@@ -12,4 +12,8 @@ def test_run():
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     experiment = Experiment(simulations=[simulation])
     
-    assert simulation.run() == experiment.run()
+    raw_result = experiment.run()
+    
+    assert len(raw_result) > 0
+    assert raw_result == experiment.results
+    assert simulation.run() == raw_result
