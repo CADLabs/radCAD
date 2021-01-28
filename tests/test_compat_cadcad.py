@@ -4,6 +4,7 @@ from pandas.testing import assert_frame_equal
 import pandas as pd
 
 from radcad import Model, Simulation, Experiment
+from radcad.engine import Backend
 
 from radcad.compat.cadCAD.configuration.utils import config_sim
 from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
@@ -60,3 +61,48 @@ def test_simulation_dataframe_structure():
 
     assert_frame_equal(df_radcad, df_cadcad)
     assert df_radcad.equals(df_cadcad)
+
+def update_state_a(params, substep, state_history, previous_state, policy_input):
+    return 'state_a', 1
+
+def test_regression_lambdas():
+    initial_state = {
+        'state_a': 0
+    }
+
+    state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'state_a': update_state_a
+            }
+        },
+    ]
+    
+    params = {
+        'lambda_param': [lambda timestep: timestep % 5]
+    }
+
+    TIMESTEPS = 10
+    RUNS = 1
+
+    c = config_sim({
+        "N": RUNS,
+        "T": range(TIMESTEPS),
+        "M": params
+    })
+
+    exp = cadCADExperiment()
+    del configs[:]
+    exp.append_configs(
+        initial_state = initial_state,
+        partial_state_update_blocks = state_update_blocks,
+        sim_configs = c
+    )
+
+    exec_mode = ExecutionMode()
+    local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
+    simulation = Executor(exec_context=local_mode_ctx, configs=configs)
+
+    raw_data, tensor_field, sessions = simulation.execute(backend=Backend.PATHOS)
+    assert isinstance(raw_data, list)

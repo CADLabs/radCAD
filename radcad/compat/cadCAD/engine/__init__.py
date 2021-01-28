@@ -13,6 +13,7 @@ else:
 if not _has_cadCAD:
     raise Exception("Optional compatibility dependency cadCAD not installed")
 
+
 class Executor(_engine.Executor):
     def execute(self, backend=Backend.DEFAULT):
         simulations = []
@@ -20,11 +21,17 @@ class Executor(_engine.Executor):
             initial_state = config.initial_state
             state_update_blocks = config.partial_state_updates
 
-            timesteps = max(list(config.sim_config['T'])) + 1
-            runs = config.sim_config['N']
-            params = config.sim_config['M'] # {key: [value] for key, value in config.sim_config['M'].items()}
+            timesteps = max(list(config.sim_config["T"])) + 1
+            runs = config.sim_config["N"]
+            params = config.sim_config[
+                "M"
+            ]  # {key: [value] for key, value in config.sim_config['M'].items()}
 
-            model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
+            model = Model(
+                initial_state=initial_state,
+                state_update_blocks=state_update_blocks,
+                params=params,
+            )
             simulation = Simulation(model=model, timesteps=timesteps, runs=1)
 
             simulations.append(simulation)

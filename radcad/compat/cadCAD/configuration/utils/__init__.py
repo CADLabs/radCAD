@@ -9,6 +9,7 @@ else:
 if not _has_cadCAD:
     raise Exception("Optional compatibility dependency cadCAD not installed")
 
+
 def config_sim(d):
     # radCAD handles configuration
     return d
