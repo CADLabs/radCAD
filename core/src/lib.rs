@@ -220,7 +220,7 @@ fn single_run(
                     ) {
                         Ok(v) => v,
                         Err(e) => {
-                            return Err(PyErr::new::<RuntimeError, _>(e));
+                            return Err(e);
                         }
                     };
                     let state_update: &PyTuple = match function.is_callable() {
@@ -244,7 +244,7 @@ fn single_run(
                                         "Failed to extract state update function result as tuple",
                                     )),
                                 },
-                                Err(e) => return Err(PyErr::new::<RuntimeError, _>(e)),
+                                Err(e) => return Err(e),
                             }
                         }
                         false => {
@@ -340,13 +340,7 @@ fn reduce_signals(
                 });
             }
             Err(e) => {
-                // e.restore(py);
-                // let s: String = py.eval(r#"
-                // import traceback
-                // traceback.format_exception()
-                // "#, None, None)?.extract()?;
-                // let _ = PyErr::fetch(py);
-                return Err(PyErr::new::<RuntimeError, _>(e));
+                return Err(e);
             }
         }
     }

@@ -69,7 +69,7 @@ class Engine:
                 for config in self._run_stream(configs)
             ]
             result = ray.get(futures)
-        elif self.backend == Backend.PATHOS:
+        elif self.backend in [Backend.PATHOS]:
             with PathosPool(processes=self.processes) as pool:
                 result = pool.map(
                     Engine._proxy_single_run,
@@ -95,7 +95,7 @@ class Engine:
                 for config in self._run_stream(configs)
             ]
         else:
-            raise Exception(f"Execution backend must be one of {Backend.list()}")
+            raise Exception(f"Execution backend must be one of {Backend._member_names_}, not {self.backend}")
 
         self.experiment._after_experiment(engine=self)
 
