@@ -15,7 +15,7 @@ if not _has_cadCAD:
 
 
 class Executor(_engine.Executor):
-    def execute(self, backend=Backend.DEFAULT):
+    def execute(self, engine=Engine()):
         simulations = []
         for config in self.configs:
             initial_state = config.initial_state
@@ -37,6 +37,6 @@ class Executor(_engine.Executor):
             simulations.append(simulation)
 
         experiment = Experiment(simulations=simulations)
-        experiment.engine = Engine(backend=backend)
+        experiment.engine = engine
         result = experiment.run()
         return result, None, None

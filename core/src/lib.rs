@@ -96,8 +96,9 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                     result
                         .call_method(
                             "extend",
-                            (single_run(
+                            (_single_run(
                                 py,
+                                result,
                                 simulation_index,
                                 timesteps,
                                 run,
@@ -114,8 +115,9 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                 result
                     .call_method(
                         "extend",
-                        (single_run(
+                        (_single_run(
                             py,
+                            result,
                             simulation_index,
                             timesteps,
                             run,
@@ -143,11 +145,39 @@ fn single_run(
     initial_state: &PyDict,
     state_update_blocks: &PyList,
     params: &PyDict,
+) -> PyResult<(PyObject, Option<PyObject>)> {
+    let result: &PyList = PyList::empty(py);
+    match _single_run(py, result, simulation, timesteps, run, subset, initial_state, state_update_blocks, params) {
+        Ok(result) => {
+            Ok((result.to_object(py), None))
+        },
+        Err(error) => {
+            info!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
+            Ok((result.to_object(py), Some(error.to_object(py))))
+        }
+    }
+    // if let Err(_err) = _single_run(py, result, simulation, timesteps, run, subset, initial_state, state_update_blocks, params) {
+    //     info!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
+    //     _err.print(py);
+    // }
+    // Ok((result, errors).into())
+}
+
+#[pyfunction]
+fn _single_run(
+    py: Python,
+    result: &PyList,
+    simulation: usize,
+    timesteps: usize,
+    run: usize,
+    subset: usize,
+    initial_state: &PyDict,
+    state_update_blocks: &PyList,
+    params: &PyDict,
 ) -> PyResult<PyObject> {
     info!("Starting run {}", run);
     // let copy = PyModule::import(py, "copy").expect("Failed to import Python copy module");
     let pickle = PyModule::import(py, "pickle").expect("Failed to import Python pickle module");
-    let result: &PyList = PyList::empty(py);
     initial_state.set_item("simulation", simulation).unwrap();
     initial_state.set_item("subset", subset).unwrap();
     initial_state.set_item("run", run + 1).unwrap();
@@ -220,7 +250,7 @@ fn single_run(
                     ) {
                         Ok(v) => v,
                         Err(e) => {
-                            return Err(PyErr::new::<RuntimeError, _>(e));
+                            return Err(e);
                         }
                     };
                     let state_update: &PyTuple = match function.is_callable() {
@@ -244,7 +274,7 @@ fn single_run(
                                         "Failed to extract state update function result as tuple",
                                     )),
                                 },
-                                Err(e) => return Err(PyErr::new::<RuntimeError, _>(e)),
+                                Err(e) => return Err(e),
                             }
                         }
                         false => {
@@ -340,13 +370,7 @@ fn reduce_signals(
                 });
             }
             Err(e) => {
-                // e.restore(py);
-                // let s: String = py.eval(r#"
-                // import traceback
-                // traceback.format_exception()
-                // "#, None, None)?.extract()?;
-                // let _ = PyErr::fetch(py);
-                return Err(PyErr::new::<RuntimeError, _>(e));
+                return Err(e);
             }
         }
     }

@@ -177,7 +177,7 @@ ray down cluster/ray-aws.yaml
 
 ### Exception handling
 
-radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions.
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
 
 ```python
 ...
@@ -274,3 +274,16 @@ poetry run python -m ipykernel install --user --name python3-radcad
 ## Benchmarking
 
 See [benchmarks](benchmarks/)
+
+### Time Profiling
+
+```bash
+poetry run python3 -m pytest run benchmarks/benchmark_radcad.py
+```
+
+### Memory Profiling
+
+```bash
+poetry run python3 -m mprof run benchmarks/benchmark_memory_radcad.py
+poetry run python3 -m mprof plot
+```

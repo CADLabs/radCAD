@@ -21,7 +21,7 @@ class Backend(Enum):
     RAY = 2
     RAY_REMOTE = 3
     PATHOS = 4
-    BASIC = 5
+    SINGLE_PROCESS = 5
 
 
 class Engine:
@@ -69,7 +69,7 @@ class Engine:
                 for config in self._run_stream(configs)
             ]
             result = ray.get(futures)
-        elif self.backend == Backend.PATHOS:
+        elif self.backend in [Backend.PATHOS, Backend.DEFAULT]:
             with PathosPool(processes=self.processes) as pool:
                 result = pool.map(
                     Engine._proxy_single_run,
@@ -78,7 +78,7 @@ class Engine:
                         for config in self._run_stream(configs)
                     ],
                 )
-        elif self.backend in [Backend.MULTIPROCESSING, Backend.DEFAULT]:
+        elif self.backend in [Backend.MULTIPROCESSING]:
             with multiprocessing.get_context("spawn").Pool(
                 processes=self.processes
             ) as pool:
@@ -89,19 +89,16 @@ class Engine:
                         for config in self._run_stream(configs)
                     ],
                 )
-        elif self.backend in [Backend.BASIC]:
+        elif self.backend in [Backend.SINGLE_PROCESS]:
             result = [
                 Engine._proxy_single_run((config, self.raise_exceptions))
                 for config in self._run_stream(configs)
             ]
         else:
-            raise Exception(f"Execution backend must be one of {Backend.list()}")
+            raise Exception(f"Execution backend must be one of {Backend._member_names_}, not {self.backend}")
 
         self.experiment._after_experiment(engine=self)
-
-        self.experiment.results, self.experiment.exceptions = extract_exceptions(
-            flatten(flatten(result))
-        )
+        self.experiment.results, self.experiment.exceptions = extract_exceptions(result)
         return self.experiment.results
 
     @ray.remote
@@ -114,7 +111,10 @@ class Engine:
     def _single_run(args):
         run_args, raise_exceptions = args
         try:
-            return core.single_run(*run_args)
+            results, exception = core.single_run(*run_args)
+            if raise_exceptions and exception:
+                raise exception
+            return results, exception
         except Exception as e:
             if raise_exceptions:
                 raise e

@@ -48,6 +48,7 @@ TIMESTEPS = 100_000
 RUNS = 2
 
 from radcad import Model, Simulation, Experiment
+from radcad.engine import Engine, Backend
 
 from cadCAD.configuration.utils import config_sim
 from cadCAD.configuration import Experiment as cadCADExperiment
@@ -65,6 +66,7 @@ if __name__ == '__main__':
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     experiment = Experiment([simulation, simulation])
+    experiment.engine = Engine(backend=Backend.BASIC)
 
     start = time.time()
     data_rc = experiment.run()
@@ -109,7 +111,7 @@ if __name__ == '__main__':
     df_cadcad = pd.DataFrame(data)
     print(df_cadcad)
 
-    assert_frame_equal(df_radcad.drop(['simulation', 'run'], axis=1), df_cadcad.drop(['simulation', 'run'], axis=1))
+    assert_frame_equal(df_radcad.drop(['run'], axis=1), df_cadcad.drop(['run'], axis=1))
 
     print()
     print(f'radCAD took {duration_radcad} seconds')

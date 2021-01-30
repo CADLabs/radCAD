@@ -76,7 +76,7 @@ def test_multiple_partial_state_updates():
     model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     experiment = Experiment(simulation)
-    experiment.engine = Engine(backend=Backend.BASIC)
+    experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
     
     result = experiment.run()
     df = pd.DataFrame(result)

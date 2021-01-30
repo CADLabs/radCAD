@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.2.1"
+version = "0.3.0"
 description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 include = ["core/output/radCAD.*"]
@@ -16,6 +16,7 @@ ray = "^1.1.0"
 pandas = "^1.1.5"
 boto3 = "^1.16.43"
 cadCAD = { version = "^0.4.23", optional = true }
+pytest-monitor = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
