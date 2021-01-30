@@ -4,7 +4,7 @@ from pandas.testing import assert_frame_equal
 import pandas as pd
 
 from radcad import Model, Simulation, Experiment
-from radcad.engine import Backend
+from radcad.engine import Engine, Backend
 
 from radcad.compat.cadCAD.configuration.utils import config_sim
 from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
@@ -104,5 +104,5 @@ def test_regression_lambdas():
     local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
     simulation = Executor(exec_context=local_mode_ctx, configs=configs)
 
-    raw_data, tensor_field, sessions = simulation.execute(backend=Backend.PATHOS)
+    raw_data, tensor_field, sessions = simulation.execute(engine=Engine(backend=Backend.PATHOS))
     assert isinstance(raw_data, list)

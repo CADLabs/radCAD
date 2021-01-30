@@ -177,7 +177,7 @@ ray down cluster/ray-aws.yaml
 
 ### Exception handling
 
-radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions.
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
 
 ```python
 ...

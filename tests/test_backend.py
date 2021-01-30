@@ -24,7 +24,7 @@ def test_backend_equality():
     experiment.engine = Engine(backend=Backend.PATHOS)
     df_pathos = pd.DataFrame(experiment.run())
 
-    experiment.engine = Engine(backend=Backend.BASIC)
+    experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
     df_basic = pd.DataFrame(experiment.run())
 
     assert df_multiprocessing.equals(df_ray)

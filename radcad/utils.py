@@ -11,6 +11,7 @@ def flatten(nested_list):
 
 
 def extract_exceptions(results_with_exceptions):
-    results = filter(lambda x: not isinstance(x, Exception), results_with_exceptions)
-    exceptions = filter(lambda x: isinstance(x, Exception), results_with_exceptions)
-    return (list(results), list(exceptions))
+    results, exceptions = zip(*results_with_exceptions)
+    # results = filter(lambda x: not isinstance(x, Exception), results_with_exceptions)
+    # exceptions = filter(lambda x: isinstance(x, Exception), results_with_exceptions)
+    return (list(flatten(flatten(list(results)))), list(exceptions))
