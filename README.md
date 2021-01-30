@@ -274,3 +274,16 @@ poetry run python -m ipykernel install --user --name python3-radcad
 ## Benchmarking
 
 See [benchmarks](benchmarks/)
+
+### Time Profiling
+
+```bash
+poetry run python3 -m pytest run benchmarks/benchmark_radcad.py
+```
+
+### Memory Profiling
+
+```bash
+poetry run python3 -m mprof run benchmarks/benchmark_memory_radcad.py
+poetry run python3 -m mprof plot
+```
