@@ -91,7 +91,7 @@ result = experiment.run()
 
 ## Advanced Features
 
-* [x] Robust exception handling
+* [x] Robust exception handling with partial results
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 * [x] (WIP) Hooks to easily extend the functionality
