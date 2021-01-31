@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.3.0"
+version = "0.3.1"
 description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 include = ["core/output/radCAD.*"]
@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 pathos = "^0.2.7"
 ray = "^1.1.0"
 pandas = "^1.1.5"
@@ -31,6 +31,7 @@ celluloid = "^0.2.0"
 ipywidgets = ">=7.5"
 memory-profiler = "^0.58.0"
 black = "^20.8b1"
+streamlit = "^0.75.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
