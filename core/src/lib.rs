@@ -4,10 +4,9 @@
 use log::info;
 use pyo3::exceptions::{KeyError, RuntimeError, TypeError};
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyString, PyTuple};
+use pyo3::types::{IntoPyDict, PyDict, PyList, PyString, PyTuple};
 use pyo3::wrap_pyfunction;
 use std::convert::TryFrom;
-
 
 #[pymodule]
 fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -148,10 +147,18 @@ fn single_run(
     params: &PyDict,
 ) -> PyResult<(PyObject, Option<PyObject>)> {
     let result: &PyList = PyList::empty(py);
-    match _single_run(py, result, simulation, timesteps, run, subset, initial_state, state_update_blocks, params) {
-        Ok(result) => {
-            Ok((result.to_object(py), None))
-        },
+    match _single_run(
+        py,
+        result,
+        simulation,
+        timesteps,
+        run,
+        subset,
+        initial_state,
+        state_update_blocks,
+        params,
+    ) {
+        Ok(result) => Ok((result.to_object(py), None)),
         Err(error) => {
             info!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
             println!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
@@ -186,20 +193,24 @@ fn _single_run(
         for timestep in 0..timesteps {
             let _pool = pyo3::GILPool::new(); // Frees GIL memory. Requires unsafe code block.
             let previous_state: &PyDict = match timestep {
-                0 => {
-                    result
-                        .get_item(0)
-                        .cast_as::<PyList>()?
-                        .get_item(0)
-                        .cast_as::<PyDict>()?
-                        .copy()?
-                },
+                0 => result
+                    .get_item(0)
+                    .cast_as::<PyList>()?
+                    .get_item(0)
+                    .cast_as::<PyDict>()?
+                    .copy()?,
                 _ => {
                     let substates = result
-                        .get_item(isize::try_from(result.len() - 1).expect("Failed to fetch previous state"))
+                        .get_item(
+                            isize::try_from(result.len() - 1)
+                                .expect("Failed to fetch previous state"),
+                        )
                         .cast_as::<PyList>()?;
                     substates
-                        .get_item(isize::try_from(substates.len() - 1).expect("Failed to fetch previous state"))
+                        .get_item(
+                            isize::try_from(substates.len() - 1)
+                                .expect("Failed to fetch previous state"),
+                        )
                         .cast_as::<PyDict>()?
                         .copy()?
                 }
@@ -213,99 +224,116 @@ fn _single_run(
                 let substate: &PyDict = match substep {
                     0 => previous_state.copy()?,
                     _ => substeps
-                        .get_item(isize::try_from(substep - 1).expect("Failed to convert substep type"))
+                        .get_item(
+                            isize::try_from(substep - 1).expect("Failed to convert substep type"),
+                        )
                         .cast_as::<PyDict>()?
                         .copy()?,
                 };
                 substate
                     .set_item("substep", substep + 1)
                     .expect("Failed to set substep state");
-                for (state, function) in psu
+                // let substate_copy: &PyDict = copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy");
+                let substate_dump = pickle
+                    .call1("dumps", (substate, -1))
+                    .expect("Failed to pickle.dump substate");
+                let substate_copy: &PyDict = pickle
+                    .call1("loads", (substate_dump,))
+                    .expect("Failed to pickle.loads substate")
+                    .extract()
+                    .expect("Failed to extract substate deep copy");
+                let updated_state: Result<Vec<(&PyAny, &PyAny)>, PyErr> = psu
                     .get_item("variables")
                     .expect("Get variables failed")
                     .cast_as::<PyDict>()
                     .expect("Get variables failed")
-                    .iter()
-                {
-                    if !initial_state.contains(state)? {
-                        return Err(PyErr::new::<KeyError, _>(
-                            "Invalid state key in partial state update block",
-                        ));
-                    };
-                    // let substate_copy: &PyDict = copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy");
-                    let substate_dump = pickle.call1("dumps", (substate, -1,)).expect("Failed to pickle.dump substate");
-                    let substate_copy: &PyDict = pickle.call1("loads", (substate_dump,)).expect("Failed to pickle.loads substate").extract().expect("Failed to extract substate deep copy");
-                    let signals = match reduce_signals(
-                        py,
-                        params,
-                        substep,
-                        result,
-                        substate_copy,
-                        psu.cast_as::<PyDict>()
-                            .expect("Failed to cast partial state update block as dictionary"),
-                    ) {
-                        Ok(v) => v,
-                        Err(e) => {
-                            return Err(e);
-                        }
-                    };
-                    let state_update: &PyTuple = match function.is_callable() {
-                        true => {
-                            match function.call(
-                                (
-                                    params,
-                                    substep,
-                                    result,
-                                    substate_copy,
-                                    signals
-                                        .extract::<&PyDict>(py)
-                                        .expect("Failed to convert policy signals to dictionary")
-                                        .clone(),
-                                ),
-                                None,
-                            ) {
-                                Ok(v) => match v.extract() {
-                                    Ok(v) => v,
-                                    Err(_e) => return Err(PyErr::new::<RuntimeError, _>(
-                                        "Failed to extract state update function result as tuple",
-                                    )),
-                                },
-                                Err(e) => return Err(e),
+                    .into_iter()
+                    .map(|(state, function)| {
+                        if !initial_state.contains(state)? {
+                            return Err(PyErr::new::<KeyError, _>(
+                                "Invalid state key in partial state update block",
+                            ));
+                        };
+                        let signals = match reduce_signals(
+                            py,
+                            params,
+                            substep,
+                            result,
+                            substate_copy,
+                            psu.cast_as::<PyDict>()
+                                .expect("Failed to cast partial state update block as dictionary"),
+                        ) {
+                            Ok(v) => v,
+                            Err(e) => {
+                                return Err(e);
+                            }
+                        };
+                        let state_update: &PyTuple = match function.is_callable() {
+                            true => {
+                                match function.call(
+                                    (
+                                        params,
+                                        substep,
+                                        result,
+                                        substate_copy,
+                                        signals
+                                            .extract::<&PyDict>(py)
+                                            .expect("Failed to convert policy signals to dictionary")
+                                            .clone(),
+                                    ),
+                                    None,
+                                ) {
+                                    Ok(v) => match v.extract() {
+                                        Ok(v) => v,
+                                        Err(_e) => return Err(PyErr::new::<RuntimeError, _>(
+                                            "Failed to extract state update function result as tuple",
+                                        )),
+                                    },
+                                    Err(e) => return Err(e),
+                                }
+                            }
+                            false => {
+                                return Err(PyErr::new::<TypeError, _>(
+                                    "State update function is not callable",
+                                ));
+                            }
+                        };
+                        let state_key = state_update.get_item(0);
+                        let state_value = state_update.get_item(1);
+                        if !initial_state.contains(state_key)? {
+                            return Err(PyErr::new::<KeyError, _>(
+                                "Invalid state key returned from state update function",
+                            ));
+                        };
+                        match state.downcast::<PyString>()?.to_string()?
+                            == state_key.downcast::<PyString>()?.to_string()?
+                        {
+                            true => Ok((state_key, state_value)),
+                            _ => {
+                                return Err(PyErr::new::<KeyError, _>(format!(
+                                    "PSU state key {} doesn't match function state key {}",
+                                    state, state_key
+                                )))
                             }
                         }
-                        false => {
-                            return Err(PyErr::new::<TypeError, _>(
-                                "State update function is not callable",
-                            ));
-                        }
-                    };
-                    let state_key = state_update.get_item(0);
-                    let state_value = state_update.get_item(1);
-                    if !initial_state.contains(state_key)? {
-                        return Err(PyErr::new::<KeyError, _>(
-                            "Invalid state key returned from state update function",
-                        ));
-                    };
-                    match state.downcast::<PyString>()?.to_string()?
-                        == state_key.downcast::<PyString>()?.to_string()?
-                    {
-                        true => substate
-                            .set_item(state_key, state_value)
-                            .expect("Failed to update state"),
-                        _ => {
-                            return Err(PyErr::new::<KeyError, _>(format!(
-                                "PSU state key {} doesn't match function state key {}",
-                                state, state_key
-                            )))
-                        }
+                    })
+                    .collect();
+                match updated_state {
+                    Ok(value) => {
+                        substate_copy
+                            .call_method("update", (value.into_py_dict(py),), None)
+                            .expect("Failed to update substate");
+                        substeps
+                            .insert(
+                                isize::try_from(substep).expect("Failed to convert substep type"),
+                                substate_copy,
+                            )
+                            .expect("Failed to insert substep");
+                    }
+                    Err(e) => {
+                        return Err(e);
                     }
                 }
-                substeps
-                    .insert(
-                        isize::try_from(substep).expect("Failed to convert substep type"),
-                        substate,
-                    )
-                    .expect("Failed to insert substep");
             }
             result.append(substeps).unwrap();
         }
@@ -361,9 +389,11 @@ fn reduce_signals(
             Ok(v) => {
                 policy_results.push(match v.extract::<&PyDict>() {
                     Ok(v) => v,
-                    Err(_e) => return Err(PyErr::new::<RuntimeError, _>(
-                        "Failed to extract policy function result as dictionary",
-                    )),
+                    Err(_e) => {
+                        return Err(PyErr::new::<RuntimeError, _>(
+                            "Failed to extract policy function result as dictionary",
+                        ))
+                    }
                 });
             }
             Err(e) => {

@@ -110,8 +110,8 @@ def test_regression_policy_signals():
     model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     result = simulation.run()
-    df = pd.DataFrame(result)
 
+    df = pd.DataFrame(result)
     assert df.query('timestep == 10 and substep == 2')['a'].item() == 10
 
 def test_paralell_state_update():
@@ -147,5 +147,3 @@ def test_paralell_state_update():
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     result = simulation.run()
     df = pd.DataFrame(result)
-
-    # assert df.query('timestep == 1 and substep == 1')['a'].item() == 10
