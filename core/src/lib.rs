@@ -20,6 +20,7 @@ fn radCAD(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(run))?;
     m.add_wrapped(wrap_pyfunction!(single_run))?;
     m.add_wrapped(wrap_pyfunction!(generate_parameter_sweep))?;
+    m.add_wrapped(wrap_pyfunction!(reduce_signals))?;
 
     Ok(())
 }
@@ -153,17 +154,12 @@ fn single_run(
         },
         Err(error) => {
             info!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
+            println!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
             Ok((result.to_object(py), Some(error.to_object(py))))
         }
     }
-    // if let Err(_err) = _single_run(py, result, simulation, timesteps, run, subset, initial_state, state_update_blocks, params) {
-    //     info!("Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results.", simulation=simulation, subset=subset, run=run);
-    //     _err.print(py);
-    // }
-    // Ok((result, errors).into())
 }
 
-#[pyfunction]
 fn _single_run(
     py: Python,
     result: &PyList,
@@ -344,6 +340,7 @@ fn generate_parameter_sweep(py: Python, params: &PyDict) -> PyResult<PyObject> {
     Ok(param_sweep.into())
 }
 
+#[pyfunction]
 fn reduce_signals(
     py: Python,
     params: &PyDict,
