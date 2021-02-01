@@ -233,15 +233,6 @@ fn _single_run(
                 substate
                     .set_item("substep", substep + 1)
                     .expect("Failed to set substep state");
-                // let substate_copy: &PyDict = copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy");
-                let substate_dump = pickle
-                    .call1("dumps", (substate, -1))
-                    .expect("Failed to pickle.dump substate");
-                let substate_copy: &PyDict = pickle
-                    .call1("loads", (substate_dump,))
-                    .expect("Failed to pickle.loads substate")
-                    .extract()
-                    .expect("Failed to extract substate deep copy");
                 let updated_state: Result<Vec<(&PyAny, &PyAny)>, PyErr> = psu
                     .get_item("variables")
                     .expect("Get variables failed")
@@ -249,6 +240,15 @@ fn _single_run(
                     .expect("Get variables failed")
                     .into_iter()
                     .map(|(state, function)| {
+                        // let substate_copy: &PyDict = copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy");
+                        let substate_dump = pickle
+                            .call1("dumps", (substate, -1))
+                            .expect("Failed to pickle.dump substate");
+                        let substate_copy: &PyDict = pickle
+                            .call1("loads", (substate_dump,))
+                            .expect("Failed to pickle.loads substate")
+                            .extract()
+                            .expect("Failed to extract substate deep copy");
                         if !initial_state.contains(state)? {
                             return Err(PyErr::new::<KeyError, _>(
                                 "Invalid state key in partial state update block",
@@ -320,13 +320,13 @@ fn _single_run(
                     .collect();
                 match updated_state {
                     Ok(value) => {
-                        substate_copy
+                        substate
                             .call_method("update", (value.into_py_dict(py),), None)
                             .expect("Failed to update substate");
                         substeps
                             .insert(
                                 isize::try_from(substep).expect("Failed to convert substep type"),
-                                substate_copy,
+                                substate,
                             )
                             .expect("Failed to insert substep");
                     }
