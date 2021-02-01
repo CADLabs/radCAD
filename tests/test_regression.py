@@ -113,3 +113,39 @@ def test_regression_policy_signals():
     df = pd.DataFrame(result)
 
     assert df.query('timestep == 10 and substep == 2')['a'].item() == 10
+
+def test_paralell_state_update():
+    def update_a(params, substep, state_history, previous_state, policy_input):
+        if previous_state['timestep'] == 1: assert previous_state['b'] == 0
+        return 'a', previous_state['a'] + 1
+
+    def update_b(params, substep, state_history, previous_state, policy_input):
+        if previous_state['timestep'] == 1: assert previous_state['a'] == 0
+        return 'b', previous_state['b'] + 1
+
+    initial_state = {
+        'a': 0,
+        'b': 0
+    }
+
+    state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'a': update_a,
+                'b': update_b
+            }
+        },
+    ]
+
+    params = {}
+
+    TIMESTEPS = 1
+    RUNS = 1
+
+    model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    result = simulation.run()
+    df = pd.DataFrame(result)
+
+    # assert df.query('timestep == 1 and substep == 1')['a'].item() == 10

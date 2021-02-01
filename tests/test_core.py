@@ -1,7 +1,7 @@
 import pytest
 
 import radcad.core as core
-from radcad.core import generate_parameter_sweep
+from radcad.core import generate_parameter_sweep, reduce_signals
 
 from radcad import Model, Simulation, Experiment
 from radcad.engine import flatten
@@ -30,6 +30,23 @@ def test_generate_parameter_sweep():
     }
     param_sweep = generate_parameter_sweep(params)
     assert param_sweep == [{'a': 0, 'b': 0, 'c': 0}, {'a': 1, 'b': 1, 'c': 0}, {'a': 2, 'b': 1, 'c': 0}]
+
+def test_reduce_signals():
+    psu = {
+        'policies': {
+            '1': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_b': 100.0, 'signal_d': 0.00000000011111},
+            '2': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_b': -100.0, 'signal_d': 0.00000000011111},
+            '3': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_c': 100e52, 'signal_d': 0.00000000011111},
+            '4': lambda params, substep, state_history, previous_state: {},
+        },
+        'variables': {}
+    }
+
+    signals = reduce_signals({}, 1, [], {}, psu)
+    assert signals['signal_a'] == 3.0
+    assert signals['signal_b'] == 0
+    assert signals['signal_c'] == 100e52
+    assert signals['signal_d'] == 3.3333000000000003e-10
 
 @pytest.mark.skip(reason="deprecated API")
 def test_run():
