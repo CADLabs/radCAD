@@ -156,3 +156,4 @@ scratchpad**
 .envrc
 .coveralls.yml
 .DS_Store
+*.dat

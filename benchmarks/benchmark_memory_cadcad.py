@@ -28,6 +28,16 @@ exp.append_configs(
     partial_state_update_blocks = state_update_blocks,
     sim_configs = c
 )
+exp.append_configs(
+    initial_state = states,
+    partial_state_update_blocks = state_update_blocks,
+    sim_configs = c
+)
+exp.append_configs(
+    initial_state = states,
+    partial_state_update_blocks = state_update_blocks,
+    sim_configs = c
+)
 
 exec_mode = ExecutionMode()
 local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)

@@ -279,6 +279,7 @@ See [benchmarks](benchmarks/)
 
 ```bash
 poetry run python3 -m pytest run benchmarks/benchmark_radcad.py
+poetry run python3 -m pytest run benchmarks/benchmark_single_process.py
 ```
 
 ### Memory Profiling
