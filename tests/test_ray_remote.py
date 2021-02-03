@@ -26,7 +26,7 @@ def test_run_ray_remote():
 
     if not RAY_ADDRESS or not RAY_REDIS_PASSWORD:
         assert False, "RAY_ADDRESS or RAY_REDIS_PASSWORD not set"
-    ray.init(address=RAY_ADDRESS, _redis_password=RAY_REDIS_PASSWORD)
+    ray.init(_redis_password=RAY_REDIS_PASSWORD)
     result = experiment.run()
 
     df = pd.DataFrame(result)
