@@ -91,6 +91,7 @@ result = experiment.run()
 
 ## Advanced Features
 
+* [x] Disable `deepcopy` option for improved performance (at cost of mutability)
 * [x] Robust exception handling with partial results
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
@@ -137,6 +138,14 @@ from radacad import Engine
 
 experiment.engine = Engine(processes=1)
 result = experiment.run()
+```
+
+### Disabling state `deepcopy`
+
+To improve performance, at the cost of mutability, the `Engine` module has the `deepcopy` option which is `True` by default:
+
+```python
+experiment.engine = Engine(deepcopy=False)
 ```
 
 ### Remote Cluster Execution (using Ray)
