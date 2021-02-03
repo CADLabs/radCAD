@@ -17,8 +17,8 @@ def test_simulation_dataframe_structure():
     states = basic.states
     state_update_blocks = basic.state_update_blocks
     params = basic.params
-    TIMESTEPS = basic.TIMESTEPS
-    RUNS = basic.RUNS
+    TIMESTEPS = 1000
+    RUNS = 1
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)

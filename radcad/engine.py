@@ -10,6 +10,7 @@ import dill
 import ray
 
 from enum import Enum
+import copy
 
 
 cpu_count = multiprocessing.cpu_count() - 1 or 1
