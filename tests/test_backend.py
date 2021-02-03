@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 
 
-@pytest.mark.skip(reason="issue with test")
 def test_backend_equality():
     states = basic.states
     state_update_blocks = basic.state_update_blocks
@@ -28,11 +27,11 @@ def test_backend_equality():
     df_pathos = pd.DataFrame(experiment.run())
 
     experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
-    df_basic = pd.DataFrame(experiment.run())
+    df_single_process = pd.DataFrame(experiment.run())
 
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
-    assert df_multiprocessing.equals(df_basic)
+    assert df_multiprocessing.equals(df_single_process)
 
 def test_backend_single_process():
     states = basic.states
@@ -56,5 +55,9 @@ def test_backend_single_process():
     experiment.engine = Engine(backend=Backend.PATHOS, processes=processes)
     df_pathos = pd.DataFrame(experiment.run())
 
+    experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
+    df_single_process = pd.DataFrame(experiment.run())
+
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
+    assert df_multiprocessing.equals(df_single_process)

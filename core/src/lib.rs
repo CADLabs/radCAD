@@ -78,6 +78,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
     let py = gil.python();
     let result: &PyList = PyList::empty(py);
+    let deepcopy = true;
 
     for (simulation_index, simulation_) in simulations.iter().enumerate() {
         let simulation: &Simulation = &simulation_.extract::<Simulation>()?;
@@ -105,6 +106,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                                 initial_state,
                                 state_update_blocks,
                                 param_set.extract()?,
+                                deepcopy
                             )?,),
                             None,
                         )
@@ -123,6 +125,7 @@ fn run(simulations: &PyList) -> PyResult<PyObject> {
                             initial_state,
                             state_update_blocks,
                             params,
+                            deepcopy
                         )?,),
                         None,
                     )
@@ -143,6 +146,7 @@ fn single_run(
     initial_state: &PyDict,
     state_update_blocks: &PyList,
     params: &PyDict,
+    deepcopy: bool,
 ) -> PyResult<(PyObject, Option<PyObject>)> {
     let result: &PyList = PyList::empty(py);
     match _single_run(
@@ -154,6 +158,7 @@ fn single_run(
         initial_state,
         state_update_blocks,
         params,
+        deepcopy
     ) {
         Ok(result) => Ok((result.to_object(py), None)),
         Err(error) => {
@@ -173,19 +178,19 @@ fn _single_run(
     initial_state: &PyDict,
     state_update_blocks: &PyList,
     params: &PyDict,
+    deepcopy: bool,
 ) -> PyResult<PyObject> {
     let gil = Python::acquire_gil();
     let py = gil.python();
     info!("Starting run {}", run);
     let copy = PyModule::import(py, "copy").expect("Failed to import Python copy module");
-    let pickle = PyModule::import(py, "pickle").expect("Failed to import Python pickle module");
     initial_state.set_item("simulation", simulation).unwrap();
     initial_state.set_item("subset", subset).unwrap();
     initial_state.set_item("run", run + 1).unwrap();
     initial_state.set_item("substep", 0).unwrap();
     initial_state.set_item("timestep", 0).unwrap();
     let initial_state_list = PyList::empty(py);
-    initial_state_list.append(initial_state).unwrap();
+    initial_state_list.append(initial_state.copy()?).unwrap();
     result.append(initial_state_list).unwrap();
     for timestep in 0..timesteps {
         let pool = unsafe { py.new_pool() }; // Frees GIL memory. Requires unsafe code block.
@@ -228,7 +233,10 @@ fn _single_run(
                     .cast_as::<PyDict>()?
                     .copy()?,
             };
-            let substate_copy: &PyDict = copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy");
+            let substate_copy: &PyDict = match deepcopy {
+                true => copy.call1("deepcopy", (substate,)).expect("Failed to deepcopy substate").extract().expect("Failed to extract substate deepcopy"),
+                false => substate
+            };
             substate
                 .set_item("substep", substep + 1)
                 .expect("Failed to set substep state");
@@ -239,14 +247,6 @@ fn _single_run(
                 .expect("Get variables failed")
                 .into_iter()
                 .map(|(state, function)| {
-                    // let substate_dump = pickle
-                    //     .call1("dumps", (substate, -1))
-                    //     .expect("Failed to pickle.dump substate");
-                    // let substate_copy: &PyDict = pickle
-                    //     .call1("loads", (substate_dump,))
-                    //     .expect("Failed to pickle.loads substate")
-                    //     .extract()
-                    //     .expect("Failed to extract substate deep copy");
                     if !initial_state.contains(state)? {
                         return Err(PyErr::new::<KeyError, _>(
                             "Invalid state key in partial state update block",

@@ -30,6 +30,7 @@ class Engine:
         self.processes = kwargs.pop("processes", cpu_count)
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
+        self.deepcopy = kwargs.pop("deepcopy", True)
 
     def _run(self, experiment=None, **kwargs):
         if not experiment:
@@ -155,6 +156,7 @@ class Engine:
                             initial_state,
                             state_update_blocks,
                             param_set,
+                            self.deepcopy
                         )
                 else:
                     yield (
@@ -165,6 +167,7 @@ class Engine:
                         initial_state,
                         state_update_blocks,
                         params,
+                        self.deepcopy
                     )
                 self.experiment._after_run(simulation=simulation, run_index=run_index)
 
