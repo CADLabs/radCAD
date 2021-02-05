@@ -15,7 +15,6 @@ boto3 = "^1.16.43"
 cadCAD = { version = "^0.4.23", optional = true }
 pytest-monitor = "^1.5.0"
 ray = "^1.1.0"
-numba = "^0.52.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

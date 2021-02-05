@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactor core from Rust to Python
-- Refactor so that during first state update the previous state has a timestep of zero
 
 ## [0.4.1] - 2021-02-02
 ### Added
