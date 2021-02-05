@@ -1,5 +1,5 @@
-from .parts.environment import *
-from .parts.agents import *
+from tests.test_cases.predator_prey_model_source.parts.environment import *
+from tests.test_cases.predator_prey_model_source.parts.agents import *
 import random
 
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from .parts.utils import * 
+from tests.test_cases.predator_prey_model_source.parts.utils import * 
 
 
 def postprocessing(df):

@@ -1,5 +1,5 @@
-from .parts.utils import *
-from .sys_params import initial_values
+from tests.test_cases.predator_prey_model_source.parts.utils import *
+from tests.test_cases.predator_prey_model_source.sys_params import initial_values
 
 
 initial_state = {
