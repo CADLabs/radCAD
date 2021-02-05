@@ -17,14 +17,14 @@ simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 experiment = Experiment([simulation_radcad, simulation_radcad, simulation_radcad])
 
 def test_benchmark_radcad_no_deepcopy(benchmark):
-    benchmark.pedantic(radcad_no_deecopy_simulation, iterations=1, rounds=10)
+    benchmark.pedantic(radcad_no_deecopy_simulation, iterations=1, rounds=3)
 
 def radcad_no_deecopy_simulation():
     experiment.engine = Engine(deepcopy=False)
     data_radcad = experiment.run()
 
 def test_benchmark_radcad_with_deepcopy(benchmark):
-    benchmark.pedantic(radcad_with_deecopy_simulation, iterations=1, rounds=10)
+    benchmark.pedantic(radcad_with_deecopy_simulation, iterations=1, rounds=3)
 
 def radcad_with_deecopy_simulation():
     experiment.engine = Engine(deepcopy=True)

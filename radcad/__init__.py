@@ -1,6 +1,4 @@
-__version__ = "0.2.2"
+__version__ = "0.0.0"
 
-from radcad.core import Model
-from radcad.experiment import Experiment
+from radcad.wrappers import Model, Simulation, Experiment
 from radcad.engine import Engine
-from radcad.simulation import Simulation

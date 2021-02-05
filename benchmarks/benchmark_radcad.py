@@ -15,7 +15,7 @@ simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 experiment = Experiment([simulation_radcad, simulation_radcad, simulation_radcad])
 
 def test_benchmark_radcad(benchmark):
-    benchmark.pedantic(radcad_simulation, iterations=1, rounds=10)
+    benchmark.pedantic(radcad_simulation, iterations=1, rounds=3)
 
 def radcad_simulation():
     data_radcad = experiment.run()

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2021-02-05
+### Added
+- Predator-prey benchmark test
+
+### Changed
+- Refactor core from Rust to Python
+- Refactor so that during first state update the previous state has a timestep of zero
+
 ## [0.4.1] - 2021-02-02
 ### Added
 - Add engine `deepcopy` option, to disable deepcopy of state

@@ -4,12 +4,7 @@ python:
   - "3.8"
 
 before_install:
-  - sh <(curl -L https://nixos.org/nix/install)
-  - . /home/travis/.nix-profile/etc/profile.d/nix.sh
   - pip install poetry
-  - pushd core
-  - nix-shell --command "make setup && make release-linux"
-  - popd
 
 install:
   - poetry install -E compat

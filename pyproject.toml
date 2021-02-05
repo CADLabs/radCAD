@@ -12,7 +12,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 pathos = "^0.2.7"
-ray = "^1.1.0"
+ray = {url = "https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp38-cp38-macosx_10_13_x86_64.whl"}
 pandas = "^1.1.5"
 boto3 = "^1.16.43"
 cadCAD = { version = "^0.4.23", optional = true }
