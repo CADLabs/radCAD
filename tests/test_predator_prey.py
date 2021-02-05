@@ -12,12 +12,12 @@ from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
 
-import tests.test_cases.predator_prey_model as model
+from tests.test_cases.predator_prey_model import *
 
 
 def test_simulation_dataframe_structure():
-    model = Model(initial_state=model.initial_state, params=model.params, state_update_blocks=model.state_update_blocks)
-    simulation_radcad = Simulation(model=model, timesteps=model.TIMESTEPS, runs=model.MONTE_CARLO_RUNS)
+    model = Model(initial_state=initial_state, params=params, state_update_blocks=state_update_blocks)
+    simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=MONTE_CARLO_RUNS)
     experiment = Experiment(simulation_radcad)
     experiment.engine = Engine()
 
@@ -25,19 +25,19 @@ def test_simulation_dataframe_structure():
     
     df = pd.DataFrame(result_radcad)
     print(df)
-    df_radcad = model.run.postprocessing(df)
+    df_radcad = run.postprocessing(df)
     
     c = config_sim({
-        "N": model.MONTE_CARLO_RUNS,
-        "T": range(model.TIMESTEPS),
-        "M": model.params
+        "N": MONTE_CARLO_RUNS,
+        "T": range(TIMESTEPS),
+        "M": params
     })
 
     exp = cadCADExperiment()
     del configs[:]
     exp.append_configs(
-        initial_state = model.initial_state,
-        partial_state_update_blocks = model.state_update_blocks,
+        initial_state = initial_state,
+        partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
 
@@ -49,7 +49,7 @@ def test_simulation_dataframe_structure():
 
     df = pd.DataFrame(data_cadcad)
     print(df)
-    df_cadcad = model.run.postprocessing(df)
+    df_cadcad = run.postprocessing(df)
     
     assert_frame_equal(df_radcad, df_cadcad)
     assert df_radcad.equals(df_cadcad)

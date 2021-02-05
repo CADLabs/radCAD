@@ -1,10 +1,31 @@
 import copy
-from functools import reduce
+from functools import reduce, partial
 import logging
 from pathos.multiprocessing import ThreadPool
+import pickle
 
 
 pool = ThreadPool()
+
+
+def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
+    state, function = state_update_tuple
+    if not state in initial_state:
+        raise KeyError("Invalid state key in partial state update block")
+    state_key, state_value = function(
+        params, substep, result, substate, signals
+    )
+    if not state_key in initial_state:
+        raise KeyError(
+            "Invalid state key returned from state update function"
+        )
+    if state == state_key:
+        return (state_key, state_value)
+    else:
+        raise KeyError(
+            f"PSU state key {state} doesn't match function state key {state_key}"
+        )
+
 
 def _single_run(
     result: list,
@@ -40,36 +61,20 @@ def _single_run(
             substate: dict = (
                 previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
             )
-            substate_copy = copy.deepcopy(substate) if deepcopy else substate.copy()
+            substate_copy = pickle.loads(pickle.dumps(substate, -1)) if deepcopy else substate.copy()
             substate["substep"] = substep + 1
-
-            updated_state: list = []
 
             signals: dict = reduce_signals(
                 params, substep, result, substate_copy, psu
             )
 
-            def update_state(state_update_tuple):
-                state, function = state_update_tuple
-                if not state in initial_state:
-                    raise KeyError("Invalid state key in partial state update block")
-                state_key, state_value = function(
-                    params, substep, result, substate_copy, signals
-                )
-                if not state_key in initial_state:
-                    raise KeyError(
-                        "Invalid state key returned from state update function"
-                    )
-                if state == state_key:
-                    return (state_key, state_value)
-                else:
-                    raise KeyError(
-                        f"PSU state key {state} doesn't match function state key {state_key}"
-                    )
-            updated_state = map(update_state, psu["variables"].items())
+            updated_state = map(
+                partial(_update_state, initial_state, params, substep, result, substate_copy, signals),
+                psu["variables"].items()
+            )
             substate.update(updated_state)
             substate["timestep"] = timestep + 1
-            substeps.insert(substep, substate)
+            substeps.append(substate)
         result.append(substeps)
     return result
 
@@ -147,6 +152,6 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
     if result_length == 0:
         return result
     elif result_length == 1:
-        return copy.deepcopy(policy_results[0])
+        return pickle.loads(pickle.dumps(policy_results[0], -1))
     else:
         return reduce(_add_signals, policy_results, result)
