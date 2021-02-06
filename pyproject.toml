@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.5.1"
+version = "0.5.2"
 description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 packages = [
@@ -10,7 +10,7 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.7,<3.9"
 pathos = "^0.2.7"
-pandas = "^1.1.5"
+pandas = "^1.0.0"
 boto3 = "^1.16.43"
 cadCAD = { version = "^0.4.23", optional = true }
 ray = "^1.1.0"
