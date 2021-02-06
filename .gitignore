@@ -157,3 +157,4 @@ scratchpad**
 .coveralls.yml
 .DS_Store
 *.dat
+*.hdf5

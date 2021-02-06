@@ -1,4 +1,8 @@
 from radcad.engine import Engine
+from collections import namedtuple
+
+
+Run = namedtuple("Run", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy")
 
 
 class Model:
@@ -14,6 +18,7 @@ class Simulation:
         self.timesteps = timesteps
         self.runs = runs
 
+        self.index = kwargs.pop("index", 0)
         self.engine = kwargs.pop("engine", Engine())
         self.experiment = Experiment(self)
 
@@ -68,31 +73,31 @@ class Experiment:
     def get_simulations(self):
         return self.simulations
 
-    # Hooks receive: params, substep, state_history, previous_state
-    def _before_experiment(self, engine=None):
+    # Hooks
+    def _before_experiment(self, experiment=None):
         if self.before_experiment:
-            self.before_experiment(engine=engine)
+            self.before_experiment(experiment=experiment)
 
-    def _after_experiment(self, engine=None):
+    def _after_experiment(self, experiment=None):
         if self.after_experiment:
-            self.after_experiment(engine=engine)
+            self.after_experiment(experiment=experiment)
 
-    def _before_simulation(self, simulation=None, simulation_index=-1):
+    def _before_simulation(self, simulation=None):
         if self.before_simulation:
             self.before_simulation(
-                simulation=simulation, simulation_index=simulation_index
+                simulation=simulation
             )
 
-    def _after_simulation(self, simulation=None, simulation_index=-1):
+    def _after_simulation(self, simulation=None):
         if self.after_simulation:
             self.after_simulation(
-                simulation=simulation, simulation_index=simulation_index
+                simulation=simulation
             )
 
-    def _before_run(self, simulation=None, run_index=-1):
+    def _before_run(self, run: Run=None):
         if self.before_run:
-            self.before_run(simulation=simulation, run_index=run_index)
+            self.before_run(run=run)
 
-    def _after_run(self, simulation=None, run_index=-1):
+    def _after_run(self, run=None):
         if self.after_run:
-            self.after_run(simulation=simulation, run_index=run_index)
+            self.after_run(run=run)
