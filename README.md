@@ -5,7 +5,7 @@
 
 A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
-radCAD extends on [cadCAD](https://github.com/cadCAD-org/cadCAD). It uses Rust for the core, using PyO3 to generate Rust bindings for Python to be used as a native Python module - the performance and expressiveness of Rust, with the utility of the Python data-science stack.
+radCAD extends on [cadCAD](https://github.com/cadCAD-org/cadCAD).
 
 Goals:
 * simple API for ease of use
