@@ -133,7 +133,7 @@ df = pd.DataFrame(result)
 
 By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
-from radacad import Engine
+from radcad import Engine
 
 ...
 
