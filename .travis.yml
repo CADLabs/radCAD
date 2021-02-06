@@ -4,9 +4,7 @@ python:
   - "3.8"
 
 before_install:
-  # Fix for https://github.com/python-poetry/poetry/issues/3650
-  # - pip install poetry
-  - pip install poetry-core==1.0.0 poetry==1.1.4
+  - pip install poetry
 
 install:
   - poetry install -E compat
