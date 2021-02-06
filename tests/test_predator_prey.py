@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from pandas.testing import assert_frame_equal
 
 import pandas as pd
@@ -15,6 +16,7 @@ from cadCAD import configs
 from tests.test_cases.predator_prey_model import *
 
 
+@pytest.mark.skip(reason="issue in remote test environment")
 def test_simulation_dataframe_structure():
     model = Model(initial_state=initial_state, params=params, state_update_blocks=state_update_blocks)
     simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=MONTE_CARLO_RUNS)
