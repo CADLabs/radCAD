@@ -13,13 +13,12 @@ from cadCAD.engine import ExecutionMode, ExecutionContext
 from cadCAD.engine import Executor
 from cadCAD import configs
 
-from tests.test_cases.predator_prey_model import *
+import tests.test_cases.predator_prey_model as test_model
 
 
-@pytest.mark.skip(reason="issue in remote test environment")
 def test_simulation_dataframe_structure():
-    model = Model(initial_state=initial_state, params=params, state_update_blocks=state_update_blocks)
-    simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=MONTE_CARLO_RUNS)
+    model = Model(initial_state=test_model.initial_state, params=test_model.params, state_update_blocks=test_model.state_update_blocks)
+    simulation_radcad = Simulation(model=model, timesteps=test_model.TIMESTEPS, runs=test_model.MONTE_CARLO_RUNS)
     experiment = Experiment(simulation_radcad)
     experiment.engine = Engine()
 
@@ -27,19 +26,19 @@ def test_simulation_dataframe_structure():
     
     df = pd.DataFrame(result_radcad)
     print(df)
-    df_radcad = run.postprocessing(df)
+    df_radcad = test_model.run.postprocessing(df)
     
     c = config_sim({
-        "N": MONTE_CARLO_RUNS,
-        "T": range(TIMESTEPS),
-        "M": params
+        "N": test_model.MONTE_CARLO_RUNS,
+        "T": range(test_model.TIMESTEPS),
+        "M": test_model.params
     })
 
     exp = cadCADExperiment()
     del configs[:]
     exp.append_configs(
-        initial_state = initial_state,
-        partial_state_update_blocks = state_update_blocks,
+        initial_state = test_model.initial_state,
+        partial_state_update_blocks = test_model.state_update_blocks,
         sim_configs = c
     )
 
@@ -51,7 +50,7 @@ def test_simulation_dataframe_structure():
 
     df = pd.DataFrame(data_cadcad)
     print(df)
-    df_cadcad = run.postprocessing(df)
+    df_cadcad = test_model.run.postprocessing(df)
     
     assert_frame_equal(df_radcad, df_cadcad)
     assert df_radcad.equals(df_cadcad)
