@@ -55,9 +55,12 @@ class Engine:
             )
             for sim in simulations
         ]
+
         result = []
 
-        self.experiment._before_experiment(engine=self)
+        self.experiment._before_experiment(experiment=self.experiment)
+
+        run_generator = self._run_stream(configs)
 
         if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
             if self.backend == Backend.RAY_REMOTE:
@@ -69,7 +72,7 @@ class Engine:
 
             futures = [
                 Engine._proxy_single_run_ray.remote((config, self.raise_exceptions))
-                for config in self._run_stream(configs)
+                for config in run_generator
             ]
             result = ray.get(futures)
         elif self.backend in [Backend.PATHOS, Backend.DEFAULT]:
@@ -78,7 +81,7 @@ class Engine:
                     Engine._proxy_single_run,
                     [
                         (config, self.raise_exceptions)
-                        for config in self._run_stream(configs)
+                        for config in run_generator
                     ],
                 )
         elif self.backend in [Backend.MULTIPROCESSING]:
@@ -89,35 +92,43 @@ class Engine:
                     Engine._proxy_single_run,
                     [
                         (config, self.raise_exceptions)
-                        for config in self._run_stream(configs)
+                        for config in run_generator
                     ],
                 )
         elif self.backend in [Backend.SINGLE_PROCESS]:
             result = [
                 Engine._proxy_single_run((config, self.raise_exceptions))
-                for config in self._run_stream(configs)
+                for config in run_generator
             ]
         else:
             raise Exception(f"Execution backend must be one of {Backend._member_names_}, not {self.backend}")
-
-        self.experiment._after_experiment(engine=self)
+        
         self.experiment.results, self.experiment.exceptions = extract_exceptions(result)
+        self.experiment._after_experiment(experiment=self.experiment)
         return self.experiment.results
 
     @ray.remote
     def _proxy_single_run_ray(args):
-        return Engine._single_run(args)
-
+        return Engine._proxy_single_run(args)
+    
     def _proxy_single_run(args):
         return Engine._single_run(args)
 
     def _single_run(args):
         run_args, raise_exceptions = args
         try:
-            results, exception = core.single_run(*run_args)
+            results, exception = core.single_run(*tuple(run_args))
             if raise_exceptions and exception:
                 raise exception
-            return results, exception
+            return results, {
+                    'exception': exception,
+                    'simulation': run_args.simulation,
+                    'run': run_args.run,
+                    'subset': run_args.subset,
+                    'timesteps': run_args.timesteps,
+                    'parameters': run_args.parameters,
+                    'initial_state': run_args.initial_state,
+                }
         except Exception as e:
             if raise_exceptions:
                 raise e
@@ -135,6 +146,8 @@ class Engine:
         simulations = [Engine._get_simulation_from_config(config) for config in configs]
 
         for simulation_index, simulation in enumerate(simulations):
+            simulation.index = simulation_index
+            
             timesteps = simulation.timesteps
             runs = simulation.runs
             initial_state = simulation.model.initial_state
@@ -143,14 +156,13 @@ class Engine:
             param_sweep = core.generate_parameter_sweep(params)
 
             self.experiment._before_simulation(
-                simulation=simulation, simulation_index=simulation_index
+                simulation=simulation
             )
 
             for run_index in range(0, runs):
-                self.experiment._before_run(simulation=simulation, run_index=run_index)
                 if param_sweep:
                     for subset, param_set in enumerate(param_sweep):
-                        yield (
+                        run_args = wrappers.Run(
                             simulation_index,
                             timesteps,
                             run_index,
@@ -160,8 +172,10 @@ class Engine:
                             copy.deepcopy(param_set),
                             self.deepcopy
                         )
+                        self.experiment._before_run(run=run_args)
+                        yield run_args
                 else:
-                    yield (
+                    run_args = wrappers.Run(
                         simulation_index,
                         timesteps,
                         run_index,
@@ -171,8 +185,11 @@ class Engine:
                         copy.deepcopy(params),
                         self.deepcopy
                     )
-                self.experiment._after_run(simulation=simulation, run_index=run_index)
+                    self.experiment._before_run(run=run_args)
+                    yield run_args
+
+                self.experiment._after_run(run=run_args)
 
             self.experiment._after_simulation(
-                simulation=simulation, simulation_index=simulation_index
+                simulation=simulation
             )

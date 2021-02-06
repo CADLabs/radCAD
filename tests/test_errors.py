@@ -164,6 +164,6 @@ def test_raise_exceptions_false():
     assert len(results) > 0
     assert results == _results
     exceptions = experiment.exceptions
-
-    assert any([True if isinstance(exception, Exception) else False for exception in exceptions])
+    print(exceptions)
+    assert any([True if isinstance(exception['exception'], Exception) else False for exception in exceptions])
     assert isinstance(results, list)

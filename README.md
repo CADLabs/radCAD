@@ -93,6 +93,7 @@ result = experiment.run()
 
 * [x] Disable `deepcopy` option for improved performance (at cost of mutability)
 * [x] Robust exception handling with partial results
+* [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 * [x] (WIP) Hooks to easily extend the functionality
@@ -204,6 +205,36 @@ predator_prey_simulation.run()
 ...
 
 results = predator_prey_simulation.experiment.results
+```
+
+### Hooks to extend functionality
+
+```python
+experiment.before_experiment = lambda experiment=None: print(f"Before experiment with {len(experiment.simulations)} simulations")
+experiment.after_experiment = lambda experiment=None: print(f"After experiment with {len(experiment.simulations)} simulations")
+experiment.before_simulation = lambda simulation=None: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
+experiment.after_simulation = lambda simulation=None: print(f"After simulation {simulation.index} with params {simulation.model.params}")
+experiment.before_run = lambda run=None: print(f"Before run {run}")
+experiment.after_run = lambda run=None: print(f"After run {run}")
+```
+
+#### Example hook: Saving results to HDF5
+
+```python
+import pandas as pd
+import datetime
+
+def save_to_HDF5(experiment, store_file_name, store_key):
+    now = datetime.datetime.now()
+    store = pd.HDFStore(store_file_name)
+    store.put(store_key, pd.DataFrame(experiment.results))
+    store.get_storer(store_key).attrs.metadata = {
+        'date': now.isoformat()
+    }
+    store.close()
+    print(f"Saved experiment results to HDF5 store file {store_file_name} with key {store_key}")
+
+experiment.after_experiment = lambda experiment: save_to_HDF5(experiment, 'experiment_results.hdf5', 'experiment_0')
 ```
 
 ### Notes on state mutation
