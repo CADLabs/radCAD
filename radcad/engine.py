@@ -1,4 +1,5 @@
 import radcad.core as core
+import radcad.wrappers as wrappers
 from radcad.utils import flatten, extract_exceptions
 
 import multiprocessing
@@ -10,6 +11,7 @@ import dill
 import ray
 
 from enum import Enum
+import copy
 
 
 cpu_count = multiprocessing.cpu_count() - 1 or 1
@@ -124,10 +126,10 @@ class Engine:
 
     def _get_simulation_from_config(config):
         states, state_update_blocks, params, timesteps, runs = config
-        model = core.Model(
+        model = wrappers.Model(
             initial_state=states, state_update_blocks=state_update_blocks, params=params
         )
-        return core.Simulation(model=model, timesteps=timesteps, runs=runs)
+        return wrappers.Simulation(model=model, timesteps=timesteps, runs=runs)
 
     def _run_stream(self, configs):
         simulations = [Engine._get_simulation_from_config(config) for config in configs]
@@ -153,9 +155,9 @@ class Engine:
                             timesteps,
                             run_index,
                             subset,
-                            initial_state,
+                            copy.deepcopy(initial_state),
                             state_update_blocks,
-                            param_set,
+                            copy.deepcopy(param_set),
                             self.deepcopy
                         )
                 else:
@@ -164,9 +166,9 @@ class Engine:
                         timesteps,
                         run_index,
                         0,
-                        initial_state,
+                        copy.deepcopy(initial_state),
                         state_update_blocks,
-                        params,
+                        copy.deepcopy(params),
                         self.deepcopy
                     )
                 self.experiment._after_run(simulation=simulation, run_index=run_index)

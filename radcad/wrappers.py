@@ -1,5 +1,27 @@
-from radcad.core import Simulation
 from radcad.engine import Engine
+
+
+class Model:
+    def __init__(self, initial_state={}, state_update_blocks=[], params={}):
+        self.initial_state = initial_state
+        self.state_update_blocks = state_update_blocks
+        self.params = params
+
+
+class Simulation:
+    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        self.model = model
+        self.timesteps = timesteps
+        self.runs = runs
+
+        self.engine = kwargs.pop("engine", Engine())
+        self.experiment = Experiment(self)
+
+        if kwargs:
+            raise Exception(f"Invalid Simulation option in {kwargs}")
+
+    def run(self):
+        return self.engine._run(experiment=self.experiment)
 
 
 class Experiment:

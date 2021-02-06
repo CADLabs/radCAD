@@ -42,10 +42,10 @@ local_mode_ctx = ExecutionContext(context=exec_mode.single_proc)
 simulation_cadcad = Executor(exec_context=local_mode_ctx, configs=configs)
 
 def test_benchmark_radcad(benchmark):
-    benchmark.pedantic(radcad_simulation, iterations=1, rounds=5)
+    benchmark.pedantic(radcad_simulation, iterations=1, rounds=3)
     
 def test_benchmark_cadcad(benchmark):
-    benchmark.pedantic(cadcad_simulation, iterations=1, rounds=5)
+    benchmark.pedantic(cadcad_simulation, iterations=1, rounds=3)
 
 def radcad_simulation():
     data_radcad = experiment.run()

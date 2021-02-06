@@ -1,26 +1,23 @@
 [tool.poetry]
 name = "radcad"
-version = "0.4.1"
+version = "0.5.0"
 description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
-include = ["core/output/radCAD.*"]
 packages = [
     { include = "radcad" },
-    { include = "core/output/radCAD.*" },
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.9"
 pathos = "^0.2.7"
-ray = "^1.1.0"
 pandas = "^1.1.5"
 boto3 = "^1.16.43"
 cadCAD = { version = "^0.4.23", optional = true }
 pytest-monitor = "^1.5.0"
+ray = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
-cadCAD = "^0.4.23"
 coveralls = "^2.2.0"
 pytest-cov = "^2.10.1"
 pytest-benchmark = "^3.2.3"
@@ -32,6 +29,7 @@ ipywidgets = ">=7.5"
 memory-profiler = "^0.58.0"
 black = "^20.8b1"
 streamlit = "^0.75.0"
+cadCAD = "^0.4.23"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
