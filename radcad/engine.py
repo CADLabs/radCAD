@@ -84,6 +84,9 @@ class Engine:
                         for config in run_generator
                     ],
                 )
+                pool.close()
+                pool.join()
+                pool.clear()
         elif self.backend in [Backend.MULTIPROCESSING]:
             with multiprocessing.get_context("spawn").Pool(
                 processes=self.processes
@@ -95,6 +98,8 @@ class Engine:
                         for config in run_generator
                     ],
                 )
+                pool.close()
+                pool.join()
         elif self.backend in [Backend.SINGLE_PROCESS]:
             result = [
                 Engine._proxy_single_run((config, self.raise_exceptions))

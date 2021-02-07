@@ -40,7 +40,7 @@ def test_state_update_exception():
 
 def policy_function_raises(params, substep, state_history, previous_state):
     raise Exception('Forced exception from policy function')
-    return {'signal', 1}
+    return {'signal': 1}
 
 def test_policy_exception():
     initial_state = {
@@ -104,7 +104,7 @@ def test_policy_result_type_error():
 
 def update_state_invalid_result(params, substep, state_history, previous_state, policy_input):
     if previous_state['timestep'] > 5:
-        return {'state_a', 1}
+        return {'state_a': 1}
     else:
         return 'state_a', 1
 
