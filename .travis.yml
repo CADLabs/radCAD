@@ -9,11 +9,5 @@ before_install:
 install:
   - poetry install -E compat
 
-# before_script:
-#  -
-
 script:
-  - poetry run python3 -m pytest tests # --cov=radcad
-
-# after_success:
-  # - poetry run coveralls
+  - poetry run python3 -m pytest tests
