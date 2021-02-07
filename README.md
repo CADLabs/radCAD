@@ -17,6 +17,8 @@ Goals:
 
 ### [Game of Life](https://www.conwaylife.com/)
 
+[Live demo on Streamlit](https://share.streamlit.io/benschza/radcad/examples/streamlit/game_of_life/app.py)
+
 A simple game where at each timestep, the following transitions occur:
 
 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
