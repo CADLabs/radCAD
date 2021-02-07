@@ -270,16 +270,6 @@ Now run your existing cadCAD model using radCAD!
 
 ## Development
 
-Build the [Rust](https://www.rust-lang.org/) core using [Nix](https://nixos.org/):
-```bash
-cd core/
-nix-shell
-make setup
-make release-linux # For Linux
-make release-macos # For macOS
-make release-windows # For Windows
-```
-
 Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
 ```bash
 poetry --help
@@ -288,14 +278,27 @@ poetry env use python3
 poetry shell
 ```
 
-### Pip or alternative package managers
+### Publishing to PyPI
 
-See `requirements.txt`.
+```bash
+# 1. Update `pyproject.toml` package version using semantic versioning
+# 2. Update CHANGELOG.md
+# 3. Submit PR and run tests
+# 4. Merge into master on success
+# 5. Build and publish package
+poetry publish --build
+# Enter in PyPI package repository credentials
+# 6. Tag master commit with version e.g. `v0.5.0` and push
+```
+
+### Pip or alternative package managers
 
 Export `requirements.txt` using Poetry:
 ```bash
 poetry export --without-hashes -f requirements.txt --output requirements.txt
 ```
+
+Note: the root `requirements.txt` is used for Streamlit app in examples, and is not for development.
 
 ## Testing
 
