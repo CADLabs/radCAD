@@ -1,5 +1,5 @@
 numpy
-radcad==0.3.1
+radcad==0.5.3
 matplotlib
 streamlit
 pandas

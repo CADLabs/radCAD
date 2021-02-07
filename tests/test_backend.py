@@ -31,7 +31,7 @@ def test_backend_equality():
 
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
-    # assert df_multiprocessing.equals(df_single_process)
+    assert df_multiprocessing.equals(df_single_process)
 
 def test_backend_single_process():
     states = basic.states
@@ -60,4 +60,4 @@ def test_backend_single_process():
 
     assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
-    # assert df_multiprocessing.equals(df_single_process)
+    assert df_multiprocessing.equals(df_single_process)
