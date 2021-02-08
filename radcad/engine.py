@@ -139,7 +139,7 @@ class Engine:
             if raise_exceptions:
                 raise e
             else:
-                return e
+                return [], e
 
     def _get_simulation_from_config(config):
         states, state_update_blocks, params, timesteps, runs = config

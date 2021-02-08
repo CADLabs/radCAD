@@ -105,7 +105,8 @@ def single_run(
                 params,
                 deepcopy
             ),
-            None,
+            None, # Error
+            None, # Traceback
         )
     except Exception as error:
         trace = traceback.format_exc()
