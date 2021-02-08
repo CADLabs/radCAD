@@ -95,7 +95,7 @@ result = experiment.run()
 ## Advanced Features
 
 * [x] Disable `deepcopy` option for improved performance (at cost of mutability)
-* [x] Robust exception handling with partial results
+* [x] Robust exception handling with partial results, and tracebacks
 * [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
@@ -198,7 +198,7 @@ experiment.engine = Engine(raise_exceptions=False)
 experiment.run()
 
 results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
-exceptions = experiment.exceptions # e.g. [RuntimeError("..."), RuntimeError("...")]
+exceptions = experiment.exceptions # A dataframe of exceptions, tracebacks, and simulations metadata
 ```
 
 This also means you can run a specific simulation directly, and access the results later:
