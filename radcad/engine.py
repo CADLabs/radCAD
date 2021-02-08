@@ -122,11 +122,12 @@ class Engine:
     def _single_run(args):
         run_args, raise_exceptions = args
         try:
-            results, exception = core.single_run(*tuple(run_args))
+            results, exception, traceback = core.single_run(*tuple(run_args))
             if raise_exceptions and exception:
                 raise exception
             return results, {
                     'exception': exception,
+                    'traceback': traceback,
                     'simulation': run_args.simulation,
                     'run': run_args.run,
                     'subset': run_args.subset,

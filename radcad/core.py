@@ -3,6 +3,7 @@ from functools import reduce, partial
 import logging
 from pathos.multiprocessing import ThreadPool
 import pickle
+import traceback
 
 
 pool = ThreadPool()
@@ -107,11 +108,12 @@ def single_run(
             None,
         )
     except Exception as error:
-        print(error)
-        logging.error(
+        trace = traceback.format_exc()
+        print(trace)
+        logging.warning(
             f"Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results."
         )
-        return (result, error)
+        return (result, error, trace)
 
 
 def generate_parameter_sweep(params: dict):
