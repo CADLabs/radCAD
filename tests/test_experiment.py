@@ -46,8 +46,10 @@ def test_hooks(capfd):
     experiment.after_experiment = lambda experiment=None: print(f"After experiment with {len(experiment.simulations)} simulations")
     experiment.before_simulation = lambda simulation=None: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
     experiment.after_simulation = lambda simulation=None: print(f"After simulation {simulation.index} with params {simulation.model.params}")
-    experiment.before_run = lambda run=None: print(f"Before run {run}")
-    experiment.after_run = lambda run=None: print(f"After run {run}")
+    experiment.before_run = lambda context=None: print(f"Before run {context}")
+    experiment.after_run = lambda context=None: print(f"After run {context}")
+    experiment.before_subset = lambda context=None: print(f"Before subset {context}")
+    experiment.after_subset = lambda context=None: print(f"After subset {context}")
     
     experiment.run()
     # out, err = capfd.readouterr()

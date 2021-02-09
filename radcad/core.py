@@ -1,12 +1,8 @@
 import copy
 from functools import reduce, partial
 import logging
-from pathos.multiprocessing import ThreadPool
 import pickle
 import traceback
-
-
-pool = ThreadPool()
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
@@ -112,7 +108,7 @@ def single_run(
         trace = traceback.format_exc()
         print(trace)
         logging.warning(
-            f"Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results."
+            f"Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results if Engine.raise_exceptions == False."
         )
         return (result, error, trace)
 

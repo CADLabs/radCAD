@@ -2,8 +2,8 @@ from radcad.engine import Engine
 from collections import namedtuple
 
 
-Run = namedtuple("Run", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy")
-
+RunArgs = namedtuple("RunArgs", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy")
+Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
 
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
@@ -45,12 +45,15 @@ class Experiment:
         # Add and validate simulations
         self.add_simulations(simulations)
 
+        # Hooks
         self.before_experiment = kwargs.pop("before_experiment", None)
         self.after_experiment = kwargs.pop("after_experiment", None)
         self.before_simulation = kwargs.pop("before_simulation", None)
         self.after_simulation = kwargs.pop("after_simulation", None)
         self.before_run = kwargs.pop("before_run", None)
         self.after_run = kwargs.pop("after_run", None)
+        self.before_subset = kwargs.pop("before_subset", None)
+        self.after_subset = kwargs.pop("after_subset", None)
 
         if kwargs:
             raise Exception(f"Invalid Experiment option in {kwargs}")
@@ -94,10 +97,18 @@ class Experiment:
                 simulation=simulation
             )
 
-    def _before_run(self, run: Run=None):
+    def _before_run(self, context: Context=None):
         if self.before_run:
-            self.before_run(run=run)
+            self.before_run(context=context)
 
-    def _after_run(self, run=None):
+    def _after_run(self, context: Context=None):
         if self.after_run:
-            self.after_run(run=run)
+            self.after_run(context=context)
+
+    def _before_subset(self, context: Context=None):
+        if self.before_subset:
+            self.before_subset(context=context)
+
+    def _after_subset(self, context: Context=None):
+        if self.after_subset:
+            self.after_subset(context=context)

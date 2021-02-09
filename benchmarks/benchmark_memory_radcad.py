@@ -11,11 +11,11 @@ states = benchmark_model.states
 state_update_blocks = benchmark_model.state_update_blocks
 params = benchmark_model.params
 TIMESTEPS = 100_000
-RUNS = 3
+RUNS = 5
 
 model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
 simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-experiment = Experiment([simulation, simulation, simulation])
+experiment = Experiment([simulation])
 experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
 
 if __name__ == "__main__":

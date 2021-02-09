@@ -9,4 +9,4 @@ profile-memory-cadcad:
 
 coverage:
 	poetry run python3 -m pytest tests --cov=radcad
-  	poetry run coveralls
+	poetry run coveralls
