@@ -2,7 +2,7 @@ from radcad.engine import Engine
 from collections import namedtuple
 
 
-RunArgs = namedtuple("Run", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy")
+RunArgs = namedtuple("RunArgs", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy")
 Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
 
 class Model:
