@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Incorrect argument given to Pathos pool for number of processes
 - Update memory benchmarks to not test A/B testing
+- Change Python max version from <3.9 to <=3.9
 
 ## [0.5.4] - 2021-02-08
 ### Added
