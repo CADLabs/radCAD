@@ -34,6 +34,9 @@ class Engine:
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
         self.deepcopy = kwargs.pop("deepcopy", True)
 
+        if kwargs:
+            raise Exception(f"Invalid Engine option in {kwargs}")
+
     def _run(self, experiment=None, **kwargs):
         if not experiment:
             raise Exception("Experiment required as argument")
@@ -76,7 +79,7 @@ class Engine:
             ]
             result = ray.get(futures)
         elif self.backend in [Backend.PATHOS, Backend.DEFAULT]:
-            with PathosPool(processes=self.processes) as pool:
+            with PathosPool(self.processes) as pool:
                 result = pool.map(
                     Engine._proxy_single_run,
                     [
@@ -125,16 +128,17 @@ class Engine:
             results, exception, traceback = core.single_run(*tuple(run_args))
             if raise_exceptions and exception:
                 raise exception
-            return results, {
-                    'exception': exception,
-                    'traceback': traceback,
-                    'simulation': run_args.simulation,
-                    'run': run_args.run,
-                    'subset': run_args.subset,
-                    'timesteps': run_args.timesteps,
-                    'parameters': run_args.parameters,
-                    'initial_state': run_args.initial_state,
-                }
+            else:
+                return results, {
+                        'exception': exception,
+                        'traceback': traceback,
+                        'simulation': run_args.simulation,
+                        'run': run_args.run,
+                        'subset': run_args.subset,
+                        'timesteps': run_args.timesteps,
+                        'parameters': run_args.parameters,
+                        'initial_state': run_args.initial_state,
+                    }
         except Exception as e:
             if raise_exceptions:
                 raise e

@@ -14,7 +14,7 @@ states = benchmark_model.states
 state_update_blocks = benchmark_model.state_update_blocks
 params = benchmark_model.params
 TIMESTEPS = 100_000
-RUNS = 3
+RUNS = 5
 
 c = config_sim({
     "N": RUNS,
@@ -23,16 +23,6 @@ c = config_sim({
 })
 
 exp = cadCADExperiment()
-exp.append_configs(
-    initial_state = states,
-    partial_state_update_blocks = state_update_blocks,
-    sim_configs = c
-)
-exp.append_configs(
-    initial_state = states,
-    partial_state_update_blocks = state_update_blocks,
-    sim_configs = c
-)
 exp.append_configs(
     initial_state = states,
     partial_state_update_blocks = state_update_blocks,
