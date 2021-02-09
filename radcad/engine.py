@@ -171,21 +171,40 @@ class Engine:
 
             for run_index in range(0, runs):
                 if param_sweep:
-                    for subset, param_set in enumerate(param_sweep):
-                        run_args = wrappers.Run(
+                    context = wrappers.Context(
+                        simulation_index,
+                        run_index,
+                        None,
+                        timesteps,
+                        initial_state,
+                        params
+                    )
+                    self.experiment._before_run(context=context)
+                    for subset_index, param_set in enumerate(param_sweep):
+                        run_args = wrappers.RunArgs(
                             simulation_index,
                             timesteps,
                             run_index,
-                            subset,
+                            subset_index,
                             copy.deepcopy(initial_state),
                             state_update_blocks,
                             copy.deepcopy(param_set),
                             self.deepcopy
                         )
-                        self.experiment._before_run(run=run_args)
+                        context = wrappers.Context(
+                            simulation_index,
+                            run_index,
+                            subset_index,
+                            timesteps,
+                            initial_state,
+                            params
+                        )
+                        self.experiment._before_subset(context=context)
                         yield run_args
+                        self.experiment._after_subset(context=context)
+                    self.experiment._before_run(context=context)
                 else:
-                    run_args = wrappers.Run(
+                    run_args = wrappers.RunArgs(
                         simulation_index,
                         timesteps,
                         run_index,
@@ -195,10 +214,17 @@ class Engine:
                         copy.deepcopy(params),
                         self.deepcopy
                     )
-                    self.experiment._before_run(run=run_args)
+                    context = wrappers.Context(
+                        simulation_index,
+                        run_index,
+                        0,
+                        timesteps,
+                        initial_state,
+                        params
+                    )
+                    self.experiment._before_run(context=context)
                     yield run_args
-
-                self.experiment._after_run(run=run_args)
+                    self.experiment._after_run(context=context)
 
             self.experiment._after_simulation(
                 simulation=simulation
