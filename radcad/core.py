@@ -34,6 +34,7 @@ def _single_run(
     state_update_blocks: list,
     params: dict,
     deepcopy: bool,
+    drop_substeps: bool,
 ):
     logging.info(f"Starting run {run}")
 
@@ -49,7 +50,7 @@ def _single_run(
         previous_state: dict = (
             result[0][0].copy()
             if timestep == 0
-            else result[-1][-1].copy()
+            else result[-1][-1:][0].copy()
         )
 
         substeps: list = []
@@ -72,7 +73,7 @@ def _single_run(
             substate.update(updated_state)
             substate["timestep"] = timestep + 1
             substeps.append(substate)
-        result.append(substeps)
+        result.append(substeps if not drop_substeps else [substeps[-1]])
     return result
 
 
@@ -85,6 +86,7 @@ def single_run(
     state_update_blocks,
     params,
     deepcopy: bool,
+    drop_substeps: bool,
 ):
     result = []
 
@@ -99,7 +101,8 @@ def single_run(
                 initial_state,
                 state_update_blocks,
                 params,
-                deepcopy
+                deepcopy,
+                drop_substeps
             ),
             None, # Error
             None, # Traceback
