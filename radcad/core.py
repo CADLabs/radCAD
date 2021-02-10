@@ -73,7 +73,7 @@ def _single_run(
             substate.update(updated_state)
             substate["timestep"] = timestep + 1
             substeps.append(substate)
-        result.append(substeps if not drop_substeps else [substeps[-1]])
+        result.append(substeps if not drop_substeps else [substeps.pop()])
     return result
 
 
