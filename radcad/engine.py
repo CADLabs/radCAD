@@ -33,6 +33,7 @@ class Engine:
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
         self.deepcopy = kwargs.pop("deepcopy", True)
+        self.drop_substeps = kwargs.pop("drop_substeps", False)
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
@@ -169,6 +170,7 @@ class Engine:
                 simulation=simulation
             )
 
+            # NOTE Hook allows mutation of RunArgs
             for run_index in range(0, runs):
                 if param_sweep:
                     context = wrappers.Context(
@@ -181,16 +183,6 @@ class Engine:
                     )
                     self.experiment._before_run(context=context)
                     for subset_index, param_set in enumerate(param_sweep):
-                        run_args = wrappers.RunArgs(
-                            simulation_index,
-                            timesteps,
-                            run_index,
-                            subset_index,
-                            copy.deepcopy(initial_state),
-                            state_update_blocks,
-                            copy.deepcopy(param_set),
-                            self.deepcopy
-                        )
                         context = wrappers.Context(
                             simulation_index,
                             run_index,
@@ -200,20 +192,20 @@ class Engine:
                             params
                         )
                         self.experiment._before_subset(context=context)
-                        yield run_args
+                        yield wrappers.RunArgs(
+                            simulation_index,
+                            timesteps,
+                            run_index,
+                            subset_index,
+                            copy.deepcopy(initial_state),
+                            state_update_blocks,
+                            copy.deepcopy(param_set),
+                            self.deepcopy,
+                            self.drop_substeps,
+                        )
                         self.experiment._after_subset(context=context)
                     self.experiment._before_run(context=context)
                 else:
-                    run_args = wrappers.RunArgs(
-                        simulation_index,
-                        timesteps,
-                        run_index,
-                        0,
-                        copy.deepcopy(initial_state),
-                        state_update_blocks,
-                        copy.deepcopy(params),
-                        self.deepcopy
-                    )
                     context = wrappers.Context(
                         simulation_index,
                         run_index,
@@ -223,7 +215,17 @@ class Engine:
                         params
                     )
                     self.experiment._before_run(context=context)
-                    yield run_args
+                    yield wrappers.RunArgs(
+                        simulation_index,
+                        timesteps,
+                        run_index,
+                        0,
+                        copy.deepcopy(initial_state),
+                        state_update_blocks,
+                        copy.deepcopy(params),
+                        self.deepcopy,
+                        self.drop_substeps,
+                    )
                     self.experiment._after_run(context=context)
 
             self.experiment._after_simulation(

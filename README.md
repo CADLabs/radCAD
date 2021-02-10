@@ -152,6 +152,14 @@ To improve performance, at the cost of mutability, the `Engine` module has the `
 experiment.engine = Engine(deepcopy=False)
 ```
 
+### Dropping state substeps
+
+If you don't need the substeps in post-processing, you can both improve simulation performance and save post-processing time and dataset size by dropping the substeps:
+
+```python
+experiment.engine = Engine(drop_substeps=True)
+```
+
 ### Remote Cluster Execution (using Ray)
 
 Export the following AWS credentials (or see Ray documentation for alternative providers):
