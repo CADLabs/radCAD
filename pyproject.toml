@@ -28,9 +28,11 @@ ipywidgets = ">=7.5"
 memory-profiler = "^0.58.0"
 black = "^20.8b1"
 streamlit = "^0.75.0"
-cadCAD = "^0.4.23"
 pytest-monitor = "^1.5.0"
 tables = "^3.6.1"
+cadCAD = "^0.4.23"
+ray = "^1.1.0"
+boto3 = "^1.16.43"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
