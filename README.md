@@ -160,7 +160,15 @@ If you don't need the substeps in post-processing, you can both improve simulati
 experiment.engine = Engine(drop_substeps=True)
 ```
 
-### Remote Cluster Execution (using Ray)
+### WIP: Remote Cluster Execution (using Ray)
+
+To use the Ray backend, install radCAD with the `extension-backend-ray` dependencies:
+
+```bash
+pip install -e .[extension-backend-ray]
+# Or
+poetry install -E extension-backend-ray
+```
 
 Export the following AWS credentials (or see Ray documentation for alternative providers):
 ```bash

@@ -7,7 +7,7 @@ before_install:
   - pip install poetry
 
 install:
-  - poetry install -E compat
+  - poetry install -E compat -E extension-backend-ray
 
 script:
   - poetry run python3 -m pytest tests

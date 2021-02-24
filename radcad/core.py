@@ -116,6 +116,30 @@ def single_run(
         return (result, error, trace)
 
 
+def _single_run_wrapper(args):
+    run_args, raise_exceptions = args
+    try:
+        results, exception, traceback = single_run(*tuple(run_args))
+        if raise_exceptions and exception:
+            raise exception
+        else:
+            return results, {
+                    'exception': exception,
+                    'traceback': traceback,
+                    'simulation': run_args.simulation,
+                    'run': run_args.run,
+                    'subset': run_args.subset,
+                    'timesteps': run_args.timesteps,
+                    'parameters': run_args.parameters,
+                    'initial_state': run_args.initial_state,
+                }
+    except Exception as e:
+        if raise_exceptions:
+            raise e
+        else:
+            return [], e
+
+
 def generate_parameter_sweep(params: dict):
     param_sweep = []
     max_len = 0
