@@ -14,6 +14,18 @@ Goals:
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
 
+## Table of Contents
+
+* [Example Models](#example-models)
+* [Features](#features)
+* [Advanced Features](#advanced-features)
+* [Installation](#installation)
+* [Documentation](#documentation)
+* [Development](#development)
+* [Testing](#testing)
+* [Jupyter Notebooks](#jupyter-notebooks)
+* [Benchmarking](#benchmarking)
+
 ## Example Models
 
 ### [Game of Life](https://www.conwaylife.com/)
