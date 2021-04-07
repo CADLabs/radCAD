@@ -24,6 +24,30 @@ def _update_state(initial_state, params, substep, result, substate, signals, sta
         )
 
 
+def apply_state_update_blocks(state_update_blocks, initial_state, params, state_history, previous_state, timestep, deepcopy=True):
+    substeps: list = []
+
+    for (substep, psu) in enumerate(state_update_blocks):
+        substate: dict = (
+            previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
+        )
+        substate_copy = pickle.loads(pickle.dumps(substate, -1)) if deepcopy else substate.copy()
+        substate["substep"] = substep + 1
+
+        signals: dict = reduce_signals(
+            params, substep, state_history, substate_copy, psu
+        )
+
+        updated_state = map(
+            partial(_update_state, initial_state, params, substep, state_history, substate_copy, signals),
+            psu["variables"].items()
+        )
+        substate.update(updated_state)
+        substate["timestep"] = timestep
+        substeps.append(substate)
+    return substeps
+
+
 def _single_run(
     result: list,
     simulation: int,
@@ -53,26 +77,7 @@ def _single_run(
             else result[-1][-1:][0].copy()
         )
 
-        substeps: list = []
-
-        for (substep, psu) in enumerate(state_update_blocks):
-            substate: dict = (
-                previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
-            )
-            substate_copy = pickle.loads(pickle.dumps(substate, -1)) if deepcopy else substate.copy()
-            substate["substep"] = substep + 1
-
-            signals: dict = reduce_signals(
-                params, substep, result, substate_copy, psu
-            )
-
-            updated_state = map(
-                partial(_update_state, initial_state, params, substep, result, substate_copy, signals),
-                psu["variables"].items()
-            )
-            substate.update(updated_state)
-            substate["timestep"] = timestep + 1
-            substeps.append(substate)
+        substeps = apply_state_update_blocks(state_update_blocks, initial_state, params, result, previous_state, initial_state, (timestep + 1), deepcopy)
         result.append(substeps if not drop_substeps else [substeps.pop()])
     return result
 
