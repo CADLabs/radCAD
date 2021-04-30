@@ -112,7 +112,7 @@ result = experiment.run()
 * [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
-* [x] (WIP) Hooks to easily extend the functionality
+* [x] Hooks to easily extend the functionality
 
 ## Installation
 
@@ -239,18 +239,20 @@ predator_prey_simulation.run()
 results = predator_prey_simulation.experiment.results
 ```
 
-### WIP: Hooks to extend functionality
+### Hooks to extend functionality
 
 ```python
-experiment.before_experiment = lambda experiment: Experiment=None: print(f"Before experiment with {len(experiment.simulations)} simulations")
-experiment.after_experiment = lambda experiment: Experiment=None: print(f"After experiment with {len(experiment.simulations)} simulations")
-experiment.before_simulation = lambda simulation: Simulation=None: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
-experiment.after_simulation = lambda simulation: Simulation=None: print(f"After simulation {simulation.index} with params {simulation.model.params}")
-experiment.before_run = lambda context: Context=None: print(f"Before run {context}")
-experiment.after_run = lambda context: Context=None: print(f"After run {context}")
-experiment.before_subset = lambda context: Context=None: print(f"Before subset {context}")
-experiment.after_subset = lambda context: Context=None: print(f"After subset {context}")
+experiment.before_experiment = lambda experiment: print(f"Before experiment with {len(experiment.simulations)} simulations")
+experiment.after_experiment = lambda experiment: print(f"After experiment with {len(experiment.simulations)} simulations")
+experiment.before_simulation = lambda simulation: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
+experiment.after_simulation = lambda simulation: print(f"After simulation {simulation.index} with params {simulation.model.params}")
+experiment.before_run = lambda context: print(f"Before run {context}")
+experiment.after_run = lambda context: print(f"After run {context}")
+experiment.before_subset = lambda context: print(f"Before subset {context}")
+experiment.after_subset = lambda context: print(f"After subset {context}")
 ```
+
+See [tests/test_hooks.py](tests/test_hooks.py) for expected functionality.
 
 #### Example hook: Saving results to HDF5
 

@@ -36,7 +36,7 @@ def _single_run(
     deepcopy: bool,
     drop_substeps: bool,
 ):
-    logging.info(f"Starting run {run}")
+    logging.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
 
     initial_state["simulation"] = simulation
     initial_state["subset"] = subset
