@@ -5,6 +5,13 @@ from tests.test_cases import basic
 import pandas as pd
 import pytest
 
+try:
+    import ray
+except ImportError:
+    _has_ray_extension = False
+else:
+    _has_ray_extension = True
+
 
 def test_backend_equality():
     states = basic.states
@@ -20,8 +27,9 @@ def test_backend_equality():
     experiment.engine = Engine(backend=Backend.MULTIPROCESSING)
     df_multiprocessing = pd.DataFrame(experiment.run())
 
-    experiment.engine = Engine(backend=Backend.RAY)
-    df_ray = pd.DataFrame(experiment.run())
+    if _has_ray_extension:
+        experiment.engine = Engine(backend=Backend.RAY)
+        df_ray = pd.DataFrame(experiment.run())
 
     experiment.engine = Engine(backend=Backend.PATHOS)
     df_pathos = pd.DataFrame(experiment.run())
@@ -29,7 +37,7 @@ def test_backend_equality():
     experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
     df_single_process = pd.DataFrame(experiment.run())
 
-    assert df_multiprocessing.equals(df_ray)
+    if _has_ray_extension: assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
     assert df_multiprocessing.equals(df_single_process)
 
@@ -49,8 +57,9 @@ def test_backend_single_process():
     experiment.engine = Engine(backend=Backend.MULTIPROCESSING, processes=processes)
     df_multiprocessing = pd.DataFrame(experiment.run())
 
-    experiment.engine = Engine(backend=Backend.RAY, processes=processes)
-    df_ray = pd.DataFrame(experiment.run())
+    if _has_ray_extension:
+        experiment.engine = Engine(backend=Backend.RAY, processes=processes)
+        df_ray = pd.DataFrame(experiment.run())
 
     experiment.engine = Engine(backend=Backend.PATHOS, processes=processes)
     df_pathos = pd.DataFrame(experiment.run())
@@ -58,6 +67,6 @@ def test_backend_single_process():
     experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
     df_single_process = pd.DataFrame(experiment.run())
 
-    assert df_multiprocessing.equals(df_ray)
+    if _has_ray_extension: assert df_multiprocessing.equals(df_ray)
     assert df_multiprocessing.equals(df_pathos)
     assert df_multiprocessing.equals(df_single_process)

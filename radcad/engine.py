@@ -131,7 +131,7 @@ class Engine:
                             self.drop_substeps,
                         )
                         self.experiment._after_subset(context=context)
-                    self.experiment._before_run(context=context)
+                    self.experiment._after_run(context=context)
                 else:
                     context = wrappers.Context(
                         simulation_index,
@@ -142,6 +142,7 @@ class Engine:
                         params
                     )
                     self.experiment._before_run(context=context)
+                    self.experiment._before_subset(context=context)
                     yield wrappers.RunArgs(
                         simulation_index,
                         timesteps,
@@ -153,6 +154,7 @@ class Engine:
                         self.deepcopy,
                         self.drop_substeps,
                     )
+                    self.experiment._after_subset(context=context)
                     self.experiment._after_run(context=context)
 
             self.experiment._after_simulation(

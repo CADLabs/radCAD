@@ -1,13 +1,13 @@
 language: python
 dist: xenial
 python:
-  - "3.8"
+  - "3.9"
 
 before_install:
   - pip install poetry
 
 install:
-  - poetry install -E compat -E extension-backend-ray
+  - poetry install -E compat
 
 script:
   - poetry run python3 -m pytest tests
