@@ -77,7 +77,7 @@ def _single_run(
             else result[-1][-1:][0].copy()
         )
 
-        substeps = apply_state_update_blocks(state_update_blocks, initial_state, params, result, previous_state, initial_state, (timestep + 1), deepcopy)
+        substeps = apply_state_update_blocks(state_update_blocks, initial_state, params, result, previous_state, (timestep + 1), deepcopy)
         result.append(substeps if not drop_substeps else [substeps.pop()])
     return result
 
