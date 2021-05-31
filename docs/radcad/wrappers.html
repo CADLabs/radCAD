@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>radcad.wrappers API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>radcad.wrappers</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from radcad.engine import Engine
+from collections import namedtuple
+
+
+RunArgs = namedtuple(&#34;RunArgs&#34;, [
+    &#34;simulation&#34;,
+    &#34;timesteps&#34;,
+    &#34;run&#34;,
+    &#34;subset&#34;,
+    &#34;initial_state&#34;,
+    &#34;state_update_blocks&#34;,
+    &#34;parameters&#34;,
+    &#34;deepcopy&#34;,
+    &#34;drop_substeps&#34;,
+])
+Context = namedtuple(&#34;Context&#34;, &#34;simulation run subset timesteps initial_state parameters&#34;)
+
+class Model:
+    def __init__(self, initial_state={}, state_update_blocks=[], params={}):
+        self.initial_state = initial_state
+        self.state_update_blocks = state_update_blocks
+        self.params = params
+
+
+class Simulation:
+    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        self.model = model
+        self.timesteps = timesteps
+        self.runs = runs
+
+        self.index = kwargs.pop(&#34;index&#34;, 0)
+        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
+        self.experiment = Experiment(self)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Simulation option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(experiment=self.experiment)
+
+
+class Experiment:
+    &#34;&#34;&#34;
+    An Experiment.
+    &#34;&#34;&#34;
+
+    def __init__(self, simulations=[], **kwargs):
+        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
+
+        self.simulations = []
+
+        self.results = []
+        self.exceptions = []
+
+        # Add and validate simulations
+        self.add_simulations(simulations)
+
+        # Hooks
+        self.before_experiment = kwargs.pop(&#34;before_experiment&#34;, None)
+        self.after_experiment = kwargs.pop(&#34;after_experiment&#34;, None)
+        self.before_simulation = kwargs.pop(&#34;before_simulation&#34;, None)
+        self.after_simulation = kwargs.pop(&#34;after_simulation&#34;, None)
+        self.before_run = kwargs.pop(&#34;before_run&#34;, None)
+        self.after_run = kwargs.pop(&#34;after_run&#34;, None)
+        self.before_subset = kwargs.pop(&#34;before_subset&#34;, None)
+        self.after_subset = kwargs.pop(&#34;after_subset&#34;, None)
+        self.before_substep = kwargs.pop(&#34;before_substep&#34;, None)
+        self.after_substep = kwargs.pop(&#34;after_substep&#34;, None)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(experiment=self)
+
+    def add_simulations(self, simulations):
+        if not isinstance(simulations, list):
+            simulations = [simulations]
+        if any(not isinstance(sim, Simulation) for sim in simulations):
+            raise Exception(&#34;Invalid simulation added&#34;)
+        self.simulations.extend(simulations)
+
+    def clear_simulations(self):
+        cleared = True if self.simulations else False
+        self.simulations = []
+        return cleared
+
+    def get_simulations(self):
+        return self.simulations
+
+    # Hooks
+    def _before_experiment(self, experiment=None):
+        if self.before_experiment:
+            self.before_experiment(experiment=experiment)
+
+    def _after_experiment(self, experiment=None):
+        if self.after_experiment:
+            self.after_experiment(experiment=experiment)
+
+    def _before_simulation(self, simulation=None):
+        if self.before_simulation:
+            self.before_simulation(
+                simulation=simulation
+            )
+
+    def _after_simulation(self, simulation=None):
+        if self.after_simulation:
+            self.after_simulation(
+                simulation=simulation
+            )
+
+    def _before_run(self, context: Context=None):
+        if self.before_run:
+            self.before_run(context=context)
+
+    def _after_run(self, context: Context=None):
+        if self.after_run:
+            self.after_run(context=context)
+
+    def _before_subset(self, context: Context=None):
+        if self.before_subset:
+            self.before_subset(context=context)
+
+    def _after_subset(self, context: Context=None):
+        if self.after_subset:
+            self.after_subset(context=context)
+
+    def _before_substep(self, substep, substate):
+        if self.before_substep:
+            self.before_substep(substep, substate)
+
+    def _after_substep(self, substep, substate):
+        if self.after_substep:
+            self.after_substep(substep, substate)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="radcad.wrappers.Context"><code class="flex name class">
+<span>class <span class="ident">Context</span></span>
+<span>(</span><span>simulation, run, subset, timesteps, initial_state, parameters)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Context(simulation, run, subset, timesteps, initial_state, parameters)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="radcad.wrappers.Context.initial_state"><code class="name">var <span class="ident">initial_state</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 4</p></div>
+</dd>
+<dt id="radcad.wrappers.Context.parameters"><code class="name">var <span class="ident">parameters</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 5</p></div>
+</dd>
+<dt id="radcad.wrappers.Context.run"><code class="name">var <span class="ident">run</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+<dt id="radcad.wrappers.Context.simulation"><code class="name">var <span class="ident">simulation</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="radcad.wrappers.Context.subset"><code class="name">var <span class="ident">subset</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="radcad.wrappers.Context.timesteps"><code class="name">var <span class="ident">timesteps</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 3</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="radcad.wrappers.Experiment"><code class="flex name class">
+<span>class <span class="ident">Experiment</span></span>
+<span>(</span><span>simulations=[], **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An Experiment.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Experiment:
+    &#34;&#34;&#34;
+    An Experiment.
+    &#34;&#34;&#34;
+
+    def __init__(self, simulations=[], **kwargs):
+        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
+
+        self.simulations = []
+
+        self.results = []
+        self.exceptions = []
+
+        # Add and validate simulations
+        self.add_simulations(simulations)
+
+        # Hooks
+        self.before_experiment = kwargs.pop(&#34;before_experiment&#34;, None)
+        self.after_experiment = kwargs.pop(&#34;after_experiment&#34;, None)
+        self.before_simulation = kwargs.pop(&#34;before_simulation&#34;, None)
+        self.after_simulation = kwargs.pop(&#34;after_simulation&#34;, None)
+        self.before_run = kwargs.pop(&#34;before_run&#34;, None)
+        self.after_run = kwargs.pop(&#34;after_run&#34;, None)
+        self.before_subset = kwargs.pop(&#34;before_subset&#34;, None)
+        self.after_subset = kwargs.pop(&#34;after_subset&#34;, None)
+        self.before_substep = kwargs.pop(&#34;before_substep&#34;, None)
+        self.after_substep = kwargs.pop(&#34;after_substep&#34;, None)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(experiment=self)
+
+    def add_simulations(self, simulations):
+        if not isinstance(simulations, list):
+            simulations = [simulations]
+        if any(not isinstance(sim, Simulation) for sim in simulations):
+            raise Exception(&#34;Invalid simulation added&#34;)
+        self.simulations.extend(simulations)
+
+    def clear_simulations(self):
+        cleared = True if self.simulations else False
+        self.simulations = []
+        return cleared
+
+    def get_simulations(self):
+        return self.simulations
+
+    # Hooks
+    def _before_experiment(self, experiment=None):
+        if self.before_experiment:
+            self.before_experiment(experiment=experiment)
+
+    def _after_experiment(self, experiment=None):
+        if self.after_experiment:
+            self.after_experiment(experiment=experiment)
+
+    def _before_simulation(self, simulation=None):
+        if self.before_simulation:
+            self.before_simulation(
+                simulation=simulation
+            )
+
+    def _after_simulation(self, simulation=None):
+        if self.after_simulation:
+            self.after_simulation(
+                simulation=simulation
+            )
+
+    def _before_run(self, context: Context=None):
+        if self.before_run:
+            self.before_run(context=context)
+
+    def _after_run(self, context: Context=None):
+        if self.after_run:
+            self.after_run(context=context)
+
+    def _before_subset(self, context: Context=None):
+        if self.before_subset:
+            self.before_subset(context=context)
+
+    def _after_subset(self, context: Context=None):
+        if self.after_subset:
+            self.after_subset(context=context)
+
+    def _before_substep(self, substep, substate):
+        if self.before_substep:
+            self.before_substep(substep, substate)
+
+    def _after_substep(self, substep, substate):
+        if self.after_substep:
+            self.after_substep(substep, substate)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="radcad.wrappers.Experiment.add_simulations"><code class="name flex">
+<span>def <span class="ident">add_simulations</span></span>(<span>self, simulations)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_simulations(self, simulations):
+    if not isinstance(simulations, list):
+        simulations = [simulations]
+    if any(not isinstance(sim, Simulation) for sim in simulations):
+        raise Exception(&#34;Invalid simulation added&#34;)
+    self.simulations.extend(simulations)</code></pre>
+</details>
+</dd>
+<dt id="radcad.wrappers.Experiment.clear_simulations"><code class="name flex">
+<span>def <span class="ident">clear_simulations</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_simulations(self):
+    cleared = True if self.simulations else False
+    self.simulations = []
+    return cleared</code></pre>
+</details>
+</dd>
+<dt id="radcad.wrappers.Experiment.get_simulations"><code class="name flex">
+<span>def <span class="ident">get_simulations</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_simulations(self):
+    return self.simulations</code></pre>
+</details>
+</dd>
+<dt id="radcad.wrappers.Experiment.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    return self.engine._run(experiment=self)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="radcad.wrappers.Model"><code class="flex name class">
+<span>class <span class="ident">Model</span></span>
+<span>(</span><span>initial_state={}, state_update_blocks=[], params={})</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Model:
+    def __init__(self, initial_state={}, state_update_blocks=[], params={}):
+        self.initial_state = initial_state
+        self.state_update_blocks = state_update_blocks
+        self.params = params</code></pre>
+</details>
+</dd>
+<dt id="radcad.wrappers.RunArgs"><code class="flex name class">
+<span>class <span class="ident">RunArgs</span></span>
+<span>(</span><span>simulation, timesteps, run, subset, initial_state, state_update_blocks, parameters, deepcopy, drop_substeps)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>RunArgs(simulation, timesteps, run, subset, initial_state, state_update_blocks, parameters, deepcopy, drop_substeps)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="radcad.wrappers.RunArgs.deepcopy"><code class="name">var <span class="ident">deepcopy</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 7</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.drop_substeps"><code class="name">var <span class="ident">drop_substeps</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 8</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.initial_state"><code class="name">var <span class="ident">initial_state</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 4</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.parameters"><code class="name">var <span class="ident">parameters</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 6</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.run"><code class="name">var <span class="ident">run</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.simulation"><code class="name">var <span class="ident">simulation</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.state_update_blocks"><code class="name">var <span class="ident">state_update_blocks</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 5</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.subset"><code class="name">var <span class="ident">subset</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 3</p></div>
+</dd>
+<dt id="radcad.wrappers.RunArgs.timesteps"><code class="name">var <span class="ident">timesteps</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="radcad.wrappers.Simulation"><code class="flex name class">
+<span>class <span class="ident">Simulation</span></span>
+<span>(</span><span>model: <a title="radcad.wrappers.Model" href="#radcad.wrappers.Model">Model</a>, timesteps=100, runs=1, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Simulation:
+    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        self.model = model
+        self.timesteps = timesteps
+        self.runs = runs
+
+        self.index = kwargs.pop(&#34;index&#34;, 0)
+        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
+        self.experiment = Experiment(self)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Simulation option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(experiment=self.experiment)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="radcad.wrappers.Simulation.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    return self.engine._run(experiment=self.experiment)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="radcad" href="index.html">radcad</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="radcad.wrappers.Context" href="#radcad.wrappers.Context">Context</a></code></h4>
+<ul class="two-column">
+<li><code><a title="radcad.wrappers.Context.initial_state" href="#radcad.wrappers.Context.initial_state">initial_state</a></code></li>
+<li><code><a title="radcad.wrappers.Context.parameters" href="#radcad.wrappers.Context.parameters">parameters</a></code></li>
+<li><code><a title="radcad.wrappers.Context.run" href="#radcad.wrappers.Context.run">run</a></code></li>
+<li><code><a title="radcad.wrappers.Context.simulation" href="#radcad.wrappers.Context.simulation">simulation</a></code></li>
+<li><code><a title="radcad.wrappers.Context.subset" href="#radcad.wrappers.Context.subset">subset</a></code></li>
+<li><code><a title="radcad.wrappers.Context.timesteps" href="#radcad.wrappers.Context.timesteps">timesteps</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="radcad.wrappers.Experiment" href="#radcad.wrappers.Experiment">Experiment</a></code></h4>
+<ul class="">
+<li><code><a title="radcad.wrappers.Experiment.add_simulations" href="#radcad.wrappers.Experiment.add_simulations">add_simulations</a></code></li>
+<li><code><a title="radcad.wrappers.Experiment.clear_simulations" href="#radcad.wrappers.Experiment.clear_simulations">clear_simulations</a></code></li>
+<li><code><a title="radcad.wrappers.Experiment.get_simulations" href="#radcad.wrappers.Experiment.get_simulations">get_simulations</a></code></li>
+<li><code><a title="radcad.wrappers.Experiment.run" href="#radcad.wrappers.Experiment.run">run</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="radcad.wrappers.Model" href="#radcad.wrappers.Model">Model</a></code></h4>
+</li>
+<li>
+<h4><code><a title="radcad.wrappers.RunArgs" href="#radcad.wrappers.RunArgs">RunArgs</a></code></h4>
+<ul class="two-column">
+<li><code><a title="radcad.wrappers.RunArgs.deepcopy" href="#radcad.wrappers.RunArgs.deepcopy">deepcopy</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.drop_substeps" href="#radcad.wrappers.RunArgs.drop_substeps">drop_substeps</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.initial_state" href="#radcad.wrappers.RunArgs.initial_state">initial_state</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.parameters" href="#radcad.wrappers.RunArgs.parameters">parameters</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.run" href="#radcad.wrappers.RunArgs.run">run</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.simulation" href="#radcad.wrappers.RunArgs.simulation">simulation</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.state_update_blocks" href="#radcad.wrappers.RunArgs.state_update_blocks">state_update_blocks</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.subset" href="#radcad.wrappers.RunArgs.subset">subset</a></code></li>
+<li><code><a title="radcad.wrappers.RunArgs.timesteps" href="#radcad.wrappers.RunArgs.timesteps">timesteps</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="radcad.wrappers.Simulation" href="#radcad.wrappers.Simulation">Simulation</a></code></h4>
+<ul class="">
+<li><code><a title="radcad.wrappers.Simulation.run" href="#radcad.wrappers.Simulation.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
