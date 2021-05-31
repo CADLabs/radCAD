@@ -1,6 +1,6 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://travis-ci.com/BenSchZA/radCAD.svg?branch=master)](https://travis-ci.com/BenSchZA/radCAD)
+[![Build Status](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml)
 [![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master)](https://coveralls.io/github/BenSchZA/radCAD?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/BenSchZA/radCAD/maintainability)
 
