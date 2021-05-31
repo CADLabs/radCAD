@@ -121,7 +121,7 @@ pip install radcad
 ```
 
 ## Documentation
-(for now, these are all the docs you'll get - please check out the examples as a tutorial)
+For further documentation, please see https://benschza.github.io/radCAD/docs/radcad/index.html
 
 `radCAD` provides the following classes:
 1. A system is represented in some form as a `Model`
