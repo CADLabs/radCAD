@@ -347,7 +347,10 @@ python3 -m unittest
 ## Jupyter Notebooks
 
 ```bash
+# Install kernel
 poetry run python -m ipykernel install --user --name python3-radcad
+# Start Jupyter
+poetry run python -m jupyter lab
 ```
 
 ## Benchmarking
