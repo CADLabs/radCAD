@@ -183,7 +183,7 @@ for t in range(timesteps):
 You have access to the more advanced engine options too, using the `__call__()` method:
 
 ```python
-model = model(raise_exceptions=False, deepcopy=True, drop_substeps=False)
+model(raise_exceptions=False, deepcopy=True, drop_substeps=False)
 _model = next(model)
 ```
 
