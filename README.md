@@ -180,6 +180,13 @@ for t in range(timesteps):
     fig.data[0].y = results[:t]
 ```
 
+You have access to the more advanced engine options too, using the `__call__()` method:
+
+```python
+model = model(raise_exceptions=False, deepcopy=True, drop_substeps=False)
+_model = next(model)
+```
+
 Current limitations:
 * Only works for single subsets (no parameter sweeps)
 
