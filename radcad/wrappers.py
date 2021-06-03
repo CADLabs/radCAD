@@ -1,4 +1,4 @@
-from radcad.core import single_run, generate_parameter_sweep
+from radcad.core import _single_run_wrapper, generate_parameter_sweep
 from radcad.engine import Engine
 from collections import namedtuple
 import copy
@@ -20,7 +20,15 @@ Context = namedtuple("Context", "simulation run subset timesteps initial_state p
 
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
-        self.state = copy.deepcopy(initial_state)
+        self.substeps = []
+        self.state = {
+            **copy.deepcopy(initial_state),
+            'simulation': 0,
+            'subset': 0,
+            'run': 1,
+            'substep': 0,
+            'timestep': 0
+        }
         self.initial_state = copy.deepcopy(initial_state)
         self.state_update_blocks = state_update_blocks
         self.params = copy.deepcopy(params)
@@ -34,16 +42,20 @@ class Model:
         _params = param_sweep[0] if param_sweep else {}
         while True:
             run_args = RunArgs(
-                initial_state = self.state,
+                simulation = 0,
+                timesteps = 1,
+                run = 0,
+                subset = 0,
+                initial_state = copy.deepcopy(self.state),
                 state_update_blocks = self.state_update_blocks,
-                params = _params,
-                raise_exceptions = self._raise_exceptions,
+                parameters = _params,
                 deepcopy = self._deepcopy,
                 drop_substeps = self._drop_substeps,
             )
-            result, error, trace = single_run(run_args)
-            if error or trace: self.exceptions.append((error, trace))
-            self.state = result.pop().pop()
+            result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
+            if exception: self.exceptions.append(exception)
+            self.substeps = result.pop()
+            self.state = self.substeps[-1] if self.substeps else self.state
             yield self
 
     def __call__(self, **kwargs):
