@@ -165,16 +165,16 @@ fig.add_scatter()
 fig.show()
 
 # Create a generator from the Model iterator
-model = iter(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
+model_generator = iter(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
 
 timesteps = 100
 results = []
 
 for t in range(timesteps):
     # Step to next state
-    _model = next(model)
+    model = next(model_generator)
     # Get state and update figure
-    state = _model.state
+    state = model.state
     a = state['a']
     results.append(a)
     fig.data[0].y = results[:t]
