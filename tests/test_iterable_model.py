@@ -34,10 +34,7 @@ def test_model_generator():
     # Emulate the behaviour of the radCAD Engine
     for t in range(TIMESTEPS):
         _model = next(model_generator)
-        substeps = _model.substeps
-        for state in substeps:
-            state.update({'timestep': t + 1})
-        raw_result_model.append(substeps)
+        raw_result_model.append(_model.substeps)
 
     # Flatten the results
     raw_result_model = utils.flatten(raw_result_model)

@@ -43,7 +43,8 @@ def _single_run(
     initial_state["subset"] = subset
     initial_state["run"] = run + 1
     initial_state["substep"] = 0
-    initial_state["timestep"] = 0
+    if not initial_state.get("timestep", False):
+        initial_state["timestep"] = 0
 
     result.append([initial_state])
 
@@ -73,7 +74,7 @@ def _single_run(
                 psu["variables"].items()
             )
             substate.update(updated_state)
-            substate["timestep"] = timestep + 1
+            substate["timestep"] = (previous_state["timestep"] + 1) if timestep == 0 else timestep + 1
             substeps.append(substate)
 
         substeps = [substate] if not substeps else substeps
