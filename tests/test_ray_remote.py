@@ -2,9 +2,20 @@ from radcad import Model, Simulation, Experiment, Engine
 from radcad.engine import Backend
 from tests.test_cases import basic
 import pandas as pd
-import ray
 import os
 import pytest
+import logging
+
+try:
+    import ray
+except ImportError:
+    _has_extension = False
+else:
+    _has_extension = True
+
+
+if not _has_extension:
+    logging.warning("Optional extension dependency Ray not installed")
 
 
 RAY_ADDRESS = os.getenv('RAY_ADDRESS')

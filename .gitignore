@@ -158,3 +158,5 @@ scratchpad**
 .DS_Store
 *.dat
 *.hdf5
+.pymon
+.benchmarks/

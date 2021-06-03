@@ -1,8 +1,10 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://travis-ci.com/BenSchZA/radCAD.svg?branch=master)](https://travis-ci.com/BenSchZA/radCAD)
+[![Build Status](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml)
 [![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master)](https://coveralls.io/github/BenSchZA/radCAD?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/BenSchZA/radCAD/maintainability)
+
+![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
@@ -42,7 +44,6 @@ A simple game where at each timestep, the following transitions occur:
 See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
 
 ![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
-![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 ### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 
@@ -111,7 +112,7 @@ result = experiment.run()
 * [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
-* [x] (WIP) Hooks to easily extend the functionality
+* [x] Hooks to easily extend the functionality
 
 ## Installation
 
@@ -120,7 +121,7 @@ pip install radcad
 ```
 
 ## Documentation
-(for now, these are all the docs you'll get - please check out the examples as a tutorial)
+For further documentation, please see https://benschza.github.io/radCAD/docs/radcad/index.html
 
 `radCAD` provides the following classes:
 1. A system is represented in some form as a `Model`
@@ -238,18 +239,20 @@ predator_prey_simulation.run()
 results = predator_prey_simulation.experiment.results
 ```
 
-### WIP: Hooks to extend functionality
+### Hooks to extend functionality
 
 ```python
-experiment.before_experiment = lambda experiment: Experiment=None: print(f"Before experiment with {len(experiment.simulations)} simulations")
-experiment.after_experiment = lambda experiment: Experiment=None: print(f"After experiment with {len(experiment.simulations)} simulations")
-experiment.before_simulation = lambda simulation: Simulation=None: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
-experiment.after_simulation = lambda simulation: Simulation=None: print(f"After simulation {simulation.index} with params {simulation.model.params}")
-experiment.before_run = lambda context: Context=None: print(f"Before run {context}")
-experiment.after_run = lambda context: Context=None: print(f"After run {context}")
-experiment.before_subset = lambda context: Context=None: print(f"Before subset {context}")
-experiment.after_subset = lambda context: Context=None: print(f"After subset {context}")
+experiment.before_experiment = lambda experiment: print(f"Before experiment with {len(experiment.simulations)} simulations")
+experiment.after_experiment = lambda experiment: print(f"After experiment with {len(experiment.simulations)} simulations")
+experiment.before_simulation = lambda simulation: print(f"Before simulation {simulation.index} with params {simulation.model.params}")
+experiment.after_simulation = lambda simulation: print(f"After simulation {simulation.index} with params {simulation.model.params}")
+experiment.before_run = lambda context: print(f"Before run {context}")
+experiment.after_run = lambda context: print(f"After run {context}")
+experiment.before_subset = lambda context: print(f"Before subset {context}")
+experiment.after_subset = lambda context: print(f"After subset {context}")
 ```
+
+See [tests/test_hooks.py](tests/test_hooks.py) for expected functionality.
 
 #### Example hook: Saving results to HDF5
 
