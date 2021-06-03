@@ -1,6 +1,7 @@
 from radcad.core import single_run, generate_parameter_sweep
 from radcad.engine import Engine
 from collections import namedtuple
+import copy
 
 
 RunArgs = namedtuple("RunArgs", [
@@ -19,22 +20,37 @@ Context = namedtuple("Context", "simulation run subset timesteps initial_state p
 
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
-        self.state = initial_state
-        self.initial_state = initial_state
+        self.state = copy.deepcopy(initial_state)
+        self.initial_state = copy.deepcopy(initial_state)
         self.state_update_blocks = state_update_blocks
-        self.params = params
+        self.params = copy.deepcopy(params)
+        self.exceptions = []
+        self._raise_exceptions = True
+        self._deepcopy = True
+        self._drop_substeps = False
 
     def __iter__(self):
         param_sweep = generate_parameter_sweep(self.params)
         _params = param_sweep[0] if param_sweep else {}
         while True:
-            result, _error, _trace = single_run(
+            run_args = RunArgs(
                 initial_state = self.state,
                 state_update_blocks = self.state_update_blocks,
                 params = _params,
+                raise_exceptions = self._raise_exceptions,
+                deepcopy = self._deepcopy,
+                drop_substeps = self._drop_substeps,
             )
+            result, error, trace = single_run(run_args)
+            if error or trace: self.exceptions.append((error, trace))
             self.state = result.pop().pop()
             yield self
+
+    def __call__(self, **kwargs):
+        self._raise_exceptions = kwargs.pop("raise_exceptions", True)
+        self._deepcopy = kwargs.pop("deepcopy", True)
+        self._drop_substeps = kwargs.pop("drop_substeps", False)
+        return self
 
 
 class Simulation:
