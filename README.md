@@ -165,7 +165,7 @@ fig.add_scatter()
 fig.show()
 
 # Create a generator from the Model iterator
-model = generator(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
+model = iter(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
 
 timesteps = 100
 results = []
