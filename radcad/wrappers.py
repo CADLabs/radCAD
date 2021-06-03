@@ -38,9 +38,9 @@ class Model:
         self._drop_substeps = False
 
     def __iter__(self):
-        param_sweep = generate_parameter_sweep(self.params)
-        _params = param_sweep[0] if param_sweep else {}
         while True:
+            param_sweep = generate_parameter_sweep(self.params)
+            _params = param_sweep[0] if param_sweep else {}
             run_args = RunArgs(
                 simulation = 0,
                 timesteps = 1,
