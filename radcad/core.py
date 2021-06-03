@@ -3,6 +3,7 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
+from typing import Dict, List, Tuple
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
@@ -54,6 +55,7 @@ def _single_run(
         )
 
         substeps: list = []
+        substate: dict = previous_state.copy()
 
         for (substep, psu) in enumerate(state_update_blocks):
             substate: dict = (
@@ -61,7 +63,7 @@ def _single_run(
             )
             substate_copy = pickle.loads(pickle.dumps(substate, -1)) if deepcopy else substate.copy()
             substate["substep"] = substep + 1
-
+            
             signals: dict = reduce_signals(
                 params, substep, result, substate_copy, psu
             )
@@ -73,21 +75,23 @@ def _single_run(
             substate.update(updated_state)
             substate["timestep"] = timestep + 1
             substeps.append(substate)
+
+        substeps = [substate] if not substeps else substeps
         result.append(substeps if not drop_substeps else [substeps.pop()])
     return result
 
 
 def single_run(
-    simulation,
-    timesteps,
-    run,
-    subset,
-    initial_state,
-    state_update_blocks,
-    params,
-    deepcopy: bool,
-    drop_substeps: bool,
-):
+    simulation=0,
+    timesteps=1,
+    run=0,
+    subset=0,
+    initial_state={},
+    state_update_blocks=[],
+    params={},
+    deepcopy: bool=True,
+    drop_substeps: bool=False,
+) -> Tuple[list, Exception, str]:
     result = []
 
     try:
@@ -102,7 +106,7 @@ def single_run(
                 state_update_blocks,
                 params,
                 deepcopy,
-                drop_substeps
+                drop_substeps,
             ),
             None, # Error
             None, # Traceback
@@ -140,7 +144,7 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def generate_parameter_sweep(params: dict):
+def generate_parameter_sweep(params: Dict[str, List[any]]):
     param_sweep = []
     max_len = 0
     for value in params.values():
@@ -161,7 +165,7 @@ def generate_parameter_sweep(params: dict):
     return param_sweep
 
 
-def _add_signals(acc, a: {}):
+def _add_signals(acc, a: Dict[str, any]):
     for (key, value) in a.items():
         if acc.get(key, None):
             acc[key] += value
@@ -171,7 +175,7 @@ def _add_signals(acc, a: {}):
 
 
 def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict):
-    policy_results: [dict] = list(map(lambda function: function(params, substep, result, substate), psu["policies"].values()))
+    policy_results: List[Dict[str, any]] = list(map(lambda function: function(params, substep, result, substate), psu["policies"].values()))
 
     result: dict = {}
     result_length = len(policy_results)

@@ -12,7 +12,7 @@ class ExecutorPathos(Executor):
                 core._single_run_wrapper,
                 [
                     (config, self.engine.raise_exceptions)
-                    for config in self.engine.run_generator
+                    for config in self.engine._run_generator
                 ],
             )
             pool.close()
