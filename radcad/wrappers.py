@@ -1,15 +1,40 @@
+from radcad.core import single_run, generate_parameter_sweep
 from radcad.engine import Engine
 from collections import namedtuple
 
 
-RunArgs = namedtuple("RunArgs", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy drop_substeps")
+RunArgs = namedtuple("RunArgs", [
+    "simulation",
+    "timesteps",
+    "run",
+    "subset",
+    "initial_state",
+    "state_update_blocks",
+    "parameters",
+    "deepcopy",
+    "drop_substeps",
+])
 Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
+
 
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
+        self.state = initial_state
         self.initial_state = initial_state
         self.state_update_blocks = state_update_blocks
         self.params = params
+
+    def __iter__(self):
+        param_sweep = generate_parameter_sweep(self.params)
+        _params = param_sweep[0] if param_sweep else {}
+        while True:
+            result, _error, _trace = single_run(
+                initial_state = self.state,
+                state_update_blocks = self.state_update_blocks,
+                params = _params,
+            )
+            self.state = result.pop().pop()
+            yield self
 
 
 class Simulation:

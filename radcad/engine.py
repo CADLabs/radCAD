@@ -4,7 +4,6 @@ from radcad.backends import Backend
 from radcad.utils import flatten, extract_exceptions
 
 import multiprocessing
-import dill
 import copy
 
 
@@ -13,13 +12,24 @@ cpu_count = multiprocessing.cpu_count() - 1 or 1
 
 class Engine:
     def __init__(self, **kwargs):
+        """
+        Handles configuration and execution of experiments and simulations.
+
+        Args:
+            **backend (Backend): Which execution backend to use (e.g. Pathos, Multiprocessing, etc.). Defaults to `Backend.DEFAULT` / `Backend.PATHOS`.
+            **processes (int, optional): Number of system CPU processes to spawn. Defaults to `multiprocessing.cpu_count() - 1 or 1`
+            **raise_exceptions (bool): Whether to raise exceptions, or catch them and return exceptions along with partial results. Default to `True`.
+            **deepcopy (bool): Whether to enable deepcopy of State Variables, alternatively leaves safety up to user with improved performance. Defaults to `True`.
+            **drop_substeps (bool): Whether to drop simulation result substeps during runtime to save memory and improve performance. Defaults to `False`.
+            **_run_generator (tuple_iterator): Generator to generate simulation runs, used to implement custom execution backends. Defaults to  `iter(())`.
+        """
         self.experiment = None
         self.processes = kwargs.pop("processes", cpu_count)
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
         self.deepcopy = kwargs.pop("deepcopy", True)
         self.drop_substeps = kwargs.pop("drop_substeps", False)
-        self.run_generator = iter(())
+        self._run_generator = iter(())
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
@@ -50,7 +60,7 @@ class Engine:
 
         self.experiment._before_experiment(experiment=self.experiment)
 
-        self.run_generator = self._run_stream(configs)
+        self._run_generator = self._run_stream(configs)
 
         # Select backend executor
         if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
