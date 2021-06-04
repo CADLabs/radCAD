@@ -30,6 +30,12 @@ Goals:
 
 ## Example Models
 
+### Iterable Models
+
+Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
+
+![Iterable Models](https://github.com/BenSchZA/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
+
 ### [Game of Life](https://www.conwaylife.com/)
 
 [Live radCAD demo model on Streamlit](https://share.streamlit.io/benschza/radcad/examples/streamlit/game_of_life/app.py)
