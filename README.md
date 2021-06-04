@@ -30,6 +30,12 @@ Goals:
 
 ## Example Models
 
+### Iterable Models
+
+Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
+
+![Iterable Models](https://github.com/BenSchZA/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
+
 ### [Game of Life](https://www.conwaylife.com/)
 
 [Live radCAD demo model on Streamlit](https://share.streamlit.io/benschza/radcad/examples/streamlit/game_of_life/app.py)
@@ -109,10 +115,10 @@ result = experiment.run()
 
 * [x] Disable `deepcopy` option for improved performance (at cost of mutability)
 * [x] Robust exception handling with partial results, and tracebacks
-* [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
-* [x] Hooks to easily extend the functionality
+* [x] Hooks to easily extend the functionality - e.g. save results to HDF5 file format after completion
+* [x] Model classes are iterable, so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
 
 ## Installation
 
@@ -144,6 +150,51 @@ result = simulation.run()
 
 df = pd.DataFrame(result)
 ```
+
+### WIP: Iterating over a Model
+
+Model classes are iterable, so you can iterate over them step-by-step from one state to the next.
+
+This is useful for gradient descent, live digital twins, composing one model within another within a Policy Function...
+
+Here is an example of using a Model to update a Plotly figure live:
+
+```python
+from radcad import Model
+
+import time
+import plotly.graph_objects as go
+
+# Live update of figure using Model as a generator
+fig = go.FigureWidget()
+fig.add_scatter()
+fig.show()
+
+# Create a generator from the Model iterator
+model_generator = iter(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
+
+timesteps = 100
+results = []
+
+for t in range(timesteps):
+    # Step to next state
+    model = next(model_generator)
+    # Get state and update figure
+    state = model.state
+    a = state['a']
+    results.append(a)
+    fig.data[0].y = results[:t]
+```
+
+You have access to the more advanced engine options too, using the `__call__()` method:
+
+```python
+model(raise_exceptions=False, deepcopy=True, drop_substeps=False)
+_model = next(model)
+```
+
+Current limitations:
+* Only works for single subsets (no parameter sweeps)
 
 ### Selecting single or multi-process modes
 

@@ -1,15 +1,68 @@
+from radcad.core import _single_run_wrapper, generate_parameter_sweep
 from radcad.engine import Engine
 from collections import namedtuple
+import copy
 
 
-RunArgs = namedtuple("RunArgs", "simulation timesteps run subset initial_state state_update_blocks parameters deepcopy drop_substeps")
+RunArgs = namedtuple("RunArgs", [
+    "simulation",
+    "timesteps",
+    "run",
+    "subset",
+    "initial_state",
+    "state_update_blocks",
+    "parameters",
+    "deepcopy",
+    "drop_substeps",
+])
 Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
+
 
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
-        self.initial_state = initial_state
+        self.substeps = []
+        self.state = {
+            **copy.deepcopy(initial_state),
+            'simulation': 0,
+            'subset': 0,
+            'run': 1,
+            'substep': 0,
+            'timestep': 0
+        }
+        self.initial_state = copy.deepcopy(initial_state)
         self.state_update_blocks = state_update_blocks
-        self.params = params
+        self.params = copy.deepcopy(params)
+        self.exceptions = []
+        self._raise_exceptions = True
+        self._deepcopy = True
+        self._drop_substeps = False
+
+    def __iter__(self):
+        while True:
+            param_sweep = generate_parameter_sweep(self.params)
+            _params = param_sweep[0] if param_sweep else {}
+            run_args = RunArgs(
+                simulation = 0,
+                timesteps = 1,
+                run = 0,
+                subset = 0,
+                initial_state = copy.deepcopy(self.state),
+                state_update_blocks = self.state_update_blocks,
+                parameters = _params,
+                deepcopy = self._deepcopy,
+                drop_substeps = self._drop_substeps,
+            )
+            result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
+            if exception: self.exceptions.append(exception)
+            self.substeps = result.pop()
+            self.state = self.substeps[-1] if self.substeps else self.state
+            yield self
+
+    def __call__(self, **kwargs):
+        self._raise_exceptions = kwargs.pop("raise_exceptions", True)
+        self._deepcopy = kwargs.pop("deepcopy", True)
+        self._drop_substeps = kwargs.pop("drop_substeps", False)
+        return self
 
 
 class Simulation:

@@ -23,7 +23,7 @@ class ExecutorRay(Executor):
         ray.init(num_cpus=self.engine.processes, ignore_reinit_error=True)
         futures = [
             ExecutorRay._proxy_single_run.remote((config, self.engine.raise_exceptions))
-            for config in self.engine.run_generator
+            for config in self.engine._run_generator
         ]
         return ray.get(futures)
 
@@ -38,6 +38,6 @@ class ExecutorRayRemote(Executor):
         )
         futures = [
             ExecutorRayRemote._proxy_single_run.remote((config, self.engine.raise_exceptions))
-            for config in self.engine.run_generator
+            for config in self.engine._run_generator
         ]
         return ray.get(futures)

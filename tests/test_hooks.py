@@ -25,7 +25,7 @@ def test_hooks(capsys):
     experiment.after_simulation = lambda simulation=None: print(f'after_simulation {simulation.index}')
     experiment.after_experiment = lambda experiment=None: print(f'after_experiment')
 
-    raw_result = experiment.run()
+    experiment.run()
     captured = capsys.readouterr()
 
     assert captured.out.replace('\n', '').replace(' ', '') == """
