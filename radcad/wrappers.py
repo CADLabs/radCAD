@@ -65,24 +65,35 @@ class Model:
         return self
 
 
-class Simulation:
+class Base:
+    def __init__(self) -> None:
+        self.results = []
+        self.exceptions = []
+
+    def run(self):
+        raise NotImplementedError("Method run() not implemented for class that extends Base")
+
+
+class Simulation(Base):
     def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
         self.model = model
         self.timesteps = timesteps
         self.runs = runs
 
         self.index = kwargs.pop("index", 0)
-        self.engine = kwargs.pop("engine", Engine())
         self.experiment = Experiment(self)
 
         if kwargs:
             raise Exception(f"Invalid Simulation option in {kwargs}")
 
     def run(self):
-        return self.engine._run(experiment=self.experiment)
+        self.experiment.engine._run(experiment=self.experiment)
+        self.results = self.experiment.results
+        self.exceptions = self.experiment.exceptions
+        return self.results
 
 
-class Experiment:
+class Experiment(Base):
     """
     An Experiment.
     """
@@ -91,9 +102,6 @@ class Experiment:
         self.engine = kwargs.pop("engine", Engine())
 
         self.simulations = []
-
-        self.results = []
-        self.exceptions = []
 
         # Add and validate simulations
         self.add_simulations(simulations)
