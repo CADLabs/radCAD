@@ -1,7 +1,7 @@
 from radcad import Model, Simulation, Experiment
 from tests.test_cases import basic
 
-def test_run():
+def test_base_results():
     states = basic.states
     state_update_blocks = basic.state_update_blocks
     params = basic.params
@@ -10,11 +10,10 @@ def test_run():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    experiment = Experiment(simulations=[simulation])
     
-    raw_result = experiment.run()
-    
-    assert len(raw_result) > 0
-    assert raw_result == experiment.results
-    assert simulation.run() == raw_result
-    
+    results = simulation.run()
+
+    # Check Base class
+    assert simulation.results == results
+    assert simulation.results == simulation.experiment.results
+    assert simulation.exceptions == simulation.experiment.exceptions
