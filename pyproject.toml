@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.6.6"
+version = "0.6.7"
 description = "A cadCAD implementation, for dynamical systems modelling & simulation"
 authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
 packages = [
