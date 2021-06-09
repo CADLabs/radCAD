@@ -151,7 +151,7 @@ result = simulation.run()
 df = pd.DataFrame(result)
 ```
 
-### WIP: Iterating over a Model
+### Iterating over a Model
 
 Model classes are iterable, so you can iterate over them step-by-step from one state to the next.
 
@@ -196,7 +196,9 @@ _model = next(model)
 Current limitations:
 * Only works for single subsets (no parameter sweeps)
 
-### Selecting single or multi-process modes
+### Engine Settings
+
+#### Selecting single or multi-process modes
 
 By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
@@ -208,7 +210,7 @@ experiment.engine = Engine(processes=1)
 result = experiment.run()
 ```
 
-### Disabling state `deepcopy`
+#### Disabling state `deepcopy`
 
 To improve performance, at the cost of mutability, the `Engine` module has the `deepcopy` option which is `True` by default:
 
@@ -216,7 +218,7 @@ To improve performance, at the cost of mutability, the `Engine` module has the `
 experiment.engine = Engine(deepcopy=False)
 ```
 
-### Dropping state substeps
+#### Dropping state substeps
 
 If you don't need the substeps in post-processing, you can both improve simulation performance and save post-processing time and dataset size by dropping the substeps:
 
