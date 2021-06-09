@@ -10,10 +10,12 @@ def test_base_results():
 
     model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment([simulation])
     
-    results = simulation.run()
+    simulation_results = simulation.run()
+    experiment_results = experiment.run()
 
-    # Check Base class
-    assert simulation.results == results
-    assert simulation.results == simulation.experiment.results
-    assert simulation.exceptions == simulation.experiment.exceptions
+    # Check Executable results & exceptions
+    assert simulation_results == experiment_results
+    assert simulation.results == experiment.results
+    assert simulation.exceptions == experiment.exceptions

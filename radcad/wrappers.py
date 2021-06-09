@@ -65,46 +65,12 @@ class Model:
         return self
 
 
-class Base:
-    def __init__(self) -> None:
-        self.results = []
-        self.exceptions = []
-
-    def run(self):
-        raise NotImplementedError("Method run() not implemented for class that extends Base")
-
-
-class Simulation(Base):
-    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
-        self.model = model
-        self.timesteps = timesteps
-        self.runs = runs
-
-        self.index = kwargs.pop("index", 0)
-        self.experiment = Experiment(self)
-
-        if kwargs:
-            raise Exception(f"Invalid Simulation option in {kwargs}")
-
-    def run(self):
-        self.experiment.engine._run(experiment=self.experiment)
-        self.results = self.experiment.results
-        self.exceptions = self.experiment.exceptions
-        return self.results
-
-
-class Experiment(Base):
-    """
-    An Experiment.
-    """
-
-    def __init__(self, simulations=[], **kwargs):
+class Executable:
+    def __init__(self, **kwargs) -> None:
         self.engine = kwargs.pop("engine", Engine())
 
-        self.simulations = []
-
-        # Add and validate simulations
-        self.add_simulations(simulations)
+        self.results = []
+        self.exceptions = []
 
         # Hooks
         self.before_experiment = kwargs.pop("before_experiment", None)
@@ -116,26 +82,8 @@ class Experiment(Base):
         self.before_subset = kwargs.pop("before_subset", None)
         self.after_subset = kwargs.pop("after_subset", None)
 
-        if kwargs:
-            raise Exception(f"Invalid Experiment option in {kwargs}")
-
     def run(self):
-        return self.engine._run(experiment=self)
-
-    def add_simulations(self, simulations):
-        if not isinstance(simulations, list):
-            simulations = [simulations]
-        if any(not isinstance(sim, Simulation) for sim in simulations):
-            raise Exception("Invalid simulation added")
-        self.simulations.extend(simulations)
-
-    def clear_simulations(self):
-        cleared = True if self.simulations else False
-        self.simulations = []
-        return cleared
-
-    def get_simulations(self):
-        return self.simulations
+        raise NotImplementedError("Method run() not implemented for class that extends Base")
 
     # Hooks
     def _before_experiment(self, experiment=None):
@@ -173,3 +121,54 @@ class Experiment(Base):
     def _after_subset(self, context: Context=None):
         if self.after_subset:
             self.after_subset(context=context)
+
+
+class Simulation(Executable):
+    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        super().__init__(**kwargs)
+
+        self.model = model
+        self.timesteps = timesteps
+        self.runs = runs
+
+        self.index = kwargs.pop("index", 0)
+
+        if kwargs:
+            raise Exception(f"Invalid Simulation option in {kwargs}")
+
+    def run(self):
+        return self.engine._run(executable=self)
+
+
+class Experiment(Executable):
+    """
+    An Experiment is a collection of Simulations.
+    """
+
+    def __init__(self, simulations=[], **kwargs):
+        super().__init__(**kwargs)
+
+        # Add and validate simulations
+        self.simulations = []
+        self.add_simulations(simulations)
+
+        if kwargs:
+            raise Exception(f"Invalid Experiment option in {kwargs}")
+
+    def run(self):
+        return self.engine._run(executable=self)
+
+    def add_simulations(self, simulations):
+        if not isinstance(simulations, list):
+            simulations = [simulations]
+        if any(not isinstance(sim, Simulation) for sim in simulations):
+            raise Exception("Invalid simulation added")
+        self.simulations.extend(simulations)
+
+    def clear_simulations(self):
+        cleared = True if self.simulations else False
+        self.simulations = []
+        return cleared
+
+    def get_simulations(self):
+        return self.simulations
