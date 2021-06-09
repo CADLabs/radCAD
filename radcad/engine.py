@@ -23,7 +23,7 @@ class Engine:
             **drop_substeps (bool): Whether to drop simulation result substeps during runtime to save memory and improve performance. Defaults to `False`.
             **_run_generator (tuple_iterator): Generator to generate simulation runs, used to implement custom execution backends. Defaults to  `iter(())`.
         """
-        self.experiment = None
+        self.executable = None
         self.processes = kwargs.pop("processes", cpu_count)
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
@@ -34,15 +34,15 @@ class Engine:
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
 
-    def _run(self, experiment=None, **kwargs):
-        if not experiment:
-            raise Exception("Experiment required as argument")
-        self.experiment = experiment
+    def _run(self, executable=None, **kwargs):
+        if not executable:
+            raise Exception("Experiment or simulation required as Executable argument")
+        self.executable = executable
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
 
-        simulations = experiment.simulations
+        simulations = executable.simulations if isinstance(executable, wrappers.Experiment) else [executable]
         if not isinstance(self.backend, Backend):
             raise Exception(f"Execution backend must be one of {Backend.list()}")
         configs = [
@@ -58,7 +58,7 @@ class Engine:
 
         result = []
 
-        self.experiment._before_experiment(experiment=self.experiment)
+        self.executable._before_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
 
         self._run_generator = self._run_stream(configs)
 
@@ -79,9 +79,9 @@ class Engine:
         
         result = Executor(self).execute_runs()
         
-        self.experiment.results, self.experiment.exceptions = extract_exceptions(result)
-        self.experiment._after_experiment(experiment=self.experiment)
-        return self.experiment.results
+        self.executable.results, self.executable.exceptions = extract_exceptions(result)
+        self.executable._after_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
+        return self.executable.results
 
     def _get_simulation_from_config(config):
         states, state_update_blocks, params, timesteps, runs = config
@@ -103,7 +103,7 @@ class Engine:
             params = simulation.model.params
             param_sweep = core.generate_parameter_sweep(params)
 
-            self.experiment._before_simulation(
+            self.executable._before_simulation(
                 simulation=simulation
             )
 
@@ -118,7 +118,7 @@ class Engine:
                         initial_state,
                         params
                     )
-                    self.experiment._before_run(context=context)
+                    self.executable._before_run(context=context)
                     for subset_index, param_set in enumerate(param_sweep):
                         context = wrappers.Context(
                             simulation_index,
@@ -128,7 +128,7 @@ class Engine:
                             initial_state,
                             params
                         )
-                        self.experiment._before_subset(context=context)
+                        self.executable._before_subset(context=context)
                         yield wrappers.RunArgs(
                             simulation_index,
                             timesteps,
@@ -140,8 +140,8 @@ class Engine:
                             self.deepcopy,
                             self.drop_substeps,
                         )
-                        self.experiment._after_subset(context=context)
-                    self.experiment._after_run(context=context)
+                        self.executable._after_subset(context=context)
+                    self.executable._after_run(context=context)
                 else:
                     context = wrappers.Context(
                         simulation_index,
@@ -151,8 +151,8 @@ class Engine:
                         initial_state,
                         params
                     )
-                    self.experiment._before_run(context=context)
-                    self.experiment._before_subset(context=context)
+                    self.executable._before_run(context=context)
+                    self.executable._before_subset(context=context)
                     yield wrappers.RunArgs(
                         simulation_index,
                         timesteps,
@@ -164,9 +164,9 @@ class Engine:
                         self.deepcopy,
                         self.drop_substeps,
                     )
-                    self.experiment._after_subset(context=context)
-                    self.experiment._after_run(context=context)
+                    self.executable._after_subset(context=context)
+                    self.executable._after_run(context=context)
 
-            self.experiment._after_simulation(
+            self.executable._after_simulation(
                 simulation=simulation
             )
