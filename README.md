@@ -226,6 +226,28 @@ If you don't need the substeps in post-processing, you can both improve simulati
 experiment.engine = Engine(drop_substeps=True)
 ```
 
+#### Exception handling
+
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
+
+```python
+...
+experiment.engine = Engine(raise_exceptions=False)
+experiment.run()
+
+results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
+exceptions = experiment.exceptions # A dataframe of exceptions, tracebacks, and simulations metadata
+```
+
+This also means you can run a specific simulation directly, and access the results later:
+```python
+predator_prey_simulation.run()
+
+...
+
+results = predator_prey_simulation.experiment.results
+```
+
 ### WIP: Remote Cluster Execution (using Ray)
 
 To use the Ray backend, install radCAD with the `extension-backend-ray` dependencies:
@@ -270,29 +292,9 @@ Finally, spin down the cluster:
 ray down cluster/ray-aws.yaml
 ```
 
-### Exception handling
-
-radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
-
-```python
-...
-experiment.engine = Engine(raise_exceptions=False)
-experiment.run()
-
-results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
-exceptions = experiment.exceptions # A dataframe of exceptions, tracebacks, and simulations metadata
-```
-
-This also means you can run a specific simulation directly, and access the results later:
-```python
-predator_prey_simulation.run()
-
-...
-
-results = predator_prey_simulation.experiment.results
-```
-
 ### Hooks to extend functionality
+
+Hooks allow you to easily extend the functionality of radCAD with a stable API, and without having to manipulate the robust core.
 
 ```python
 experiment.before_experiment = lambda experiment: print(f"Before experiment with {len(experiment.simulations)} simulations")
