@@ -7,7 +7,9 @@ import os
 
 
 class ExecutorPathos(Executor):
-    def __init__(self):
+    def __init__(self, engine):
+        super().__init__(engine=engine)
+
         # Checks if Windows, then fixes issue - "NameError: Name '_' is not defined"
         # See https://github.com/uqfoundation/multiprocess/issues/6
         if os.name == 'nt':
