@@ -245,7 +245,7 @@ predator_prey_simulation.run()
 
 ...
 
-results = predator_prey_simulation.experiment.results
+results = predator_prey_simulation.results
 ```
 
 ### WIP: Remote Cluster Execution (using Ray)
