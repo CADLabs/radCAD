@@ -10,7 +10,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 def update_state_a(params, substep, state_history, previous_state, policy_input):
     raise Exception('Forced exception from state update function')
-    return 'state_a', 1
 
 def test_state_update_exception():
     initial_state = {
@@ -40,7 +39,6 @@ def test_state_update_exception():
 
 def policy_function_raises(params, substep, state_history, previous_state):
     raise Exception('Forced exception from policy function')
-    return {'signal': 1}
 
 def test_policy_exception():
     initial_state = {
