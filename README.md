@@ -1,7 +1,7 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
 [![Build Status](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml)
-[![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master)](https://coveralls.io/github/BenSchZA/radCAD?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/BenSchZA/radCAD?branch=master&service=github)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/BenSchZA/radCAD/maintainability)
 
 ![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
