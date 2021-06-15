@@ -6,6 +6,19 @@ import radcad.utils as utils
 from tests.test_cases import basic
 
 
+def test_model_call_method():
+    states = basic.states
+    state_update_blocks = basic.state_update_blocks
+    params = basic.params
+
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
+    # Test Model __call__() method configuration
+    model(
+        drop_substeps=True,
+        deepcopy=False,
+        raise_exceptions=False,
+    )
+
 def test_model_generator():
     states = basic.states
     state_update_blocks = basic.state_update_blocks

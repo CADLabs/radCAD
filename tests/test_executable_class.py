@@ -1,5 +1,18 @@
+import pytest
+
 from radcad import Model, Simulation, Experiment
+from radcad.wrappers import Executable
 from tests.test_cases import basic
+
+
+def test_run_method_implementation():
+    class ExecutableClass(Executable):
+        def __init__(self):
+            return
+    with pytest.raises(NotImplementedError):
+        ex = ExecutableClass()
+        ex.run()
+
 
 def test_base_results():
     states = basic.states
