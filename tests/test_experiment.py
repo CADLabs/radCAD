@@ -1,3 +1,5 @@
+import pytest
+
 from radcad import Model, Simulation, Experiment
 from tests.test_cases import basic
 
@@ -24,12 +26,17 @@ def test_experiment_init():
     experiment = Experiment([simulation])
     assert experiment.get_simulations() == [simulation]
 
+    with pytest.raises(Exception):
+        Experiment(invalid_arg=None)
+
 def test_add_simulations():
     experiment = Experiment()
     experiment.add_simulations([simulation, simulation])
     assert experiment.get_simulations() == [simulation, simulation]
     experiment.add_simulations(simulation)
     assert experiment.get_simulations() == [simulation, simulation, simulation]
+    with pytest.raises(Exception):
+        experiment.add_simulations(None)
 
 def test_clear_simulations():
     experiment = Experiment()
