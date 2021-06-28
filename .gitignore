@@ -160,3 +160,4 @@ scratchpad**
 *.hdf5
 .pymon
 .benchmarks/
+.idea/
