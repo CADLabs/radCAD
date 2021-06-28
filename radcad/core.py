@@ -66,7 +66,7 @@ def _single_run(
             substate["substep"] = substep + 1
             
             signals: dict = reduce_signals(
-                params, substep, result, substate_copy, psu
+                params, substep, result, substate_copy, psu, deepcopy
             )
 
             updated_state = map(
@@ -175,14 +175,16 @@ def _add_signals(acc, a: Dict[str, any]):
     return acc
 
 
-def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict):
-    policy_results: List[Dict[str, any]] = list(map(lambda function: function(params, substep, result, substate), psu["policies"].values()))
+def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True):
+    policy_results: List[Dict[str, any]] = list(
+        map(lambda function: function(params, substep, result, substate), psu["policies"].values())
+    )
 
     result: dict = {}
     result_length = len(policy_results)
     if result_length == 0:
         return result
     elif result_length == 1:
-        return pickle.loads(pickle.dumps(policy_results[0], -1))
+        return pickle.loads(pickle.dumps(policy_results[0], -1)) if deepcopy else policy_results[0].copy()
     else:
         return reduce(_add_signals, policy_results, result)
