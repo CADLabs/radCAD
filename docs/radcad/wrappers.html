@@ -26,8 +26,10 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from radcad.engine import Engine
+<pre><code class="python">from radcad.core import _single_run_wrapper, generate_parameter_sweep
+from radcad.engine import Engine
 from collections import namedtuple
+import copy
 
 
 RunArgs = namedtuple(&#34;RunArgs&#34;, [
@@ -43,45 +45,60 @@ RunArgs = namedtuple(&#34;RunArgs&#34;, [
 ])
 Context = namedtuple(&#34;Context&#34;, &#34;simulation run subset timesteps initial_state parameters&#34;)
 
+
 class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
-        self.initial_state = initial_state
+        self.substeps = []
+        self.state = {
+            **copy.deepcopy(initial_state),
+            &#39;simulation&#39;: 0,
+            &#39;subset&#39;: 0,
+            &#39;run&#39;: 1,
+            &#39;substep&#39;: 0,
+            &#39;timestep&#39;: 0
+        }
+        self.initial_state = copy.deepcopy(initial_state)
         self.state_update_blocks = state_update_blocks
-        self.params = params
+        self.params = copy.deepcopy(params)
+        self.exceptions = []
+        self._raise_exceptions = True
+        self._deepcopy = True
+        self._drop_substeps = False
+
+    def __iter__(self):
+        while True:
+            param_sweep = generate_parameter_sweep(self.params)
+            _params = param_sweep[0] if param_sweep else {}
+            run_args = RunArgs(
+                simulation = 0,
+                timesteps = 1,
+                run = 0,
+                subset = 0,
+                initial_state = copy.deepcopy(self.state),
+                state_update_blocks = self.state_update_blocks,
+                parameters = _params,
+                deepcopy = self._deepcopy,
+                drop_substeps = self._drop_substeps,
+            )
+            result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
+            if exception: self.exceptions.append(exception)
+            self.substeps = result.pop()
+            self.state = self.substeps[-1] if self.substeps else self.state
+            yield self
+
+    def __call__(self, **kwargs):
+        self._raise_exceptions = kwargs.pop(&#34;raise_exceptions&#34;, True)
+        self._deepcopy = kwargs.pop(&#34;deepcopy&#34;, True)
+        self._drop_substeps = kwargs.pop(&#34;drop_substeps&#34;, False)
+        return self
 
 
-class Simulation:
-    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
-        self.model = model
-        self.timesteps = timesteps
-        self.runs = runs
-
-        self.index = kwargs.pop(&#34;index&#34;, 0)
+class Executable:
+    def __init__(self, **kwargs) -&gt; None:
         self.engine = kwargs.pop(&#34;engine&#34;, Engine())
-        self.experiment = Experiment(self)
-
-        if kwargs:
-            raise Exception(f&#34;Invalid Simulation option in {kwargs}&#34;)
-
-    def run(self):
-        return self.engine._run(experiment=self.experiment)
-
-
-class Experiment:
-    &#34;&#34;&#34;
-    An Experiment.
-    &#34;&#34;&#34;
-
-    def __init__(self, simulations=[], **kwargs):
-        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
-
-        self.simulations = []
 
         self.results = []
         self.exceptions = []
-
-        # Add and validate simulations
-        self.add_simulations(simulations)
 
         # Hooks
         self.before_experiment = kwargs.pop(&#34;before_experiment&#34;, None)
@@ -92,29 +109,9 @@ class Experiment:
         self.after_run = kwargs.pop(&#34;after_run&#34;, None)
         self.before_subset = kwargs.pop(&#34;before_subset&#34;, None)
         self.after_subset = kwargs.pop(&#34;after_subset&#34;, None)
-        self.before_substep = kwargs.pop(&#34;before_substep&#34;, None)
-        self.after_substep = kwargs.pop(&#34;after_substep&#34;, None)
-
-        if kwargs:
-            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
 
     def run(self):
-        return self.engine._run(experiment=self)
-
-    def add_simulations(self, simulations):
-        if not isinstance(simulations, list):
-            simulations = [simulations]
-        if any(not isinstance(sim, Simulation) for sim in simulations):
-            raise Exception(&#34;Invalid simulation added&#34;)
-        self.simulations.extend(simulations)
-
-    def clear_simulations(self):
-        cleared = True if self.simulations else False
-        self.simulations = []
-        return cleared
-
-    def get_simulations(self):
-        return self.simulations
+        raise NotImplementedError(&#34;Method run() not implemented for class that extends Base&#34;)
 
     # Hooks
     def _before_experiment(self, experiment=None):
@@ -153,13 +150,56 @@ class Experiment:
         if self.after_subset:
             self.after_subset(context=context)
 
-    def _before_substep(self, substep, substate):
-        if self.before_substep:
-            self.before_substep(substep, substate)
 
-    def _after_substep(self, substep, substate):
-        if self.after_substep:
-            self.after_substep(substep, substate)</code></pre>
+class Simulation(Executable):
+    def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        super().__init__(**kwargs)
+
+        self.model = model
+        self.timesteps = timesteps
+        self.runs = runs
+
+        self.index = kwargs.pop(&#34;index&#34;, 0)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Simulation option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(executable=self)
+
+
+class Experiment(Executable):
+    &#34;&#34;&#34;
+    An Experiment is a collection of Simulations.
+    &#34;&#34;&#34;
+
+    def __init__(self, simulations=[], **kwargs):
+        super().__init__(**kwargs)
+
+        # Add and validate simulations
+        self.simulations = []
+        self.add_simulations(simulations)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(executable=self)
+
+    def add_simulations(self, simulations):
+        if not isinstance(simulations, list):
+            simulations = [simulations]
+        if any(not isinstance(sim, Simulation) for sim in simulations):
+            raise Exception(&#34;Invalid simulation added&#34;)
+        self.simulations.extend(simulations)
+
+    def clear_simulations(self):
+        cleared = True if self.simulations else False
+        self.simulations = []
+        return cleared
+
+    def get_simulations(self):
+        return self.simulations</code></pre>
 </details>
 </section>
 <section>
@@ -209,31 +249,22 @@ class Experiment:
 </dd>
 </dl>
 </dd>
-<dt id="radcad.wrappers.Experiment"><code class="flex name class">
-<span>class <span class="ident">Experiment</span></span>
-<span>(</span><span>simulations=[], **kwargs)</span>
+<dt id="radcad.wrappers.Executable"><code class="flex name class">
+<span>class <span class="ident">Executable</span></span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>An Experiment.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Experiment:
-    &#34;&#34;&#34;
-    An Experiment.
-    &#34;&#34;&#34;
-
-    def __init__(self, simulations=[], **kwargs):
+<pre><code class="python">class Executable:
+    def __init__(self, **kwargs) -&gt; None:
         self.engine = kwargs.pop(&#34;engine&#34;, Engine())
-
-        self.simulations = []
 
         self.results = []
         self.exceptions = []
-
-        # Add and validate simulations
-        self.add_simulations(simulations)
 
         # Hooks
         self.before_experiment = kwargs.pop(&#34;before_experiment&#34;, None)
@@ -244,29 +275,9 @@ class Experiment:
         self.after_run = kwargs.pop(&#34;after_run&#34;, None)
         self.before_subset = kwargs.pop(&#34;before_subset&#34;, None)
         self.after_subset = kwargs.pop(&#34;after_subset&#34;, None)
-        self.before_substep = kwargs.pop(&#34;before_substep&#34;, None)
-        self.after_substep = kwargs.pop(&#34;after_substep&#34;, None)
-
-        if kwargs:
-            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
 
     def run(self):
-        return self.engine._run(experiment=self)
-
-    def add_simulations(self, simulations):
-        if not isinstance(simulations, list):
-            simulations = [simulations]
-        if any(not isinstance(sim, Simulation) for sim in simulations):
-            raise Exception(&#34;Invalid simulation added&#34;)
-        self.simulations.extend(simulations)
-
-    def clear_simulations(self):
-        cleared = True if self.simulations else False
-        self.simulations = []
-        return cleared
-
-    def get_simulations(self):
-        return self.simulations
+        raise NotImplementedError(&#34;Method run() not implemented for class that extends Base&#34;)
 
     # Hooks
     def _before_experiment(self, experiment=None):
@@ -303,16 +314,77 @@ class Experiment:
 
     def _after_subset(self, context: Context=None):
         if self.after_subset:
-            self.after_subset(context=context)
-
-    def _before_substep(self, substep, substate):
-        if self.before_substep:
-            self.before_substep(substep, substate)
-
-    def _after_substep(self, substep, substate):
-        if self.after_substep:
-            self.after_substep(substep, substate)</code></pre>
+            self.after_subset(context=context)</code></pre>
 </details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="radcad.wrappers.Experiment" href="#radcad.wrappers.Experiment">Experiment</a></li>
+<li><a title="radcad.wrappers.Simulation" href="#radcad.wrappers.Simulation">Simulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="radcad.wrappers.Executable.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    raise NotImplementedError(&#34;Method run() not implemented for class that extends Base&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="radcad.wrappers.Experiment"><code class="flex name class">
+<span>class <span class="ident">Experiment</span></span>
+<span>(</span><span>simulations=[], **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An Experiment is a collection of Simulations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Experiment(Executable):
+    &#34;&#34;&#34;
+    An Experiment is a collection of Simulations.
+    &#34;&#34;&#34;
+
+    def __init__(self, simulations=[], **kwargs):
+        super().__init__(**kwargs)
+
+        # Add and validate simulations
+        self.simulations = []
+        self.add_simulations(simulations)
+
+        if kwargs:
+            raise Exception(f&#34;Invalid Experiment option in {kwargs}&#34;)
+
+    def run(self):
+        return self.engine._run(executable=self)
+
+    def add_simulations(self, simulations):
+        if not isinstance(simulations, list):
+            simulations = [simulations]
+        if any(not isinstance(sim, Simulation) for sim in simulations):
+            raise Exception(&#34;Invalid simulation added&#34;)
+        self.simulations.extend(simulations)
+
+    def clear_simulations(self):
+        cleared = True if self.simulations else False
+        self.simulations = []
+        return cleared
+
+    def get_simulations(self):
+        return self.simulations</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="radcad.wrappers.Executable" href="#radcad.wrappers.Executable">Executable</a></li>
+</ul>
 <h3>Methods</h3>
 <dl>
 <dt id="radcad.wrappers.Experiment.add_simulations"><code class="name flex">
@@ -370,7 +442,7 @@ class Experiment:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
-    return self.engine._run(experiment=self)</code></pre>
+    return self.engine._run(executable=self)</code></pre>
 </details>
 </dd>
 </dl>
@@ -387,9 +459,49 @@ class Experiment:
 </summary>
 <pre><code class="python">class Model:
     def __init__(self, initial_state={}, state_update_blocks=[], params={}):
-        self.initial_state = initial_state
+        self.substeps = []
+        self.state = {
+            **copy.deepcopy(initial_state),
+            &#39;simulation&#39;: 0,
+            &#39;subset&#39;: 0,
+            &#39;run&#39;: 1,
+            &#39;substep&#39;: 0,
+            &#39;timestep&#39;: 0
+        }
+        self.initial_state = copy.deepcopy(initial_state)
         self.state_update_blocks = state_update_blocks
-        self.params = params</code></pre>
+        self.params = copy.deepcopy(params)
+        self.exceptions = []
+        self._raise_exceptions = True
+        self._deepcopy = True
+        self._drop_substeps = False
+
+    def __iter__(self):
+        while True:
+            param_sweep = generate_parameter_sweep(self.params)
+            _params = param_sweep[0] if param_sweep else {}
+            run_args = RunArgs(
+                simulation = 0,
+                timesteps = 1,
+                run = 0,
+                subset = 0,
+                initial_state = copy.deepcopy(self.state),
+                state_update_blocks = self.state_update_blocks,
+                parameters = _params,
+                deepcopy = self._deepcopy,
+                drop_substeps = self._drop_substeps,
+            )
+            result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
+            if exception: self.exceptions.append(exception)
+            self.substeps = result.pop()
+            self.state = self.substeps[-1] if self.substeps else self.state
+            yield self
+
+    def __call__(self, **kwargs):
+        self._raise_exceptions = kwargs.pop(&#34;raise_exceptions&#34;, True)
+        self._deepcopy = kwargs.pop(&#34;deepcopy&#34;, True)
+        self._drop_substeps = kwargs.pop(&#34;drop_substeps&#34;, False)
+        return self</code></pre>
 </details>
 </dd>
 <dt id="radcad.wrappers.RunArgs"><code class="flex name class">
@@ -452,22 +564,26 @@ class Experiment:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Simulation:
+<pre><code class="python">class Simulation(Executable):
     def __init__(self, model: Model, timesteps=100, runs=1, **kwargs):
+        super().__init__(**kwargs)
+
         self.model = model
         self.timesteps = timesteps
         self.runs = runs
 
         self.index = kwargs.pop(&#34;index&#34;, 0)
-        self.engine = kwargs.pop(&#34;engine&#34;, Engine())
-        self.experiment = Experiment(self)
 
         if kwargs:
             raise Exception(f&#34;Invalid Simulation option in {kwargs}&#34;)
 
     def run(self):
-        return self.engine._run(experiment=self.experiment)</code></pre>
+        return self.engine._run(executable=self)</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="radcad.wrappers.Executable" href="#radcad.wrappers.Executable">Executable</a></li>
+</ul>
 <h3>Methods</h3>
 <dl>
 <dt id="radcad.wrappers.Simulation.run"><code class="name flex">
@@ -480,7 +596,7 @@ class Experiment:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
-    return self.engine._run(experiment=self.experiment)</code></pre>
+    return self.engine._run(executable=self)</code></pre>
 </details>
 </dd>
 </dl>
@@ -510,6 +626,12 @@ class Experiment:
 <li><code><a title="radcad.wrappers.Context.simulation" href="#radcad.wrappers.Context.simulation">simulation</a></code></li>
 <li><code><a title="radcad.wrappers.Context.subset" href="#radcad.wrappers.Context.subset">subset</a></code></li>
 <li><code><a title="radcad.wrappers.Context.timesteps" href="#radcad.wrappers.Context.timesteps">timesteps</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="radcad.wrappers.Executable" href="#radcad.wrappers.Executable">Executable</a></code></h4>
+<ul class="">
+<li><code><a title="radcad.wrappers.Executable.run" href="#radcad.wrappers.Executable.run">run</a></code></li>
 </ul>
 </li>
 <li>
