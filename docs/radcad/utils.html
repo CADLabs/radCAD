@@ -26,7 +26,10 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def flatten(nested_list):
+<pre><code class="python">import itertools
+
+
+def flatten(nested_list):
     def generator(nested_list):
         for sublist in nested_list:
             if isinstance(sublist, list):
@@ -40,7 +43,13 @@
 
 def extract_exceptions(results_with_exceptions):
     results, exceptions = zip(*results_with_exceptions)
-    return (list(flatten(flatten(list(results)))), list(exceptions))</code></pre>
+    return (list(flatten(flatten(list(results)))), list(exceptions))
+
+
+def generate_cartesian_product_parameter_sweep(params):
+    cartesian_product = list(itertools.product(*params.values()))
+    param_sweep = {key: [x[i] for x in cartesian_product] for i, key in enumerate(params.keys())}
+    return param_sweep</code></pre>
 </details>
 </section>
 <section>
@@ -85,6 +94,21 @@ def extract_exceptions(results_with_exceptions):
     return list(generator(nested_list))</code></pre>
 </details>
 </dd>
+<dt id="radcad.utils.generate_cartesian_product_parameter_sweep"><code class="name flex">
+<span>def <span class="ident">generate_cartesian_product_parameter_sweep</span></span>(<span>params)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_cartesian_product_parameter_sweep(params):
+    cartesian_product = list(itertools.product(*params.values()))
+    param_sweep = {key: [x[i] for x in cartesian_product] for i, key in enumerate(params.keys())}
+    return param_sweep</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -105,6 +129,7 @@ def extract_exceptions(results_with_exceptions):
 <ul class="">
 <li><code><a title="radcad.utils.extract_exceptions" href="#radcad.utils.extract_exceptions">extract_exceptions</a></code></li>
 <li><code><a title="radcad.utils.flatten" href="#radcad.utils.flatten">flatten</a></code></li>
+<li><code><a title="radcad.utils.generate_cartesian_product_parameter_sweep" href="#radcad.utils.generate_cartesian_product_parameter_sweep">generate_cartesian_product_parameter_sweep</a></code></li>
 </ul>
 </li>
 </ul>

@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2021-06-28
+### Changed
+- `engine.deepcopy` setting now disables deepcopy of State as well as Policy Signals
+
+## [0.7.1] - 2021-06-11
+### Added
+- Fix for Pathos multiprocessing issue - "NameError: Name '_' is not defined". See https://github.com/uqfoundation/multiprocess/issues/6
+
+## [0.7.0] - 2021-06-09
+### Changed
+- Experiment and Simulation extend the Executable class (not a breaking change, but significant improvement to API)
+
+## [0.6.7] - 2021-06-08
+### Added
+- `generate_cartesian_product_parameter_sweep(...)` method to `radcad.utils`
+
+## [0.6.6] - 2021-06-08
+### Added
+- Base wrapper class
+
+## [0.6.5] - 2021-06-03
+### Added
+- Iterable Models
+
+## [0.6.4] - 2021-05-31
+### Added
+- Support for Python 3.9 (<4.0)
+
 ## [0.6.3] - 2021-04-30
 ### Added
 - Update dependencies

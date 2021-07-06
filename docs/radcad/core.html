@@ -31,7 +31,7 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Dict, List, Callable
+from typing import Dict, List, Tuple
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
@@ -71,7 +71,8 @@ def _single_run(
     initial_state[&#34;subset&#34;] = subset
     initial_state[&#34;run&#34;] = run + 1
     initial_state[&#34;substep&#34;] = 0
-    initial_state[&#34;timestep&#34;] = 0
+    if not initial_state.get(&#34;timestep&#34;, False):
+        initial_state[&#34;timestep&#34;] = 0
 
     result.append([initial_state])
 
@@ -83,6 +84,7 @@ def _single_run(
         )
 
         substeps: list = []
+        substate: dict = previous_state.copy()
 
         for (substep, psu) in enumerate(state_update_blocks):
             substate: dict = (
@@ -92,7 +94,7 @@ def _single_run(
             substate[&#34;substep&#34;] = substep + 1
             
             signals: dict = reduce_signals(
-                params, substep, result, substate_copy, psu
+                params, substep, result, substate_copy, psu, deepcopy
             )
 
             updated_state = map(
@@ -100,24 +102,25 @@ def _single_run(
                 psu[&#34;variables&#34;].items()
             )
             substate.update(updated_state)
-            substate[&#34;timestep&#34;] = timestep + 1
+            substate[&#34;timestep&#34;] = (previous_state[&#34;timestep&#34;] + 1) if timestep == 0 else timestep + 1
             substeps.append(substate)
 
+        substeps = [substate] if not substeps else substeps
         result.append(substeps if not drop_substeps else [substeps.pop()])
     return result
 
 
 def single_run(
-    simulation,
-    timesteps,
-    run,
-    subset,
-    initial_state,
-    state_update_blocks,
-    params,
-    deepcopy: bool,
-    drop_substeps: bool,
-):
+    simulation=0,
+    timesteps=1,
+    run=0,
+    subset=0,
+    initial_state={},
+    state_update_blocks=[],
+    params={},
+    deepcopy: bool=True,
+    drop_substeps: bool=False,
+) -&gt; Tuple[list, Exception, str]:
     result = []
 
     try:
@@ -170,7 +173,7 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def generate_parameter_sweep(params: List[Dict[str, List[any]]]):
+def generate_parameter_sweep(params: Dict[str, List[any]]):
     param_sweep = []
     max_len = 0
     for value in params.values():
@@ -200,15 +203,17 @@ def _add_signals(acc, a: Dict[str, any]):
     return acc
 
 
-def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict):
-    policy_results: List[Dict[str, any]] = list(map(lambda function: function(params, substep, result, substate), psu[&#34;policies&#34;].values()))
+def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True):
+    policy_results: List[Dict[str, any]] = list(
+        map(lambda function: function(params, substep, result, substate), psu[&#34;policies&#34;].values())
+    )
 
     result: dict = {}
     result_length = len(policy_results)
     if result_length == 0:
         return result
     elif result_length == 1:
-        return pickle.loads(pickle.dumps(policy_results[0], -1))
+        return pickle.loads(pickle.dumps(policy_results[0], -1)) if deepcopy else policy_results[0].copy()
     else:
         return reduce(_add_signals, policy_results, result)</code></pre>
 </details>
@@ -221,7 +226,7 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="radcad.core.generate_parameter_sweep"><code class="name flex">
-<span>def <span class="ident">generate_parameter_sweep</span></span>(<span>params: List[Dict[str, List[<built-in function any>]]])</span>
+<span>def <span class="ident">generate_parameter_sweep</span></span>(<span>params: Dict[str, List[<built-in function any>]])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -229,7 +234,7 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_parameter_sweep(params: List[Dict[str, List[any]]]):
+<pre><code class="python">def generate_parameter_sweep(params: Dict[str, List[any]]):
     param_sweep = []
     max_len = 0
     for value in params.values():
@@ -251,7 +256,7 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
 </details>
 </dd>
 <dt id="radcad.core.reduce_signals"><code class="name flex">
-<span>def <span class="ident">reduce_signals</span></span>(<span>params: dict, substep: int, result: list, substate: dict, psu: dict)</span>
+<span>def <span class="ident">reduce_signals</span></span>(<span>params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -259,21 +264,23 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict):
-    policy_results: List[Dict[str, any]] = list(map(lambda function: function(params, substep, result, substate), psu[&#34;policies&#34;].values()))
+<pre><code class="python">def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True):
+    policy_results: List[Dict[str, any]] = list(
+        map(lambda function: function(params, substep, result, substate), psu[&#34;policies&#34;].values())
+    )
 
     result: dict = {}
     result_length = len(policy_results)
     if result_length == 0:
         return result
     elif result_length == 1:
-        return pickle.loads(pickle.dumps(policy_results[0], -1))
+        return pickle.loads(pickle.dumps(policy_results[0], -1)) if deepcopy else policy_results[0].copy()
     else:
         return reduce(_add_signals, policy_results, result)</code></pre>
 </details>
 </dd>
 <dt id="radcad.core.single_run"><code class="name flex">
-<span>def <span class="ident">single_run</span></span>(<span>simulation, timesteps, run, subset, initial_state, state_update_blocks, params, deepcopy: bool, drop_substeps: bool)</span>
+<span>def <span class="ident">single_run</span></span>(<span>simulation=0, timesteps=1, run=0, subset=0, initial_state={}, state_update_blocks=[], params={}, deepcopy: bool = True, drop_substeps: bool = False) ‑> Tuple[list, Exception, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -282,16 +289,16 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def single_run(
-    simulation,
-    timesteps,
-    run,
-    subset,
-    initial_state,
-    state_update_blocks,
-    params,
-    deepcopy: bool,
-    drop_substeps: bool,
-):
+    simulation=0,
+    timesteps=1,
+    run=0,
+    subset=0,
+    initial_state={},
+    state_update_blocks=[],
+    params={},
+    deepcopy: bool=True,
+    drop_substeps: bool=False,
+) -&gt; Tuple[list, Exception, str]:
     result = []
 
     try:

@@ -1,7 +1,7 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://travis-ci.com/BenSchZA/radCAD.svg?branch=master)](https://travis-ci.com/BenSchZA/radCAD)
-[![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master)](https://coveralls.io/github/BenSchZA/radCAD?branch=master)
+[![Build Status](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml)
+[![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/BenSchZA/radCAD?branch=master&service=github)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/BenSchZA/radCAD/maintainability)
 
 ![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
@@ -29,6 +29,12 @@ Goals:
 * [Benchmarking](#benchmarking)
 
 ## Example Models
+
+### Iterable Models
+
+Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
+
+![Iterable Models](https://github.com/BenSchZA/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
 
 ### [Game of Life](https://www.conwaylife.com/)
 
@@ -109,10 +115,10 @@ result = experiment.run()
 
 * [x] Disable `deepcopy` option for improved performance (at cost of mutability)
 * [x] Robust exception handling with partial results, and tracebacks
-* [x] Save results to HDF5 file format after completion, using hooks
 * [x] Parallel processing with multiple backend options: `multiprocessing`, `pathos`, `ray`
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
-* [x] Hooks to easily extend the functionality
+* [x] Hooks to easily extend the functionality - e.g. save results to HDF5 file format after completion
+* [x] Model classes are iterable, so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
 
 ## Installation
 
@@ -121,7 +127,7 @@ pip install radcad
 ```
 
 ## Documentation
-(for now, these are all the docs you'll get - please check out the examples as a tutorial)
+For further documentation, please see https://benschza.github.io/radCAD/docs/radcad/index.html
 
 `radCAD` provides the following classes:
 1. A system is represented in some form as a `Model`
@@ -145,7 +151,54 @@ result = simulation.run()
 df = pd.DataFrame(result)
 ```
 
-### Selecting single or multi-process modes
+### Iterating over a Model
+
+Model classes are iterable, so you can iterate over them step-by-step from one state to the next.
+
+This is useful for gradient descent, live digital twins, composing one model within another within a Policy Function...
+
+Here is an example of using a Model to update a Plotly figure live:
+
+```python
+from radcad import Model
+
+import time
+import plotly.graph_objects as go
+
+# Live update of figure using Model as a generator
+fig = go.FigureWidget()
+fig.add_scatter()
+fig.show()
+
+# Create a generator from the Model iterator
+model_generator = iter(Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params))
+
+timesteps = 100
+results = []
+
+for t in range(timesteps):
+    # Step to next state
+    model = next(model_generator)
+    # Get state and update figure
+    state = model.state
+    a = state['a']
+    results.append(a)
+    fig.data[0].y = results[:t]
+```
+
+You have access to the more advanced engine options too, using the `__call__()` method:
+
+```python
+model(raise_exceptions=False, deepcopy=True, drop_substeps=False)
+_model = next(model)
+```
+
+Current limitations:
+* Only works for single subsets (no parameter sweeps)
+
+### Engine Settings
+
+#### Selecting single or multi-process modes
 
 By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
@@ -157,7 +210,7 @@ experiment.engine = Engine(processes=1)
 result = experiment.run()
 ```
 
-### Disabling state `deepcopy`
+#### Disabling state `deepcopy`
 
 To improve performance, at the cost of mutability, the `Engine` module has the `deepcopy` option which is `True` by default:
 
@@ -165,12 +218,34 @@ To improve performance, at the cost of mutability, the `Engine` module has the `
 experiment.engine = Engine(deepcopy=False)
 ```
 
-### Dropping state substeps
+#### Dropping state substeps
 
 If you don't need the substeps in post-processing, you can both improve simulation performance and save post-processing time and dataset size by dropping the substeps:
 
 ```python
 experiment.engine = Engine(drop_substeps=True)
+```
+
+#### Exception handling
+
+radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
+
+```python
+...
+experiment.engine = Engine(raise_exceptions=False)
+experiment.run()
+
+results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
+exceptions = experiment.exceptions # A dataframe of exceptions, tracebacks, and simulations metadata
+```
+
+This also means you can run a specific simulation directly, and access the results later:
+```python
+predator_prey_simulation.run()
+
+...
+
+results = predator_prey_simulation.results
 ```
 
 ### WIP: Remote Cluster Execution (using Ray)
@@ -217,29 +292,9 @@ Finally, spin down the cluster:
 ray down cluster/ray-aws.yaml
 ```
 
-### Exception handling
-
-radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
-
-```python
-...
-experiment.engine = Engine(raise_exceptions=False)
-experiment.run()
-
-results = experiment.results # e.g. [[{...}, {...}], ..., [{...}, {...}]]
-exceptions = experiment.exceptions # A dataframe of exceptions, tracebacks, and simulations metadata
-```
-
-This also means you can run a specific simulation directly, and access the results later:
-```python
-predator_prey_simulation.run()
-
-...
-
-results = predator_prey_simulation.experiment.results
-```
-
 ### Hooks to extend functionality
+
+Hooks allow you to easily extend the functionality of radCAD with a stable API, and without having to manipulate the robust core.
 
 ```python
 experiment.before_experiment = lambda experiment: print(f"Before experiment with {len(experiment.simulations)} simulations")
@@ -347,7 +402,10 @@ python3 -m unittest
 ## Jupyter Notebooks
 
 ```bash
+# Install kernel
 poetry run python -m ipykernel install --user --name python3-radcad
+# Start Jupyter
+poetry run python -m jupyter lab
 ```
 
 ## Benchmarking

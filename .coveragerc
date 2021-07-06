@@ -1,0 +1,4 @@
+[report]
+omit =
+    */compat/*
+    radcad/extensions/backends/ray.py

@@ -12,7 +12,16 @@ coverage:
 	poetry run coveralls
 
 build-docs:
- 	poetry run python3 -m pdoc --html radcad -o docs --force
+	poetry run python3 -m pdoc --html radcad -o docs --force
 
 serve-docs:
 	poetry run python3 -m http.server --directory docs
+
+start-jupyter-lab:
+	poetry run python3 -m jupyter lab 
+
+plotly-jupyter-lab-support:
+	# JupyterLab renderer support
+	jupyter labextension install jupyterlab-plotly@4.14.3
+	# OPTIONAL: Jupyter widgets extension
+	jupyter labextension install @jupyter-widgets/jupyterlab-manager plotlywidget@4.14.3
