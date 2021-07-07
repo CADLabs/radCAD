@@ -1,10 +1,10 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/BenSchZA/radCAD/actions/workflows/python.yml)
-[![Coverage Status](https://coveralls.io/repos/github/BenSchZA/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/BenSchZA/radCAD?branch=master&service=github)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/BenSchZA/radCAD/maintainability)
+[![Build Status](https://github.com/cadCAD-edu/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/cadCAD-edu/radCAD/actions/workflows/python.yml)
+[![Coverage Status](https://coveralls.io/repos/github/cadCAD-edu/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/cadCAD-edu/radCAD?branch=master&service=github)
+[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/cadCAD-edu/radCAD/maintainability)
 
-![Gosper Glider Gun](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
+![Gosper Glider Gun](https://github.com/cadCAD-edu/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
@@ -34,7 +34,7 @@ Goals:
 
 Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
 
-![Iterable Models](https://github.com/BenSchZA/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
+![Iterable Models](https://github.com/cadCAD-edu/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
 
 ### [Game of Life](https://www.conwaylife.com/)
 
@@ -49,7 +49,7 @@ A simple game where at each timestep, the following transitions occur:
 
 See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
 
-![Game of Life](https://github.com/BenSchZA/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
+![Game of Life](https://github.com/cadCAD-edu/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
 
 ### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 
@@ -127,7 +127,6 @@ pip install radcad
 ```
 
 ## Documentation
-For further documentation, please see https://benschza.github.io/radCAD/docs/radcad/index.html
 
 `radCAD` provides the following classes:
 1. A system is represented in some form as a `Model`
@@ -150,6 +149,104 @@ result = simulation.run()
 
 df = pd.DataFrame(result)
 ```
+
+### cadCAD Compatibility
+
+#### Migrating from cadCAD to radCAD
+
+##### cadCAD
+```python
+# cadCAD configuration modules
+from cadCAD.configuration.utils import config_sim
+from cadCAD.configuration import Experiment
+
+# cadCAD simulation engine modules
+from cadCAD.engine import ExecutionMode, ExecutionContext
+from cadCAD.engine import Executor
+
+# cadCAD global simulation configuration list
+from cadCAD import configs
+
+# Clears any prior configs
+del configs[:]
+
+sim_config = config_sim({
+    'N': 1, # Number of Monte Carlo Runs
+    'T': range(100), # Number of timesteps
+    'M': system_params # System Parameters
+})
+
+experiment.append_configs(
+    # Model initial state
+    initial_state=initial_state,
+    # Model Partial State Update Blocks
+    partial_state_update_blocks=partial_state_update_blocks,
+    # Simulation configuration
+    sim_configs=sim_config
+)
+
+# ExecutionContext instance (used for more advanced cadCAD config)
+exec_context = ExecutionContext()
+
+# Creates a simulation Executor instance
+simulation = Executor(
+    exec_context=exec_context,
+    # cadCAD configuration list
+    configs=configs
+)
+
+# Executes the simulation, and returns the raw results
+result, _tensor_field, _sessions = simulation.execute()
+
+df = pd.DataFrame(result)
+```
+
+##### radCAD
+```python
+from radcad import Model, Simulation, Experiment
+
+model = Model(
+    # Model initial state
+    initial_state=initial_state,
+    # Model Partial State Update Blocks
+    state_update_blocks=state_update_blocks,
+    # System Parameters
+    params=params
+)
+
+simulation = Simulation(
+    model=model,
+    timesteps=100_000,  # Number of timesteps
+    runs=1  # Number of Monte Carlo Runs
+)
+
+# Executes the simulation, and returns the raw results
+result = simulation.run()
+
+df = pd.DataFrame(result)
+```
+
+#### cadCAD Compatibility Mode
+radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
+
+To use the compatibility mode, install radCAD with the `compat` dependencies:
+
+```bash
+pip install -e .[compat]
+# Or
+poetry install -E compat
+```
+
+Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
+
+```python
+from radcad.compat.cadCAD.configuration import Experiment
+from radcad.compat.cadCAD.engine import Executor, ExecutionMode, ExecutionContext
+from radcad.compat.cadCAD.configuration.utils import config_sim
+from radcad.compat.cadCAD import configs
+```
+
+Now run your existing cadCAD model using radCAD!
 
 ### Iterating over a Model
 
@@ -335,29 +432,6 @@ The biggest performance bottleneck with radCAD, and cadCAD for that matter, is a
 To avoid the additional overhead, mutation of state history is allowed, and left up to the developer to avoid using standard Python best practises, but mutation of the current state is disabled.
 
 See https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow for some performance benchmarks of different methods. radCAD uses `cPickle`, which is faster than using `deepcopy`, but less flexible about what types it can handle (Pickle depends on serialization) - these could be interchanged in future.
-
-### cadCAD compatibility mode
-
-radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
-
-To use the compatibility mode, install radCAD with the `compat` dependencies:
-
-```bash
-pip install -e .[compat]
-# Or
-poetry install -E compat
-```
-
-Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
-
-```python
-from radcad.compat.cadCAD.configuration import Experiment
-from radcad.compat.cadCAD.engine import Executor, ExecutionMode, ExecutionContext
-from radcad.compat.cadCAD.configuration.utils import config_sim
-from radcad.compat.cadCAD import configs
-```
-
-Now run your existing cadCAD model using radCAD!
 
 ## Development
 

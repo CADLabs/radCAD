@@ -11,12 +11,6 @@ coverage:
 	poetry run python3 -m pytest tests --cov=radcad
 	poetry run coveralls
 
-build-docs:
-	poetry run python3 -m pdoc --html radcad -o docs --force
-
-serve-docs:
-	poetry run python3 -m http.server --directory docs
-
 start-jupyter-lab:
 	poetry run python3 -m jupyter lab 
 
