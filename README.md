@@ -1,10 +1,10 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://github.com/cadCAD-edu/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/cadCAD-edu/radCAD/actions/workflows/python.yml)
-[![Coverage Status](https://coveralls.io/repos/github/cadCAD-edu/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/cadCAD-edu/radCAD?branch=master&service=github)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/cadCAD-edu/radCAD/maintainability)
+[![Build Status](https://github.com/CADLabs/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/CADLabs/radCAD/actions/workflows/python.yml)
+[![Coverage Status](https://coveralls.io/repos/github/CADLabs/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/CADLabs/radCAD?branch=master&service=github)
+[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/CADLabs/radCAD/maintainability)
 
-![Gosper Glider Gun](https://github.com/cadCAD-edu/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
+![Gosper Glider Gun](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
@@ -34,7 +34,7 @@ Goals:
 
 Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
 
-![Iterable Models](https://github.com/cadCAD-edu/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
+![Iterable Models](https://github.com/CADLabs/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
 
 ### [Game of Life](https://www.conwaylife.com/)
 
@@ -49,7 +49,7 @@ A simple game where at each timestep, the following transitions occur:
 
 See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-life.ipynb)
 
-![Game of Life](https://github.com/cadCAD-edu/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
+![Game of Life](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
 
 ### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 
