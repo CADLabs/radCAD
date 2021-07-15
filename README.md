@@ -21,7 +21,6 @@ Goals:
 * [Open-source Models Using radCAD](#open-source-models-using-radcad)
 * [Example Models](#example-models)
 * [Features](#features)
-* [Advanced Features](#advanced-features)
 * [Installation](#installation)
 * [Documentation](#documentation)
 * [Development](#development)
@@ -116,7 +115,7 @@ result = experiment.run()
 800003  0.003162  1000002.0           1       1    1        2    100000
 ```
 
-## Advanced Features
+### Advanced Features
 
 * [x] Disable `deepcopy` option for improved performance (at cost of mutability)
 * [x] Robust exception handling with partial results, and tracebacks
