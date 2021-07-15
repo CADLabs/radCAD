@@ -18,7 +18,7 @@ Goals:
 
 ## Table of Contents
 
-* [Example Models](#example-models)
+* [Open-source Models Using radCAD](#open-source-models-using-radcad)
 * [Features](#features)
 * [Advanced Features](#advanced-features)
 * [Installation](#installation)
@@ -28,15 +28,22 @@ Goals:
 * [Jupyter Notebooks](#jupyter-notebooks)
 * [Benchmarking](#benchmarking)
 
-## Example Models
+## Open-source Models Using radCAD
 
-### Iterable Models
+### Beacon Runner by Ethereum Robust Incentives Group
+
+* **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
+* **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
+
+### Example Models
+
+#### Iterable Models
 
 Using Models as live in-the-loop digital twins, creating your own model pipelines, and streaming simulation results to update a visualization. That's what an iterable Model class enables.
 
 ![Iterable Models](https://github.com/CADLabs/radCAD/blob/master/examples/iterable_models/iterable-models.gif)
 
-### [Game of Life](https://www.conwaylife.com/)
+#### [Game of Life](https://www.conwaylife.com/)
 
 [Live radCAD demo model on Streamlit](https://share.streamlit.io/benschza/radcad/examples/streamlit/game_of_life/app.py)
 
@@ -51,7 +58,7 @@ See [examples/game_of_life/game-of-life.ipynb](examples/game-of-life/game-of-lif
 
 ![Game of Life](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/game-of-life.gif)
 
-### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
+#### [Predator-Prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 
 A simple model that applies the two Lotka-Volterra differential equations, frequently used to describe the dynamics of biological systems in which two species interact:
 
