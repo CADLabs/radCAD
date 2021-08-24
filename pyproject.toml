@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "radcad"
-version = "0.8.0"
-description = "A cadCAD implementation, for dynamical systems modelling & simulation"
-authors = ["Benjamin Scholtz <ben@bitsofether.com>"]
+version = "0.8.1"
+description = "A Python package for dynamical systems modelling & simulation, inspired by and compatible with cadCAD"
+authors = ["CADLabs <benschza@users.noreply.github.com>"]
 packages = [
     { include = "radcad" },
 ]
