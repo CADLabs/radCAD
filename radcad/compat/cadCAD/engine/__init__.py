@@ -19,7 +19,7 @@ class Executor(_engine.Executor):
         simulations = []
         for config in self.configs:
             initial_state = config.initial_state
-            state_update_blocks = config.partial_state_updates
+            state_update_blocks = config.partial_state_update_blocks
 
             timesteps = max(list(config.sim_config["T"])) + 1
             runs = config.sim_config["N"]
