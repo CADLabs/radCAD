@@ -12,7 +12,7 @@ attrs==20.3.0
 backcall==0.2.0
 base58==2.1.0
 black==20.8b1
-bleach==3.2.1
+bleach==3.3.0
 blessings==1.7
 blinker==1.4
 boto3==1.16.54
