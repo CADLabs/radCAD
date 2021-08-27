@@ -11,7 +11,7 @@ packages = [
 python = ">=3.7,<4.0"
 pathos = "^0.2.7"
 pandas = "^1.0.0"
-cadCAD = { version = "^0.4.23", optional = true }
+cadCAD = { version = "^0.4.27", optional = true }
 ray = { version = "^1.1.0", optional = true }
 boto3 = { version = "^1.16.43", optional = true }
 
