@@ -10,7 +10,6 @@ from radcad.compat.cadCAD.configuration.utils import config_sim
 from radcad.compat.cadCAD.configuration import Experiment as cadCADExperiment
 from radcad.compat.cadCAD.engine import ExecutionMode, ExecutionContext
 from radcad.compat.cadCAD.engine import Executor
-from radcad.compat.cadCAD import configs
 
 from tests.test_cases import basic
 
@@ -35,18 +34,20 @@ def test_simulation_dataframe_structure():
     })
 
     exp = cadCADExperiment()
-    del configs[:]
     exp.append_configs(
+        model_id = 'a',
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
     exp.append_configs(
+        model_id = 'b',
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,
         sim_configs = c
     )
     exp.append_configs(
+        model_id = 'c',
         initial_state = states,
         partial_state_update_blocks = state_update_blocks,
         sim_configs = c
@@ -54,7 +55,7 @@ def test_simulation_dataframe_structure():
 
     exec_mode = ExecutionMode()
     local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
-    simulation = Executor(exec_context=local_mode_ctx, configs=configs)
+    simulation = Executor(exec_context=local_mode_ctx, configs=exp.configs)
 
     data_cadcad, tensor_field, sessions = simulation.execute()
     df_cadcad = pd.DataFrame(data_cadcad)
@@ -93,7 +94,6 @@ def test_regression_lambdas():
     })
 
     exp = cadCADExperiment()
-    del configs[:]
     exp.append_configs(
         initial_state = initial_state,
         partial_state_update_blocks = state_update_blocks,
@@ -102,7 +102,7 @@ def test_regression_lambdas():
 
     exec_mode = ExecutionMode()
     local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
-    simulation = Executor(exec_context=local_mode_ctx, configs=configs)
+    simulation = Executor(exec_context=local_mode_ctx, configs=exp.configs)
 
     raw_data, tensor_field, sessions = simulation.execute(engine=Engine(backend=Backend.PATHOS))
     assert isinstance(raw_data, list)
