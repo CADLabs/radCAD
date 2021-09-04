@@ -2,6 +2,7 @@ from radcad import Model, Simulation, Experiment
 
 import pytest
 import pandas as pd
+import copy
 
 
 def update_state_a(params, substep, state_history, previous_state, policy_input):
@@ -147,3 +148,29 @@ def test_paralell_state_update():
     simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
     result = simulation.run()
     df = pd.DataFrame(result)
+
+def test_regression_deepcopy():
+    initial_state = {
+        'state_a': 0
+    }
+
+    state_update_blocks = [
+        {
+            'policies': {},
+            'variables': {
+                'state_a': update_state_a
+            }
+        },
+    ]
+
+    params = {}
+
+    TIMESTEPS = 10
+    RUNS = 1
+
+    model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
+    simulation = Simulation(model=model)
+    experiment = Experiment(simulation)
+
+    simulation.run()
+    _ = copy.deepcopy(simulation)

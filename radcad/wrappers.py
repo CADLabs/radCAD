@@ -82,6 +82,17 @@ class Executable:
         self.before_subset = kwargs.pop("before_subset", None)
         self.after_subset = kwargs.pop("after_subset", None)
 
+    def __deepcopy__(self, memo={}):
+        # Reset iterators to enable deepcopy after simulation run
+        self.engine._run_generator = iter(())
+
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, copy.deepcopy(v, memo))
+        return result
+
     def run(self):
         raise NotImplementedError("Method run() not implemented for class that extends Base")
 
