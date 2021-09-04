@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.4] - 2021-09-04
+### Added
+= Overide for `__deepcopy__` method of Executable class to enable deepcopy after a simulation/experiment has been run
+- Add regression test for above `__deepcopy__` method
+
+## [0.8.3] - 2021-08-30
+### Changed
+- Update radCAD package version in __init__.py
+
 ## [0.8.2] - 2021-08-27
 ### Changed
 - Update cadCAD from v0.4.23 to v0.4.27, fixing breaking changes to compat module
