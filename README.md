@@ -30,8 +30,9 @@ Goals:
 
 ## Open-source Models Using radCAD
 
-* **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)**: A modular dynamical-systems model of Ethereum's validator economics
+* **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
 * **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
+* **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by Reflexer Protocol: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
 
 ## Example Models
 
