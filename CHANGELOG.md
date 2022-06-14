@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2022-06-14
+### Changed
+- `Context` passed to `before_subset(context)` hook will now correctly receive a single parameter subset and not all subsets
+- This could be a breaking change for anyone that relied on the `before_subset()` hook - the `before_run()` hook will still receive all subsets, as at that point of simulation the specific subset is unknown
+- See "NOTE" in `engine.py`: Each parameter is a list of all subsets in before_run() method and a single subset in before_subset()
+
 ## [0.8.4] - 2021-09-04
 ### Added
 = Overide for `__deepcopy__` method of Executable class to enable deepcopy after a simulation/experiment has been run
