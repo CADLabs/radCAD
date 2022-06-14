@@ -109,63 +109,38 @@ class Engine:
 
             # NOTE Hook allows mutation of RunArgs
             for run_index in range(0, runs):
-                if param_sweep:
+                context = wrappers.Context(
+                    simulation_index,
+                    run_index,
+                    None,
+                    timesteps,
+                    initial_state,
+                    params  # NOTE Each parameter is a list of all subsets in before_run() method and a single subset in before_subset()
+                )
+                self.executable._before_run(context=context)
+                for subset_index, param_set in enumerate(param_sweep if param_sweep else [params]):
                     context = wrappers.Context(
                         simulation_index,
                         run_index,
-                        None,
+                        subset_index,
                         timesteps,
                         initial_state,
-                        params
+                        param_set
                     )
-                    self.executable._before_run(context=context)
-                    for subset_index, param_set in enumerate(param_sweep):
-                        context = wrappers.Context(
-                            simulation_index,
-                            run_index,
-                            subset_index,
-                            timesteps,
-                            initial_state,
-                            params
-                        )
-                        self.executable._before_subset(context=context)
-                        yield wrappers.RunArgs(
-                            simulation_index,
-                            timesteps,
-                            run_index,
-                            subset_index,
-                            copy.deepcopy(initial_state),
-                            state_update_blocks,
-                            copy.deepcopy(param_set),
-                            self.deepcopy,
-                            self.drop_substeps,
-                        )
-                        self.executable._after_subset(context=context)
-                    self.executable._after_run(context=context)
-                else:
-                    context = wrappers.Context(
-                        simulation_index,
-                        run_index,
-                        0,
-                        timesteps,
-                        initial_state,
-                        params
-                    )
-                    self.executable._before_run(context=context)
                     self.executable._before_subset(context=context)
                     yield wrappers.RunArgs(
                         simulation_index,
                         timesteps,
                         run_index,
-                        0,
+                        subset_index,
                         copy.deepcopy(initial_state),
                         state_update_blocks,
-                        copy.deepcopy(params),
+                        copy.deepcopy(param_set),
                         self.deepcopy,
                         self.drop_substeps,
                     )
                     self.executable._after_subset(context=context)
-                    self.executable._after_run(context=context)
+                self.executable._after_run(context=context)
 
             self.executable._after_simulation(
                 simulation=simulation

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.8.4"
+version = "0.9.0"
 description = "A Python package for dynamical systems modelling & simulation, inspired by and compatible with cadCAD"
 authors = ["CADLabs <benschza@users.noreply.github.com>"]
 packages = [

@@ -1,4 +1,3 @@
-import copy
 from functools import reduce, partial
 import logging
 import pickle
