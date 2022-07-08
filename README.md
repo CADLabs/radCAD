@@ -14,6 +14,8 @@ Goals:
 * cadCAD compatible (standard functions, data structures, and simulation results)
 * maintainable, testable codebase
 
+**Have a question not answered in this README or the cadCAD Edu courses?** Post a comment in the issues or check out the [cadCAD Discord community](https://discord.gg/HrJUh2FD).
+
 ## Table of Contents
 
 * [Open-source Models Using radCAD](#open-source-models-using-radcad)
