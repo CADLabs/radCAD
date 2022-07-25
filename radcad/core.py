@@ -8,13 +8,13 @@ from typing import Dict, List, Tuple
 def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
     state, function = state_update_tuple
     if not state in initial_state:
-        raise KeyError("Invalid state key in partial state update block")
+        raise KeyError(f"Invalid state key {state} in partial state update block")
     state_key, state_value = function(
         params, substep, result, substate, signals
     )
     if not state_key in initial_state:
         raise KeyError(
-            "Invalid state key returned from state update function"
+            f"Invalid state key {state} returned from state update function"
         )
     if state == state_key:
         return (state_key, state_value)
