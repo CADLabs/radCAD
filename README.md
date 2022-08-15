@@ -303,13 +303,23 @@ Current limitations:
 
 #### Selecting single or multi-process modes
 
-By default `radCAD` sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
+By default `radCAD` uses the `multiprocessing` library and sets the number of parallel processes used by the `Engine` to the number of system CPUs less one, but this can be customized as follows:
 ```python
 from radcad import Engine
 
 ...
 
 experiment.engine = Engine(processes=1)
+result = experiment.run()
+```
+
+Alternatively, select the `SINGLE_PROCESS` Backend option which doesn't use any parallelisation library:
+```python
+from radcad import Engine, Backend
+
+...
+
+experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
 result = experiment.run()
 ```
 
