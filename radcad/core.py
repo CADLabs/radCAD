@@ -2,7 +2,13 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Callable
+
+
+# Define the default method used for deepcopy operations
+# Must be a function and not a lambda function to ensure multiprocessing can Pickle the object
+def default_deepcopy_method(obj):
+    return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
@@ -34,6 +40,7 @@ def _single_run(
     state_update_blocks: list,
     params: dict,
     deepcopy: bool,
+    deepcopy_method: Callable,
     drop_substeps: bool,
 ):
     logging.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
@@ -61,15 +68,20 @@ def _single_run(
             substate: dict = (
                 previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
             )
-            substate_copy = pickle.loads(pickle.dumps(substate, -1)) if deepcopy else substate.copy()
+
+            # Create two independent deepcopies to ensure a policy function
+            # can't mutate the state passed to the state update functions
+            policy_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
+            state_update_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
+
             substate["substep"] = substep + 1
             
             signals: dict = reduce_signals(
-                params, substep, result, substate_copy, psu, deepcopy
+                params, substep, result, policy_substate_copy, psu, deepcopy
             )
 
             updated_state = map(
-                partial(_update_state, initial_state, params, substep, result, substate_copy, signals),
+                partial(_update_state, initial_state, params, substep, result, state_update_substate_copy, signals),
                 psu["variables"].items()
             )
             substate.update(updated_state)
@@ -90,6 +102,7 @@ def single_run(
     state_update_blocks=[],
     params={},
     deepcopy: bool=True,
+    deepcopy_method: Callable=default_deepcopy_method,
     drop_substeps: bool=False,
 ) -> Tuple[list, Exception, str]:
     result = []
@@ -106,6 +119,7 @@ def single_run(
                 state_update_blocks,
                 params,
                 deepcopy,
+                deepcopy_method,
                 drop_substeps,
             ),
             None, # Error
@@ -174,7 +188,7 @@ def _add_signals(acc, a: Dict[str, any]):
     return acc
 
 
-def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True):
+def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True, deepcopy_method: Callable=default_deepcopy_method):
     policy_results: List[Dict[str, any]] = list(
         map(lambda function: function(params, substep, result, substate), psu["policies"].values())
     )
@@ -184,6 +198,6 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
     if result_length == 0:
         return result
     elif result_length == 1:
-        return pickle.loads(pickle.dumps(policy_results[0], -1)) if deepcopy else policy_results[0].copy()
+        return deepcopy_method(policy_results[0]) if deepcopy else policy_results[0].copy()
     else:
         return reduce(_add_signals, policy_results, result)
