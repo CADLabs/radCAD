@@ -1,4 +1,4 @@
-from radcad.core import _single_run_wrapper, generate_parameter_sweep
+from radcad.core import _single_run_wrapper, generate_parameter_sweep, default_deepcopy_method
 from radcad.engine import Engine
 from collections import namedtuple
 import copy
@@ -13,6 +13,7 @@ RunArgs = namedtuple("RunArgs", [
     "state_update_blocks",
     "parameters",
     "deepcopy",
+    "deepcopy_method",
     "drop_substeps",
 ])
 Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
@@ -35,6 +36,7 @@ class Model:
         self.exceptions = []
         self._raise_exceptions = True
         self._deepcopy = True
+        self._deepcopy_method = default_deepcopy_method
         self._drop_substeps = False
 
     def __iter__(self):
@@ -50,6 +52,7 @@ class Model:
                 state_update_blocks = self.state_update_blocks,
                 parameters = _params,
                 deepcopy = self._deepcopy,
+                deepcopy_method = self._deepcopy_method,
                 drop_substeps = self._drop_substeps,
             )
             result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
@@ -61,6 +64,7 @@ class Model:
     def __call__(self, **kwargs):
         self._raise_exceptions = kwargs.pop("raise_exceptions", True)
         self._deepcopy = kwargs.pop("deepcopy", True)
+        self._deepcopy_method = kwargs.pop("deepcopy_method", default_deepcopy_method)
         self._drop_substeps = kwargs.pop("drop_substeps", False)
         return self
 

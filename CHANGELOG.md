@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2022-09-01
+### Added
+- Add a `deepcopy_method` Engine argument to allow setting a custom deepcopy method e.g. `copy.deepcopy` instead of default Pickle methods
+
 ## [0.9.1] - 2022-07-26
 ### Added
 - Thanks to @vmeylan for a developer experience contribution in `radcad/core.py`: make `_update_state()` error messages more verbose for easier debugging

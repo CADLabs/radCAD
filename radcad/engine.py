@@ -19,7 +19,8 @@ class Engine:
             **backend (Backend): Which execution backend to use (e.g. Pathos, Multiprocessing, etc.). Defaults to `Backend.DEFAULT` / `Backend.PATHOS`.
             **processes (int, optional): Number of system CPU processes to spawn. Defaults to `multiprocessing.cpu_count() - 1 or 1`
             **raise_exceptions (bool): Whether to raise exceptions, or catch them and return exceptions along with partial results. Default to `True`.
-            **deepcopy (bool): Whether to enable deepcopy of State Variables, alternatively leaves safety up to user with improved performance. Defaults to `True`.
+            **deepcopy (bool): Whether to enable deepcopy of State Variables to avoid unintended state mutation. Defaults to `True`.
+            **deepcopy_method (Callable): Method to use for deepcopy of State Variables. By default uses Pickle for improved performance, use `copy.deepcopy` for an alternative to Pickle.
             **drop_substeps (bool): Whether to drop simulation result substeps during runtime to save memory and improve performance. Defaults to `False`.
             **_run_generator (tuple_iterator): Generator to generate simulation runs, used to implement custom execution backends. Defaults to  `iter(())`.
         """
@@ -28,6 +29,7 @@ class Engine:
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
         self.deepcopy = kwargs.pop("deepcopy", True)
+        self.deepcopy_method = kwargs.pop("deepcopy_method", core.default_deepcopy_method)
         self.drop_substeps = kwargs.pop("drop_substeps", False)
         self._run_generator = iter(())
 
@@ -137,6 +139,7 @@ class Engine:
                         state_update_blocks,
                         copy.deepcopy(param_set),
                         self.deepcopy,
+                        self.deepcopy_method,
                         self.drop_substeps,
                     )
                     self.executable._after_subset(context=context)
