@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add a `deepcopy_method` Engine argument to allow setting a custom deepcopy method e.g. `copy.deepcopy` instead of default Pickle methods
 
+### Changed
+- Fix edge case of unintended mutation of state passed to state update function from policy function (see issue #53)
+
 ## [0.9.1] - 2022-07-26
 ### Added
 - Thanks to @vmeylan for a developer experience contribution in `radcad/core.py`: make `_update_state()` error messages more verbose for easier debugging

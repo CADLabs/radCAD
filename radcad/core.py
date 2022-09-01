@@ -68,15 +68,20 @@ def _single_run(
             substate: dict = (
                 previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
             )
-            substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
+
+            # Create two independent deepcopies to ensure a policy function
+            # can't mutate the state passed to the state update functions
+            policy_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
+            state_update_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
+
             substate["substep"] = substep + 1
             
             signals: dict = reduce_signals(
-                params, substep, result, substate_copy, psu, deepcopy
+                params, substep, result, policy_substate_copy, psu, deepcopy
             )
 
             updated_state = map(
-                partial(_update_state, initial_state, params, substep, result, substate_copy, signals),
+                partial(_update_state, initial_state, params, substep, result, state_update_substate_copy, signals),
                 psu["variables"].items()
             )
             substate.update(updated_state)
