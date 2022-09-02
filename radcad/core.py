@@ -5,6 +5,9 @@ import traceback
 from typing import Dict, List, Tuple, Callable
 
 
+# Use "radCAD" logging instance to avoid conflict with other projects
+logger = logging.getLogger("radCAD")
+
 # Define the default method used for deepcopy operations
 # Must be a function and not a lambda function to ensure multiprocessing can Pickle the object
 def default_deepcopy_method(obj):
@@ -43,7 +46,7 @@ def _single_run(
     deepcopy_method: Callable,
     drop_substeps: bool,
 ):
-    logging.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
+    logger.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
 
     initial_state["simulation"] = simulation
     initial_state["subset"] = subset
@@ -128,7 +131,7 @@ def single_run(
     except Exception as error:
         trace = traceback.format_exc()
         print(trace)
-        logging.warning(
+        logger.warning(
             f"Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results if Engine.raise_exceptions == False."
         )
         return (result, error, trace)
