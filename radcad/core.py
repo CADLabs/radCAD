@@ -15,14 +15,13 @@ def default_deepcopy_method(obj):
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, deepcopy, deepcopy_method, state_update_tuple):
-    _substate = deepcopy_method(substate) if deepcopy else substate.copy()
     _signals = deepcopy_method(signals) if deepcopy else signals.copy()
 
     state, function = state_update_tuple
     if not state in initial_state:
         raise KeyError(f"Invalid state key {state} in partial state update block")
     state_key, state_value = function(
-        params, substep, result, _substate, _signals
+        params, substep, result, substate, _signals
     )
     if not state_key in initial_state:
         raise KeyError(
@@ -68,14 +67,12 @@ def _single_run(
         )
 
         substeps: list = []
-        substate: dict = previous_state
+        substate: dict = previous_state.copy()
 
         for (substep, psu) in enumerate(state_update_blocks):
             substate: dict = (
                 previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
             )
-
-            substate["substep"] = substep + 1
             
             signals: dict = reduce_signals(
                 params, substep, result, substate, psu, deepcopy, deepcopy_method
@@ -95,8 +92,10 @@ def _single_run(
                 ),
                 psu["variables"].items()
             )
+            
             substate.update(updated_state)
             substate["timestep"] = (previous_state["timestep"] + 1) if timestep == 0 else timestep + 1
+            substate["substep"] = substep + 1
             substeps.append(substate)
 
         substeps = [substate] if not substeps else substeps
