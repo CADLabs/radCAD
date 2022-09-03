@@ -11,7 +11,7 @@ class P1:
     a: List[int] = default([0, 1])
 
 
-def policy(params, substep, state_history, previous_state):
+def policy(params: P1, substep, state_history, previous_state):
     subset = previous_state['subset']
     assert subset == params.subset
     assert params.a == params.subset if subset < 2 else params.a == 1
