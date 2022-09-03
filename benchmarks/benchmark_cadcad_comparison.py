@@ -21,7 +21,7 @@ RUNS = benchmark_model.MONTE_CARLO_RUNS
 model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 experiment = Experiment(simulation_radcad)
-experiment.engine = Engine(backend=Backend.PATHOS)
+experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
 
 c = config_sim({
     "N": RUNS,
@@ -37,7 +37,7 @@ exp.append_configs(
 )
 
 exec_mode = ExecutionMode()
-local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
+local_mode_ctx = ExecutionContext(context=exec_mode.single_mode)
 simulation_cadcad = Executor(exec_context=local_mode_ctx, configs=exp.configs)
 
 def test_benchmark_radcad(benchmark):
