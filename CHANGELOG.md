@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.11.1] - 2022-09-03
 ### Added
 - Add support for parameters dataclass
+- Add support for single value parameters (i.e. not a list)
 
 ## [0.11.0] - 2022-09-03
 ### Changed
