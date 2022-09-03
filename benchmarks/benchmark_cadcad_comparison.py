@@ -12,6 +12,9 @@ from cadCAD.engine import Executor
 import tests.test_cases.predator_prey_model as benchmark_model
 
 
+TEST_ITERATIONS = 1
+TEST_ROUNDS = 3
+
 initial_state = benchmark_model.initial_state
 state_update_blocks = benchmark_model.state_update_blocks
 params = benchmark_model.params
@@ -21,7 +24,7 @@ RUNS = benchmark_model.MONTE_CARLO_RUNS
 model = Model(initial_state=initial_state, state_update_blocks=state_update_blocks, params=params)
 simulation_radcad = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
 experiment = Experiment(simulation_radcad)
-experiment.engine = Engine(backend=Backend.PATHOS)
+experiment.engine = Engine(backend=Backend.SINGLE_PROCESS)
 
 c = config_sim({
     "N": RUNS,
@@ -37,14 +40,14 @@ exp.append_configs(
 )
 
 exec_mode = ExecutionMode()
-local_mode_ctx = ExecutionContext(context=exec_mode.local_mode)
+local_mode_ctx = ExecutionContext(context=exec_mode.single_mode)
 simulation_cadcad = Executor(exec_context=local_mode_ctx, configs=exp.configs)
 
 def test_benchmark_radcad(benchmark):
-    benchmark.pedantic(radcad_simulation, iterations=1, rounds=3)
+    benchmark.pedantic(radcad_simulation, iterations=TEST_ITERATIONS, rounds=TEST_ROUNDS)
     
 def test_benchmark_cadcad(benchmark):
-    benchmark.pedantic(cadcad_simulation, iterations=1, rounds=3)
+    benchmark.pedantic(cadcad_simulation, iterations=TEST_ITERATIONS, rounds=TEST_ROUNDS)
 
 def radcad_simulation():
     data_radcad = experiment.run()

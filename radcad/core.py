@@ -14,12 +14,15 @@ def default_deepcopy_method(obj):
     return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
 
 
-def _update_state(initial_state, params, substep, result, substate, signals, state_update_tuple):
+def _update_state(initial_state, params, substep, result, substate, signals, deepcopy, deepcopy_method, state_update_tuple):
+    _substate = deepcopy_method(substate) if deepcopy else substate.copy()
+    _signals = deepcopy_method(signals) if deepcopy else signals.copy()
+
     state, function = state_update_tuple
     if not state in initial_state:
         raise KeyError(f"Invalid state key {state} in partial state update block")
     state_key, state_value = function(
-        params, substep, result, substate, signals
+        params, substep, result, _substate, _signals
     )
     if not state_key in initial_state:
         raise KeyError(
@@ -71,24 +74,29 @@ def _single_run(
             substate: dict = (
                 previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
             )
-
-            # Create two independent deepcopies to ensure a policy function
-            # can't mutate the state passed to the state update functions
-            policy_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
-            state_update_substate_copy = deepcopy_method(substate) if deepcopy else substate.copy()
-
-            substate["substep"] = substep + 1
             
             signals: dict = reduce_signals(
-                params, substep, result, policy_substate_copy, psu, deepcopy
+                params, substep, result, substate, psu, deepcopy, deepcopy_method
             )
 
             updated_state = map(
-                partial(_update_state, initial_state, params, substep, result, state_update_substate_copy, signals),
+                partial(
+                    _update_state,
+                    initial_state,
+                    params,
+                    substep,
+                    result,
+                    substate,
+                    signals,
+                    deepcopy,
+                    deepcopy_method,
+                ),
                 psu["variables"].items()
             )
+            
             substate.update(updated_state)
             substate["timestep"] = (previous_state["timestep"] + 1) if timestep == 0 else timestep + 1
+            substate["substep"] = substep + 1
             substeps.append(substate)
 
         substeps = [substate] if not substeps else substeps
@@ -193,7 +201,12 @@ def _add_signals(acc, a: Dict[str, any]):
 
 def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True, deepcopy_method: Callable=default_deepcopy_method):
     policy_results: List[Dict[str, any]] = list(
-        map(lambda function: function(params, substep, result, substate), psu["policies"].values())
+        map(lambda function: function(
+            params,
+            substep,
+            result,
+            deepcopy_method(substate) if deepcopy else substate.copy()
+        ), psu["policies"].values())
     )
 
     result: dict = {}
@@ -201,6 +214,6 @@ def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu
     if result_length == 0:
         return result
     elif result_length == 1:
-        return deepcopy_method(policy_results[0]) if deepcopy else policy_results[0].copy()
+        return policy_results[0]
     else:
         return reduce(_add_signals, policy_results, result)
