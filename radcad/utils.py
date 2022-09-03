@@ -1,5 +1,6 @@
 import itertools
-from typing import Protocol, Dict
+from typing import Dict
+from typing_extensions import Protocol
 import copy
 import datetime
 from dataclasses import field
