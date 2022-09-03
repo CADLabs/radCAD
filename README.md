@@ -505,8 +505,8 @@ See [benchmarks](benchmarks/)
 ### Time Profiling
 
 ```bash
-poetry run python3 -m pytest run benchmarks/benchmark_radcad.py
-poetry run python3 -m pytest run benchmarks/benchmark_single_process.py
+poetry run python3 -m pytest benchmarks/benchmark_radcad.py
+poetry run python3 -m pytest benchmarks/benchmark_single_process.py
 ```
 
 ### Memory Profiling
