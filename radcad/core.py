@@ -177,14 +177,16 @@ def generate_parameter_sweep(params: Union[Dict[str, List[any]], Dataclass]):
     _params = asdict(params) if _is_dataclass else params
 
     param_sweep = []
-    max_len = 0
+    max_len = 1
     for value in _params.values():
-        if len(value) > max_len:
+        if isinstance(value, list) and len(value) > max_len:
             max_len = len(value)
 
     for sweep_index in range(0, max_len):
         param_set = {}
         for (key, value) in _params.items():
+            if not isinstance(value, list):
+                value = [value]
             param = (
                 value[sweep_index]
                 if sweep_index < len(value)
