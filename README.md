@@ -125,6 +125,7 @@ result = experiment.run()
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 * [x] Hooks to easily extend the functionality - e.g. save results to HDF5 file format after completion
 * [x] Model classes are iterable, so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
+* [x] Parameters can be a dataclass! This enables typing and dot notation for accessing parameters.
 
 ## Installation
 
