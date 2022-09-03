@@ -2,7 +2,10 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Dict, List, Tuple, Callable
+from typing import Union, Dict, List, Tuple, Callable
+from dataclasses import asdict, dataclass, field, is_dataclass
+
+from radcad.utils import Dataclass
 
 
 # Use "radCAD" logging instance to avoid conflict with other projects
@@ -169,16 +172,19 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def generate_parameter_sweep(params: Dict[str, List[any]]):
+def generate_parameter_sweep(params: Union[Dict[str, List[any]], Dataclass]):
+    _is_dataclass = is_dataclass(params)
+    _params = asdict(params) if _is_dataclass else params
+
     param_sweep = []
     max_len = 0
-    for value in params.values():
+    for value in _params.values():
         if len(value) > max_len:
             max_len = len(value)
 
     for sweep_index in range(0, max_len):
         param_set = {}
-        for (key, value) in params.items():
+        for (key, value) in _params.items():
             param = (
                 value[sweep_index]
                 if sweep_index < len(value)
@@ -187,7 +193,10 @@ def generate_parameter_sweep(params: Dict[str, List[any]]):
             param_set[key] = param
         param_sweep.append(param_set)
 
-    return param_sweep
+    if _is_dataclass:
+        return [params.__class__(**subset) for subset in param_sweep]
+    else:
+        return param_sweep
 
 
 def _add_signals(acc, a: Dict[str, any]):
