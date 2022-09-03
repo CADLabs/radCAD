@@ -15,13 +15,14 @@ def default_deepcopy_method(obj):
 
 
 def _update_state(initial_state, params, substep, result, substate, signals, deepcopy, deepcopy_method, state_update_tuple):
+    _substate = deepcopy_method(substate) if deepcopy else substate.copy()
     _signals = deepcopy_method(signals) if deepcopy else signals.copy()
 
     state, function = state_update_tuple
     if not state in initial_state:
         raise KeyError(f"Invalid state key {state} in partial state update block")
     state_key, state_value = function(
-        params, substep, result, substate, _signals
+        params, substep, result, _substate, _signals
     )
     if not state_key in initial_state:
         raise KeyError(
