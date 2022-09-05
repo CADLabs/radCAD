@@ -1,7 +1,7 @@
 import radcad.core as core
 import radcad.wrappers as wrappers
 from radcad.backends import Backend
-from radcad.utils import flatten, extract_exceptions
+from radcad.utils import extract_exceptions
 
 import multiprocessing
 import copy
@@ -105,46 +105,39 @@ class Engine:
             params = simulation.model.params
             param_sweep = core.generate_parameter_sweep(params)
 
+            context = copy.deepcopy(wrappers.Context(
+                simulation=simulation_index,
+                timesteps=timesteps,
+                initial_state=initial_state,
+                parameters=params,  # NOTE Each parameter is a list of all subsets in before_run() method and a single subset in before_subset()
+                state_update_blocks=state_update_blocks,
+            ))
             self.executable._before_simulation(
-                simulation=simulation
+                context=context,
             )
 
-            # NOTE Hook allows mutation of RunArgs
             for run_index in range(0, runs):
-                context = wrappers.Context(
-                    simulation_index,
-                    run_index,
-                    None,
-                    timesteps,
-                    initial_state,
-                    params  # NOTE Each parameter is a list of all subsets in before_run() method and a single subset in before_subset()
-                )
+                context.run = run_index + 1  # +1 to remain compatible with cadCAD implementation
                 self.executable._before_run(context=context)
                 for subset_index, param_set in enumerate(param_sweep if param_sweep else [params]):
-                    context = wrappers.Context(
-                        simulation_index,
-                        run_index,
-                        subset_index,
-                        timesteps,
-                        initial_state,
-                        param_set
-                    )
+                    context.subset = subset_index
+                    context.parameters = param_set
                     self.executable._before_subset(context=context)
-                    yield wrappers.RunArgs(
-                        simulation_index,
-                        timesteps,
-                        run_index,
-                        subset_index,
-                        copy.deepcopy(initial_state),
-                        state_update_blocks,
-                        copy.deepcopy(param_set),
-                        self.deepcopy,
-                        self.deepcopy_method,
-                        self.drop_substeps,
-                    )
+                    yield copy.deepcopy(wrappers.RunArgs(
+                        # Model / simulation settings
+                        simulation=context.simulation,
+                        timesteps=context.timesteps,
+                        run=context.run,
+                        subset=context.subset,
+                        initial_state=context.initial_state,
+                        state_update_blocks=context.state_update_blocks,
+                        parameters=context.parameters,
+                        # Execution settings
+                        deepcopy=self.deepcopy,
+                        deepcopy_method=self.deepcopy_method,
+                        drop_substeps=self.drop_substeps,
+                    ))
                     self.executable._after_subset(context=context)
                 self.executable._after_run(context=context)
 
-            self.executable._after_simulation(
-                simulation=simulation
-            )
+            self.executable._after_simulation(context=context)

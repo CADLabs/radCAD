@@ -1,22 +1,39 @@
+from typing import List, NamedTuple
 from radcad.core import _single_run_wrapper, generate_parameter_sweep, default_deepcopy_method
 from radcad.engine import Engine
-from collections import namedtuple
 import copy
+from dataclasses import dataclass
+from radcad.types import SimulationResults, StateUpdateBlock, StateVariables, SystemParameters
 
 
-RunArgs = namedtuple("RunArgs", [
-    "simulation",
-    "timesteps",
-    "run",
-    "subset",
-    "initial_state",
-    "state_update_blocks",
-    "parameters",
-    "deepcopy",
-    "deepcopy_method",
-    "drop_substeps",
-])
-Context = namedtuple("Context", "simulation run subset timesteps initial_state parameters")
+class RunArgs(NamedTuple):
+    """
+    Immutable arguments passed to each simulation run
+    """
+    simulation: int = None
+    timesteps: int = None
+    run: int = None
+    subset: int = None
+    initial_state: StateVariables = None
+    state_update_blocks: List[StateUpdateBlock] = None
+    parameters: SystemParameters = None
+    deepcopy: bool = None
+    deepcopy_method: bool = None
+    drop_substeps: bool = None
+
+
+@dataclass
+class Context:
+    """
+    Mutable context passed to simulation hooks
+    """
+    simulation: int = None
+    run: int = None
+    subset: int = None
+    timesteps: int = None
+    initial_state: StateVariables = None
+    parameters: SystemParameters = None
+    state_update_blocks: List[StateUpdateBlock] = None
 
 
 class Model:
@@ -46,7 +63,7 @@ class Model:
             run_args = RunArgs(
                 simulation = 0,
                 timesteps = 1,
-                run = 0,
+                run = 1,  # +1 to remain compatible with cadCAD implementation
                 subset = 0,
                 initial_state = copy.deepcopy(self.state),
                 state_update_blocks = self.state_update_blocks,
@@ -73,7 +90,7 @@ class Executable:
     def __init__(self, **kwargs) -> None:
         self.engine = kwargs.pop("engine", Engine())
 
-        self.results = []
+        self.results: SimulationResults = []
         self.exceptions = []
 
         # Hooks
@@ -101,39 +118,35 @@ class Executable:
         raise NotImplementedError("Method run() not implemented for class that extends Base")
 
     # Hooks
-    def _before_experiment(self, experiment=None):
+    def _before_experiment(self, experiment):
         if self.before_experiment:
             self.before_experiment(experiment=experiment)
 
-    def _after_experiment(self, experiment=None):
+    def _after_experiment(self, experiment):
         if self.after_experiment:
             self.after_experiment(experiment=experiment)
 
-    def _before_simulation(self, simulation=None):
+    def _before_simulation(self, context: Context):
         if self.before_simulation:
-            self.before_simulation(
-                simulation=simulation
-            )
+            self.before_simulation(context=context)
 
-    def _after_simulation(self, simulation=None):
+    def _after_simulation(self, context: Context):
         if self.after_simulation:
-            self.after_simulation(
-                simulation=simulation
-            )
+            self.after_simulation(context=context)
 
-    def _before_run(self, context: Context=None):
+    def _before_run(self, context: Context):
         if self.before_run:
             self.before_run(context=context)
 
-    def _after_run(self, context: Context=None):
+    def _after_run(self, context: Context):
         if self.after_run:
             self.after_run(context=context)
 
-    def _before_subset(self, context: Context=None):
+    def _before_subset(self, context: Context):
         if self.before_subset:
             self.before_subset(context=context)
 
-    def _after_subset(self, context: Context=None):
+    def _after_subset(self, context: Context):
         if self.after_subset:
             self.after_subset(context=context)
 

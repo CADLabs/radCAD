@@ -6,7 +6,7 @@ import radcad.core as core
 from radcad.core import generate_parameter_sweep, reduce_signals
 
 from radcad import Model, Simulation, Experiment
-from radcad.engine import flatten
+from radcad.utils import flatten
 from radcad.utils import default
 
 from tests.test_cases import basic
@@ -62,8 +62,15 @@ def test_generate_dataclass_parameter_sweep():
 
 def test_generate_single_value_dataclass_parameter_sweep():
     @dataclass
-    class P1:
+    class P0:
         a: int = 0
+        b: int = 0
+    param_sweep = generate_parameter_sweep(P0())
+    assert param_sweep == [P0(**{'a': 0, 'b': 0})]
+
+    @dataclass
+    class P1:
+        a: List[int] = default([0])
         b: int = 0
     param_sweep = generate_parameter_sweep(P1())
     assert param_sweep == [P1(**{'a': 0, 'b': 0})]

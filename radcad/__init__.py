@@ -1,4 +1,4 @@
-__version__ = "0.11.1"
+__version__ = "0.12.0"
 
 from radcad.wrappers import Context, Model, Simulation, Experiment
 from radcad.engine import Engine
