@@ -1,6 +1,4 @@
 import itertools
-from typing import Dict
-from typing_extensions import Protocol
 import copy
 import datetime
 from dataclasses import field
@@ -28,12 +26,6 @@ def generate_cartesian_product_parameter_sweep(params):
     cartesian_product = list(itertools.product(*params.values()))
     param_sweep = {key: [x[i] for x in cartesian_product] for i, key in enumerate(params.keys())}
     return param_sweep
-
-
-class Dataclass(Protocol):
-    # Checking for this attribute is currently
-    # the most reliable way to ascertain that something is a dataclass
-    __dataclass_fields__: Dict
 
 
 def _update_from_signal(

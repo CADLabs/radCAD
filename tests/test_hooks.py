@@ -1,11 +1,12 @@
 from radcad import Model, Simulation, Experiment
+from radcad.wrappers import Context
 from tests.test_cases import basic
 
 
 def test_hooks(capsys):
     states = basic.states
     state_update_blocks = basic.state_update_blocks
-    params = params = {
+    params = {
         'a': [1,2],
         'b': [1]
     }
@@ -60,3 +61,25 @@ def test_hooks(capsys):
     after_simulation 1
     after_experiment
     """.replace('\n', '').replace(' ', '')
+
+
+def test_hook_set_timesteps():
+    states = basic.states
+    state_update_blocks = []
+    params = {}
+    TIMESTEPS = 0
+    RUNS = 1
+
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment(simulations=[simulation, simulation])
+
+    def set_timesteps(context: Context):
+        context.timesteps = context.simulation * 10
+
+    experiment.before_run = set_timesteps
+
+    results = experiment.run()
+
+    # 10 * 0 + (1) + 10 * 1 + (1)
+    assert len(results) == 12

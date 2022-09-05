@@ -2,10 +2,9 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Union, Dict, List, Tuple, Callable
-from dataclasses import asdict, dataclass, field, is_dataclass
-
-from radcad.utils import Dataclass
+from typing import List, Tuple, Callable
+from dataclasses import asdict, is_dataclass
+from radcad.types import PolicySignal, SimulationResults, StateUpdate, StateUpdateBlock, StateVariables, SystemParameters
 
 
 # Use "radCAD" logging instance to avoid conflict with other projects
@@ -17,7 +16,17 @@ def default_deepcopy_method(obj):
     return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
 
 
-def _update_state(initial_state, params, substep, result, substate, signals, deepcopy, deepcopy_method, state_update_tuple):
+def _update_state(
+    initial_state: StateVariables,
+    params: SystemParameters,
+    substep: int,
+    result: SimulationResults,
+    substate: StateVariables,
+    signals: PolicySignal,
+    deepcopy: bool,
+    deepcopy_method: Callable,
+    state_update_tuple: StateUpdate,
+):
     _substate = deepcopy_method(substate) if deepcopy else substate.copy()
     _signals = deepcopy_method(signals) if deepcopy else signals.copy()
 
@@ -40,14 +49,14 @@ def _update_state(initial_state, params, substep, result, substate, signals, dee
 
 
 def _single_run(
-    result: list,
+    result: SimulationResults,
     simulation: int,
     timesteps: int,
     run: int,
     subset: int,
-    initial_state: dict,
-    state_update_blocks: list,
-    params: dict,
+    initial_state: StateVariables,
+    state_update_blocks: List[StateUpdateBlock],
+    params: SystemParameters,
     deepcopy: bool,
     deepcopy_method: Callable,
     drop_substeps: bool,
@@ -108,13 +117,13 @@ def _single_run(
 
 
 def single_run(
-    simulation=0,
-    timesteps=1,
-    run=0,
-    subset=0,
-    initial_state={},
-    state_update_blocks=[],
-    params={},
+    simulation: int=0,
+    timesteps: int=1,
+    run: int=0,
+    subset: int=0,
+    initial_state: StateVariables={},
+    state_update_blocks: List[StateUpdateBlock]=[],
+    params: SystemParameters={},
     deepcopy: bool=True,
     deepcopy_method: Callable=default_deepcopy_method,
     drop_substeps: bool=False,
@@ -172,7 +181,7 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def generate_parameter_sweep(params: Union[Dict[str, List[any]], Dataclass]):
+def generate_parameter_sweep(params: SystemParameters):
     _is_dataclass = is_dataclass(params)
     _params = asdict(params) if _is_dataclass else params
 
@@ -201,7 +210,7 @@ def generate_parameter_sweep(params: Union[Dict[str, List[any]], Dataclass]):
         return param_sweep
 
 
-def _add_signals(acc, a: Dict[str, any]):
+def _add_signals(acc, a: PolicySignal):
     for (key, value) in a.items():
         if acc.get(key, None):
             acc[key] += value
@@ -210,8 +219,16 @@ def _add_signals(acc, a: Dict[str, any]):
     return acc
 
 
-def reduce_signals(params: dict, substep: int, result: list, substate: dict, psu: dict, deepcopy: bool=True, deepcopy_method: Callable=default_deepcopy_method):
-    policy_results: List[Dict[str, any]] = list(
+def reduce_signals(
+    params: SystemParameters,
+    substep: int,
+    result: list,
+    substate: StateVariables,
+    psu: StateUpdateBlock,
+    deepcopy: bool=True,
+    deepcopy_method: Callable=default_deepcopy_method
+) -> PolicySignal:
+    policy_results: List[PolicySignal] = list(
         map(lambda function: function(
             params,
             substep,
