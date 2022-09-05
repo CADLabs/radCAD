@@ -63,7 +63,7 @@ class Model:
             run_args = RunArgs(
                 simulation = 0,
                 timesteps = 1,
-                run = 0,
+                run = 1,  # +1 to remain compatible with cadCAD implementation
                 subset = 0,
                 initial_state = copy.deepcopy(self.state),
                 state_update_blocks = self.state_update_blocks,
@@ -126,17 +126,13 @@ class Executable:
         if self.after_experiment:
             self.after_experiment(experiment=experiment)
 
-    def _before_simulation(self, simulation):
+    def _before_simulation(self, context: Context):
         if self.before_simulation:
-            self.before_simulation(
-                simulation=simulation
-            )
+            self.before_simulation(context=context)
 
-    def _after_simulation(self, simulation):
+    def _after_simulation(self, context: Context):
         if self.after_simulation:
-            self.after_simulation(
-                simulation=simulation
-            )
+            self.after_simulation(context=context)
 
     def _before_run(self, context: Context):
         if self.before_run:

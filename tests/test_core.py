@@ -6,7 +6,7 @@ import radcad.core as core
 from radcad.core import generate_parameter_sweep, reduce_signals
 
 from radcad import Model, Simulation, Experiment
-from radcad.engine import flatten
+from radcad.utils import flatten
 from radcad.utils import default
 
 from tests.test_cases import basic

@@ -65,7 +65,7 @@ def _single_run(
 
     initial_state["simulation"] = simulation
     initial_state["subset"] = subset
-    initial_state["run"] = run + 1
+    initial_state["run"] = run
     initial_state["substep"] = 0
     if not initial_state.get("timestep", False):
         initial_state["timestep"] = 0
