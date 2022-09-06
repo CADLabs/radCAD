@@ -17,6 +17,15 @@ def flatten(nested_list):
     return list(generator(nested_list))
 
 
+def extend_list(list, target_length):
+    """Extend list to length by repeating last element"""
+    if len(list) >= target_length:
+        return list
+    else:
+        extension = [list[-1] if list else None] * (target_length - len(list))
+        return list + extension
+
+
 def extract_exceptions(results_with_exceptions):
     results, exceptions = zip(*results_with_exceptions)
     return (list(flatten(flatten(list(results)))), list(exceptions))

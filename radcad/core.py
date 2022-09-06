@@ -2,9 +2,10 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import List, Tuple, Callable
-from dataclasses import asdict, is_dataclass
-from radcad.types import PolicySignal, SimulationResults, StateUpdate, StateUpdateBlock, StateVariables, SystemParameters
+from typing import Dict, List, Tuple, Callable
+from dataclasses import is_dataclass
+from radcad.types import Dataclass, PolicySignal, SimulationResults, StateUpdate, StateUpdateBlock, StateVariables, SystemParameters
+from radcad.utils import extend_list
 
 
 # Use "radCAD" logging instance to avoid conflict with other projects
@@ -26,7 +27,7 @@ def _update_state(
     deepcopy: bool,
     deepcopy_method: Callable,
     state_update_tuple: StateUpdate,
-):
+) -> StateUpdate:
     _substate = deepcopy_method(substate) if deepcopy else substate.copy()
     _signals = deepcopy_method(signals) if deepcopy else signals.copy()
 
@@ -60,7 +61,7 @@ def _single_run(
     deepcopy: bool,
     deepcopy_method: Callable,
     drop_substeps: bool,
-):
+) -> SimulationResults:
     logger.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
 
     initial_state["simulation"] = simulation
@@ -181,36 +182,111 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def generate_parameter_sweep(params: SystemParameters):
+def _get_sweep_len(params: Dict, max_len: int=1) -> int:
+    for value in params.values():
+        if isinstance(value, dict):
+            _get_sweep_len(value, max_len)
+        elif isinstance(value, list) and len(value) > max_len:
+            max_len = len(value)
+        else:
+            continue
+    return max_len
+
+
+def _nested_asdict(params: Dataclass) -> Dict:
+    """
+    Recursively follow any continuous nested chain of dataclasses
+    converting to dictionaries, e.g.:
+
+    @dataclass
+    class D:
+        e = [3, 4]
+        f = 5
+
+    @dataclass
+    class I:
+        j: int = 9
+
+    @dataclass
+    class H:
+        i: I = I()
+
+    @dataclass
+    class NestedParams:
+        a: dict = default({
+            'b': 1,
+            'c': [2],
+            'd': D(),
+        })
+        g: list = default([6, 7, 8])
+        h: list = H()
+
+    _nested_asdict(NestedParams()) == {
+        'a': {'b': 1, 'c': [2], 'd': D()},
+        'g': [6, 7, 8],
+        'h': {'i': {'j': 9}}
+    }
+    """
+    dict_params = {}
+    if is_dataclass(params):
+        for (key, value) in params.__dict__.items():
+            if is_dataclass(value):
+                value = _nested_asdict(value)
+            dict_params[key] = value
+    return dict_params
+
+
+def _traverse_params(params: SystemParameters) -> SystemParameters:
+    parent_class = None
+    dict_params = {}
+    if is_dataclass(params):
+        parent_class = params.__class__
+        for (key, value) in params.__dict__.items():
+            if is_dataclass(value):
+                value = _traverse_params(value)
+            elif not isinstance(value, list):
+                value = [value]
+            dict_params[key] = value
+
+    return parent_class(**dict_params) if parent_class else dict_params
+
+
+def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: int):
+    parent_class = None
+    dict_params = {}
+    if is_dataclass(params):
+        parent_class = params.__class__
+        items = params.__dict__.items()
+    elif isinstance(params, dict):
+        items = params.items()
+    else:
+        return dict_params
+
+    for (key, value) in items:
+        if is_dataclass(value):
+            value = _traverse_sweep_params(value, max_len, sweep_index)
+        elif not isinstance(value, list):
+            value = [value]
+        if isinstance(value, list):
+            value = extend_list(value, max_len)[sweep_index]
+        dict_params[key] = value
+
+    return parent_class(**dict_params) if parent_class else dict_params
+
+
+def generate_parameter_sweep(params: SystemParameters) -> List[Dict]:
     _is_dataclass = is_dataclass(params)
-    _params = asdict(params) if _is_dataclass else params
+    _params = _nested_asdict(params) if _is_dataclass else params
+    max_len = _get_sweep_len(_params)
 
     param_sweep = []
-    max_len = 1
-    for value in _params.values():
-        if isinstance(value, list) and len(value) > max_len:
-            max_len = len(value)
-
     for sweep_index in range(0, max_len):
-        param_set = {}
-        for (key, value) in _params.items():
-            if not isinstance(value, list):
-                value = [value]
-            param = (
-                value[sweep_index]
-                if sweep_index < len(value)
-                else value[-1]
-            )
-            param_set[key] = param
+        param_set = _traverse_sweep_params(params, max_len, sweep_index)
         param_sweep.append(param_set)
-
-    if _is_dataclass:
-        return [params.__class__(**subset) for subset in param_sweep]
-    else:
-        return param_sweep
+    return param_sweep
 
 
-def _add_signals(acc, a: PolicySignal):
+def _add_signals(acc: PolicySignal, a: PolicySignal) -> PolicySignal:
     for (key, value) in a.items():
         if acc.get(key, None):
             acc[key] += value
