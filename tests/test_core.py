@@ -162,7 +162,8 @@ def test_generate_nested_parameter_sweep():
 
 
 def test_generate_nested_dataclass_parameter_sweep():
-    assert generate_parameter_sweep(nested_dataclass_params) == [
+    parameter_sweep = generate_parameter_sweep(nested_dataclass_params)
+    assert parameter_sweep == [
         NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=6, h=H(i=I(j={'k': 9})), l=10, m=D(e=3, f=5)),
         NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=7, h=H(i=I(j={'k': 9})), l=10, m=D(e=4, f=5)),
         NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=8, h=H(i=I(j={'k': 9})), l=10, m=D(e=4, f=5))

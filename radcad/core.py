@@ -256,13 +256,13 @@ def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: 
     dict_params = {}
     if is_dataclass(params):
         parent_class = params.__class__
-        items = params.__dict__.items()
+        children = params.__dict__.items()
     elif isinstance(params, dict):
-        items = params.items()
+        children = params.items()
     else:
         return dict_params
 
-    for (key, value) in items:
+    for (key, value) in children:
         if is_dataclass(value):
             value = _traverse_sweep_params(value, max_len, sweep_index)
         elif not isinstance(value, list):
@@ -274,7 +274,7 @@ def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: 
     return parent_class(**dict_params) if parent_class else dict_params
 
 
-def generate_parameter_sweep(params: SystemParameters) -> List[Dict]:
+def generate_parameter_sweep(params: SystemParameters) -> List[SystemParameters]:
     _is_dataclass = is_dataclass(params)
     _params = _nested_asdict(params) if _is_dataclass else params
     max_len = _get_sweep_len(_params)
