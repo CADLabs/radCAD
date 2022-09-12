@@ -3,7 +3,7 @@ import pytest
 from dataclasses import dataclass
 
 import radcad.core as core
-from radcad.core import _get_sweep_len, generate_parameter_sweep, reduce_signals, _nested_asdict
+from radcad.core import _get_sweep_length, generate_parameter_sweep, reduce_signals, _nested_asdict
 
 from radcad import Model, Simulation, Experiment
 from radcad.utils import flatten
@@ -114,12 +114,12 @@ def test_nested_asdict():
 
 
 def test_get_sweep_len():
-    assert _get_sweep_len(nested_params) == 3
-    assert _get_sweep_len(_nested_asdict(nested_dataclass_params)) == 3
+    assert _get_sweep_length(nested_params) == 3
+    assert _get_sweep_length(_nested_asdict(nested_dataclass_params)) == 3
 
 
 def test_generate_nested_parameter_sweep():
-    assert _get_sweep_len(nested_params) == 3
+    assert _get_sweep_length(nested_params) == 3
 
     assert generate_parameter_sweep(nested_params) == [
         {

@@ -2,7 +2,7 @@ from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Dict, List, Tuple, Callable
+from typing import Dict, Iterator, List, Tuple, Callable
 from dataclasses import is_dataclass
 from radcad.types import Dataclass, PolicySignal, SimulationResults, StateUpdate, StateUpdateBlock, StateVariables, SystemParameters
 from radcad.utils import extend_list
@@ -182,15 +182,17 @@ def _single_run_wrapper(args):
             return [], e
 
 
-def _get_sweep_len(params: Dict, max_len: int=1) -> int:
+def _get_sweep_lengths(params: Dict) -> Iterator[int]:
     for value in params.values():
         if isinstance(value, dict):
-            _get_sweep_len(value, max_len)
-        elif isinstance(value, list) and len(value) > max_len:
-            max_len = len(value)
-        else:
-            continue
-    return max_len
+            yield from _get_sweep_lengths(value)
+        elif isinstance(value, list):
+            yield len(value)
+
+
+def _get_sweep_length(params: Dict) -> int:
+    sweep_lengths = list(_get_sweep_lengths(params))
+    return max(sweep_lengths) if sweep_lengths else 1
 
 
 def _nested_asdict(params: Dataclass) -> Dict:
@@ -277,7 +279,7 @@ def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: 
 def generate_parameter_sweep(params: SystemParameters) -> List[SystemParameters]:
     _is_dataclass = is_dataclass(params)
     _params = _nested_asdict(params) if _is_dataclass else params
-    max_len = _get_sweep_len(_params)
+    max_len = _get_sweep_length(_params)
 
     param_sweep = []
     for sweep_index in range(0, max_len):
