@@ -47,22 +47,10 @@ class Engine:
         simulations = executable.simulations if isinstance(executable, wrappers.Experiment) else [executable]
         if not isinstance(self.backend, Backend):
             raise Exception(f"Execution backend must be one of {Backend.list()}")
-        configs = [
-            (
-                sim.model.initial_state,
-                sim.model.state_update_blocks,
-                sim.model.params,
-                sim.timesteps,
-                sim.runs,
-            )
-            for sim in simulations
-        ]
-
-        result = []
 
         self.executable._before_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
 
-        self._run_generator = self._run_stream(configs)
+        self._run_generator = self._run_stream(simulations)
 
         # Select backend executor
         if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
@@ -85,16 +73,7 @@ class Engine:
         self.executable._after_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
         return self.executable.results
 
-    def _get_simulation_from_config(config):
-        states, state_update_blocks, params, timesteps, runs = config
-        model = wrappers.Model(
-            initial_state=states, state_update_blocks=state_update_blocks, params=params
-        )
-        return wrappers.Simulation(model=model, timesteps=timesteps, runs=runs)
-
-    def _run_stream(self, configs):
-        simulations = [Engine._get_simulation_from_config(config) for config in configs]
-
+    def _run_stream(self, simulations):
         for simulation_index, simulation in enumerate(simulations):
             simulation.index = simulation_index
             
@@ -112,17 +91,27 @@ class Engine:
                 parameters=params,  # NOTE Each parameter is a list of all subsets in before_run() method and a single subset in before_subset()
                 state_update_blocks=state_update_blocks,
             ))
-            self.executable._before_simulation(
-                context=context,
-            )
+
+            # For each hook, Experiment setting takes preference over Simulation setting
+            # Before simulation hook
+            before_simulation = self.executable.before_simulation or simulation.before_simulation
+            if before_simulation: before_simulation(context=context)
 
             for run_index in range(0, runs):
                 context.run = run_index + 1  # +1 to remain compatible with cadCAD implementation
-                self.executable._before_run(context=context)
+
+                # Before run hook
+                before_run = self.executable.before_run or simulation.before_run
+                if before_run: before_run(context=context)
+
                 for subset_index, param_set in enumerate(param_sweep if param_sweep else [params]):
                     context.subset = subset_index
                     context.parameters = param_set
-                    self.executable._before_subset(context=context)
+
+                    # Before subset hook
+                    before_subset = self.executable.before_subset or simulation.before_subset
+                    if before_subset: before_subset(context=context)
+
                     yield copy.deepcopy(wrappers.RunArgs(
                         # Model / simulation settings
                         simulation=context.simulation,
@@ -137,7 +126,15 @@ class Engine:
                         deepcopy_method=self.deepcopy_method,
                         drop_substeps=self.drop_substeps,
                     ))
-                    self.executable._after_subset(context=context)
-                self.executable._after_run(context=context)
 
-            self.executable._after_simulation(context=context)
+                    # After subset hook
+                    after_subset = self.executable.after_subset or simulation.after_subset
+                    if after_subset: after_subset(context=context)
+
+                # After run hook
+                after_run = self.executable.after_run or simulation.after_run
+                if after_run: after_run(context=context)
+
+            # After simulation hook
+            after_simulation = self.executable.after_simulation or simulation.after_simulation
+            if after_simulation: after_simulation(context=context)
