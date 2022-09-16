@@ -1,8 +1,7 @@
 from dataclasses import FrozenInstanceError, dataclass
 from typing import List
-from radcad import Model, Simulation, Experiment, Backend
+from radcad import Model, Simulation, Experiment, Backend, Context
 from radcad.utils import default
-from radcad.wrappers import Context
 import pytest
 
 

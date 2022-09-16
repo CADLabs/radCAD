@@ -1,325 +1,225 @@
-from functools import reduce, partial
 import logging
 import pickle
 import traceback
-from typing import Dict, Iterator, List, Tuple, Callable
-from dataclasses import is_dataclass
-from radcad.types import Dataclass, PolicySignal, SimulationResults, StateUpdate, StateUpdateBlock, StateVariables, SystemParameters
-from radcad.utils import extend_list
+from dataclasses import dataclass
+from functools import reduce
+from typing import Any, List
+
+from radcad.types import (PolicySignal, SimulationResults, StateUpdate,
+                          StateUpdateBlock, StateUpdateResult, StateVariables,
+                          SystemParameters)
+from radcad.utils import default
 
 
-# Use "radCAD" logging instance to avoid conflict with other projects
-logger = logging.getLogger("radCAD")
+@dataclass
+class SimulationExecution:
+    # Simulation settings
+    initial_state: StateVariables = default({})
+    params: SystemParameters = default({})
+    state_update_blocks: List[StateUpdateBlock] = default([])
+    timesteps: int = 0
 
-# Define the default method used for deepcopy operations
-# Must be a function and not a lambda function to ensure multiprocessing can Pickle the object
-def default_deepcopy_method(obj):
-    return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
+    # Execution settings
+    enable_deepcopy: bool = True
+    drop_substeps: bool = False
+    raise_exceptions: bool = True
+    logger = logging.getLogger("radCAD")
+    """Use "radCAD" logging instance to avoid conflict with other projects"""
 
+    # Simulation state
+    simulation_index: int = 0
+    subset_index: int = 0
+    run_index: int = 1
+    """
+    Index starts at +1 to remain compatible with cadCAD implementation
+    """
 
-def _update_state(
-    initial_state: StateVariables,
-    params: SystemParameters,
-    substep: int,
-    result: SimulationResults,
-    substate: StateVariables,
-    signals: PolicySignal,
-    deepcopy: bool,
-    deepcopy_method: Callable,
-    state_update_tuple: StateUpdate,
-) -> StateUpdate:
-    _substate = deepcopy_method(substate) if deepcopy else substate.copy()
-    _signals = deepcopy_method(signals) if deepcopy else signals.copy()
+    # Simulation runtime state
+    timestep: int = None
+    substep_index: int = None
+    previous_state: StateVariables = None
+    substeps: List[StateVariables] = None
+    result: SimulationResults = default([])
 
-    state, function = state_update_tuple
-    if not state in initial_state:
-        raise KeyError(f"Invalid state key {state} in partial state update block")
-    state_key, state_value = function(
-        params, substep, result, _substate, _signals
-    )
-    if not state_key in initial_state:
-        raise KeyError(
-            f"Invalid state key {state} returned from state update function"
-        )
-    if state == state_key:
-        return (state_key, state_value)
-    else:
-        raise KeyError(
-            f"PSU state key {state} doesn't match function state key {state_key}"
-        )
+    def execute(
+        self,
+    ) -> SimulationResults:
+        self.before_execution()
+        self.initialise_state()
 
+        for timestep in range(0, self.timesteps):
+            self.timestep = timestep
 
-def _single_run(
-    result: SimulationResults,
-    simulation: int,
-    timesteps: int,
-    run: int,
-    subset: int,
-    initial_state: StateVariables,
-    state_update_blocks: List[StateUpdateBlock],
-    params: SystemParameters,
-    deepcopy: bool,
-    deepcopy_method: Callable,
-    drop_substeps: bool,
-) -> SimulationResults:
-    logger.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
+            self.before_step()
+            self.process_substeps(self.step())
+            self.after_step()
 
-    initial_state["simulation"] = simulation
-    initial_state["subset"] = subset
-    initial_state["run"] = run
-    initial_state["substep"] = 0
-    if not initial_state.get("timestep", False):
-        initial_state["timestep"] = 0
+        self.after_execution()
+        return self.result
 
-    result.append([initial_state])
+    def initialise_state(self):
+        self.initial_state["simulation"] = self.simulation_index
+        self.initial_state["subset"] = self.subset_index
+        self.initial_state["run"] = self.run_index
+        self.initial_state["substep"] = 0
+        # Needed to properly handle model generator
+        if not self.initial_state.get("timestep", False):
+            self.initial_state["timestep"] = 0
 
-    for timestep in range(0, timesteps):
-        previous_state: dict = (
-            result[0][0].copy()
-            if timestep == 0
-            else result[-1][-1:][0].copy()
+        self.result.append([self.initial_state])
+
+    def step(self) -> List[StateVariables]:
+        self.previous_state: StateVariables = (
+            self.result[0][0].copy()
+            if self.timestep == 0
+            else self.result[-1][-1:][0].copy()
         )
 
-        substeps: list = []
-        substate: dict = previous_state.copy()
+        self.substeps: List = []
+        for (substep, state_update_block) in enumerate(self.state_update_blocks):
+            self.substep_index = substep
+            self.substep(state_update_block)
 
-        for (substep, psu) in enumerate(state_update_blocks):
-            substate: dict = (
-                previous_state.copy() if substep == 0 else substeps[substep - 1].copy()
+        return self.substeps or [self.previous_state.copy()]
+
+    def process_substeps(self, substeps: List[StateVariables]) -> None:
+        self.result.append(substeps if not self.drop_substeps else [substeps.pop()])
+
+    def substep(self, state_update_block: StateUpdateBlock) -> None:
+        substate: StateVariables = (
+            self.previous_state.copy() if self.substep_index == 0 else self.substeps[self.substep_index - 1].copy()
+        )
+
+        signals: PolicySignal = self.execute_policies(substate, state_update_block)
+
+        updated_state: List[StateUpdateResult] = [
+            self.update_state(substate, signals, state_update)
+            for state_update in state_update_block["variables"].items()
+        ]
+        self.process_updated_state(substate, updated_state)
+    
+    def process_updated_state(self, substate: StateVariables, updated_state: List[StateUpdateResult]) -> None:
+        substate.update(updated_state)
+        substate["timestep"] = (self.previous_state["timestep"] + 1) if self.timestep == 0 else self.timestep + 1
+        substate["substep"] = self.substep_index + 1
+        self.substeps.append(substate)
+
+    def execute_policies(
+        self,
+        substate: StateVariables,
+        state_update_block: StateUpdateBlock,
+    ) -> PolicySignal:
+        policy_results: List[PolicySignal] = list(
+            map(lambda function: function(
+                self.params,
+                self.substep,
+                self.result,
+                self.deepcopy_method(substate) if self.enable_deepcopy else substate.copy()
+            ), state_update_block["policies"].values())
+        )
+
+        result: dict = {}
+        result_length = len(policy_results)
+        if result_length == 0:
+            return result
+        elif result_length == 1:
+            return policy_results[0]
+        else:
+            return reduce(SimulationExecution.add_signals, policy_results, result)
+
+    def update_state(
+        self,
+        substate: StateVariables,
+        signals: PolicySignal,
+        state_update: StateUpdate,
+    ) -> StateUpdateResult:
+        _substate = self.deepcopy_method(substate) if self.enable_deepcopy else substate.copy()
+        _signals = self.deepcopy_method(signals) if self.enable_deepcopy else signals.copy()
+
+        state, function = state_update
+        if not state in self.initial_state:
+            raise KeyError(f"Invalid state key {state} in partial state update block")
+        state_key, state_value = function(
+            self.params, self.substep, self.result, _substate, _signals
+        )
+        if not state_key in self.initial_state:
+            raise KeyError(
+                f"Invalid state key {state} returned from state update function"
             )
-            
-            signals: dict = reduce_signals(
-                params, substep, result, substate, psu, deepcopy, deepcopy_method
+        if state == state_key:
+            return (state_key, state_value)
+        else:
+            raise KeyError(
+                f"PSU state key {state} doesn't match function state key {state_key}"
             )
 
-            updated_state = map(
-                partial(
-                    _update_state,
-                    initial_state,
-                    params,
-                    substep,
-                    result,
-                    substate,
-                    signals,
-                    deepcopy,
-                    deepcopy_method,
-                ),
-                psu["variables"].items()
-            )
-            
-            substate.update(updated_state)
-            substate["timestep"] = (previous_state["timestep"] + 1) if timestep == 0 else timestep + 1
-            substate["substep"] = substep + 1
-            substeps.append(substate)
+    @staticmethod
+    def add_signals(acc: PolicySignal, a: PolicySignal) -> PolicySignal:
+        for (key, value) in a.items():
+            if acc.get(key, None):
+                acc[key] += value
+            else:
+                acc[key] = value
+        return acc
 
-        substeps = [substate] if not substeps else substeps
-        result.append(substeps if not drop_substeps else [substeps.pop()])
-    return result
+    @staticmethod
+    def deepcopy_method(obj) -> Any:
+        """
+        Define the default method used for deepcopy operations
+        Must be a function and not a lambda function to ensure multiprocessing can Pickle the object
+        """
+        return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
+
+    def before_execution(self) -> None:
+        self.logger.info(f"Starting simulation {self.simulation_index} / run {self.run_index} / subset {self.subset_index}")
+
+    def before_step(self) -> None:
+        pass
+
+    def after_step(self) -> None:
+        pass
+    
+    def after_execution(self) -> None:
+        pass
 
 
-def single_run(
-    simulation: int=0,
-    timesteps: int=1,
-    run: int=0,
-    subset: int=0,
-    initial_state: StateVariables={},
-    state_update_blocks: List[StateUpdateBlock]=[],
-    params: SystemParameters={},
-    deepcopy: bool=True,
-    deepcopy_method: Callable=default_deepcopy_method,
-    drop_substeps: bool=False,
-) -> Tuple[list, Exception, str]:
-    result = []
-
+def multiprocess_wrapper(simulation_execution: SimulationExecution):
+    exception = None
+    trace = None
     try:
-        return (
-            _single_run(
-                result,
-                simulation,
-                timesteps,
-                run,
-                subset,
-                initial_state,
-                state_update_blocks,
-                params,
-                deepcopy,
-                deepcopy_method,
-                drop_substeps,
-            ),
-            None, # Error
-            None, # Traceback
-        )
-    except Exception as error:
-        trace = traceback.format_exc()
-        print(trace)
-        logger.warning(
-            f"Simulation {simulation} / run {run} / subset {subset} failed! Returning partial results if Engine.raise_exceptions == False."
-        )
-        return (result, error, trace)
-
-
-def _single_run_wrapper(args):
-    run_args, raise_exceptions = args
-    try:
-        results, exception, traceback = single_run(*tuple(run_args))
-        if raise_exceptions and exception:
+        try:
+            simulation_execution.execute()
+        except Exception as _exception:
+            trace = traceback.format_exc()
+            exception = _exception
+            print(trace)
+            simulation_execution.logger.warning(
+                f"""Simulation {
+                    simulation_execution.simulation_index
+                } / run {
+                    simulation_execution.run_index
+                } / subset {
+                    simulation_execution.subset_index
+                } failed! Returning partial results if Engine.raise_exceptions == False."""
+            )
+        if simulation_execution.raise_exceptions and exception:
             raise exception
         else:
-            return results, {
-                    'exception': exception,
-                    'traceback': traceback,
-                    'simulation': run_args.simulation,
-                    'run': run_args.run,
-                    'subset': run_args.subset,
-                    'timesteps': run_args.timesteps,
-                    'parameters': run_args.parameters,
-                    'initial_state': run_args.initial_state,
-                }
+            return simulation_execution.result, {
+                'exception': exception,
+                'traceback': trace,
+                'simulation': simulation_execution.simulation_index,
+                'run': simulation_execution.run_index,
+                'subset': simulation_execution.subset_index,
+                'timesteps': simulation_execution.timesteps,
+                'parameters': simulation_execution.params,
+                'initial_state': simulation_execution.initial_state,
+            }
     except Exception as e:
-        if raise_exceptions:
+        """
+        Fail safe by catching catch any outer exceptions
+        """
+        if simulation_execution.raise_exceptions:
             raise e
         else:
             return [], e
-
-
-def _get_sweep_lengths(params: Dict) -> Iterator[int]:
-    for value in params.values():
-        if isinstance(value, dict):
-            yield from _get_sweep_lengths(value)
-        elif isinstance(value, list):
-            yield len(value)
-
-
-def _get_sweep_length(params: Dict) -> int:
-    sweep_lengths = list(_get_sweep_lengths(params))
-    return max(sweep_lengths) if sweep_lengths else 1
-
-
-def _nested_asdict(params: Dataclass) -> Dict:
-    """
-    Recursively follow any continuous nested chain of dataclasses
-    converting to dictionaries, e.g.:
-
-    @dataclass
-    class D:
-        e = [3, 4]
-        f = 5
-
-    @dataclass
-    class I:
-        j: int = 9
-
-    @dataclass
-    class H:
-        i: I = I()
-
-    @dataclass
-    class NestedParams:
-        a: dict = default({
-            'b': 1,
-            'c': [2],
-            'd': D(),
-        })
-        g: list = default([6, 7, 8])
-        h: list = H()
-
-    _nested_asdict(NestedParams()) == {
-        'a': {'b': 1, 'c': [2], 'd': D()},
-        'g': [6, 7, 8],
-        'h': {'i': {'j': 9}}
-    }
-    """
-    dict_params = {}
-    if is_dataclass(params):
-        for (key, value) in params.__dict__.items():
-            if is_dataclass(value):
-                value = _nested_asdict(value)
-            dict_params[key] = value
-    return dict_params
-
-
-def _traverse_params(params: SystemParameters) -> SystemParameters:
-    parent_class = None
-    dict_params = {}
-    if is_dataclass(params):
-        parent_class = params.__class__
-        for (key, value) in params.__dict__.items():
-            if is_dataclass(value):
-                value = _traverse_params(value)
-            elif not isinstance(value, list):
-                value = [value]
-            dict_params[key] = value
-
-    return parent_class(**dict_params) if parent_class else dict_params
-
-
-def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: int):
-    parent_class = None
-    dict_params = {}
-    if is_dataclass(params):
-        parent_class = params.__class__
-        children = params.__dict__.items()
-    elif isinstance(params, dict):
-        children = params.items()
-    else:
-        return dict_params
-
-    for (key, value) in children:
-        if is_dataclass(value):
-            value = _traverse_sweep_params(value, max_len, sweep_index)
-        elif not isinstance(value, list):
-            value = [value]
-        if isinstance(value, list):
-            value = extend_list(value, max_len)[sweep_index]
-        dict_params[key] = value
-
-    return parent_class(**dict_params) if parent_class else dict_params
-
-
-def generate_parameter_sweep(params: SystemParameters) -> List[SystemParameters]:
-    _is_dataclass = is_dataclass(params)
-    _params = _nested_asdict(params) if _is_dataclass else params
-    max_len = _get_sweep_length(_params)
-
-    param_sweep = []
-    for sweep_index in range(0, max_len):
-        param_set = _traverse_sweep_params(params, max_len, sweep_index)
-        param_sweep.append(param_set)
-    return param_sweep
-
-
-def _add_signals(acc: PolicySignal, a: PolicySignal) -> PolicySignal:
-    for (key, value) in a.items():
-        if acc.get(key, None):
-            acc[key] += value
-        else:
-            acc[key] = value
-    return acc
-
-
-def reduce_signals(
-    params: SystemParameters,
-    substep: int,
-    result: list,
-    substate: StateVariables,
-    psu: StateUpdateBlock,
-    deepcopy: bool=True,
-    deepcopy_method: Callable=default_deepcopy_method
-) -> PolicySignal:
-    policy_results: List[PolicySignal] = list(
-        map(lambda function: function(
-            params,
-            substep,
-            result,
-            deepcopy_method(substate) if deepcopy else substate.copy()
-        ), psu["policies"].values())
-    )
-
-    result: dict = {}
-    result_length = len(policy_results)
-    if result_length == 0:
-        return result
-    elif result_length == 1:
-        return policy_results[0]
-    else:
-        return reduce(_add_signals, policy_results, result)

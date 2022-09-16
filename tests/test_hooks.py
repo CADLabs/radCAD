@@ -1,5 +1,4 @@
-from radcad import Model, Simulation, Experiment
-from radcad.wrappers import Context
+from radcad import Model, Simulation, Experiment, Context
 from tests.test_cases import basic
 import pandas as pd
 from pandas._testing import assert_series_equal

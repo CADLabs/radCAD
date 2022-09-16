@@ -1,11 +1,14 @@
+import copy
+import multiprocessing
+from dataclasses import replace
+from typing import Iterator
+
 import radcad.core as core
+import radcad.types
+import radcad.utils as utils
 import radcad.wrappers as wrappers
 from radcad.backends import Backend
 from radcad.utils import extract_exceptions
-
-import multiprocessing
-import copy
-
 
 # Get machine CPU count
 cpu_count = multiprocessing.cpu_count() - 1 or 1
@@ -29,9 +32,16 @@ class Engine:
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
         self.raise_exceptions = kwargs.pop("raise_exceptions", True)
         self.deepcopy = kwargs.pop("deepcopy", True)
-        self.deepcopy_method = kwargs.pop("deepcopy_method", core.default_deepcopy_method)
+        self.deepcopy_method = kwargs.pop("deepcopy_method", core.SimulationExecution.deepcopy_method)
         self.drop_substeps = kwargs.pop("drop_substeps", False)
         self._run_generator = iter(())
+
+        self.simulation_execution = core.SimulationExecution(
+            enable_deepcopy=self.deepcopy,
+            drop_substeps=self.drop_substeps,
+            raise_exceptions=self.raise_exceptions,
+        )
+        self.simulation_execution.deepcopy_method = self.deepcopy_method
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
@@ -46,7 +56,7 @@ class Engine:
 
         simulations = executable.simulations if isinstance(executable, wrappers.Experiment) else [executable]
         if not isinstance(self.backend, Backend):
-            raise Exception(f"Execution backend must be one of {Backend.list()}")
+            raise Exception(f"Execution backend must be one of {Backend._member_names_}, not {self.backend}")
 
         self.executable._before_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
 
@@ -55,15 +65,19 @@ class Engine:
         # Select backend executor
         if self.backend in [Backend.RAY, Backend.RAY_REMOTE]:
             if self.backend == Backend.RAY_REMOTE:
-                from radcad.extensions.backends.ray import ExecutorRayRemote as Executor
+                from radcad.extensions.backends.ray import \
+                    ExecutorRayRemote as Executor
             else:
-                from radcad.extensions.backends.ray import ExecutorRay as Executor
+                from radcad.extensions.backends.ray import \
+                    ExecutorRay as Executor
         elif self.backend in [Backend.PATHOS, Backend.DEFAULT]:
             from radcad.backends.pathos import ExecutorPathos as Executor
         elif self.backend in [Backend.MULTIPROCESSING]:
-            from radcad.backends.multiprocessing import ExecutorMultiprocessing as Executor
+            from radcad.backends.multiprocessing import \
+                ExecutorMultiprocessing as Executor
         elif self.backend in [Backend.SINGLE_PROCESS]:
-            from radcad.backends.single_process import ExecutorSingleProcess as Executor
+            from radcad.backends.single_process import \
+                ExecutorSingleProcess as Executor
         else:
             raise Exception(f"Execution backend must be one of {Backend._member_names_}, not {self.backend}")
         
@@ -73,7 +87,7 @@ class Engine:
         self.executable._after_experiment(experiment=(executable if isinstance(executable, wrappers.Experiment) else None))
         return self.executable.results
 
-    def _run_stream(self, simulations):
+    def _run_stream(self, simulations) -> Iterator[core.SimulationExecution]:
         for simulation_index, simulation in enumerate(simulations):
             simulation.index = simulation_index
             
@@ -82,9 +96,9 @@ class Engine:
             initial_state = simulation.model.initial_state
             state_update_blocks = simulation.model.state_update_blocks
             params = simulation.model.params
-            param_sweep = core.generate_parameter_sweep(params)
+            param_sweep = utils.generate_parameter_sweep(params)
 
-            context = copy.deepcopy(wrappers.Context(
+            context = copy.deepcopy(radcad.types.Context(
                 simulation=simulation_index,
                 timesteps=timesteps,
                 initial_state=initial_state,
@@ -112,20 +126,15 @@ class Engine:
                     before_subset = self.executable.before_subset or simulation.before_subset
                     if before_subset: before_subset(context=context)
 
-                    yield copy.deepcopy(wrappers.RunArgs(
-                        # Model / simulation settings
-                        simulation=context.simulation,
-                        timesteps=context.timesteps,
-                        run=context.run,
-                        subset=context.subset,
-                        initial_state=context.initial_state,
-                        state_update_blocks=context.state_update_blocks,
-                        parameters=context.parameters,
-                        # Execution settings
-                        deepcopy=self.deepcopy,
-                        deepcopy_method=self.deepcopy_method,
-                        drop_substeps=self.drop_substeps,
-                    ))
+                    self.simulation_execution.simulation_index = context.simulation
+                    self.simulation_execution.timesteps = context.timesteps
+                    self.simulation_execution.run_index = context.run
+                    self.simulation_execution.subset_index = context.subset
+                    self.simulation_execution.initial_state = context.initial_state
+                    self.simulation_execution.state_update_blocks = context.state_update_blocks
+                    self.simulation_execution.params = context.parameters
+
+                    yield copy.deepcopy(self.simulation_execution)
 
                     # After subset hook
                     after_subset = self.executable.after_subset or simulation.after_subset
