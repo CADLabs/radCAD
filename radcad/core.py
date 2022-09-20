@@ -4,6 +4,7 @@ import traceback
 from dataclasses import dataclass
 from functools import reduce
 from typing import Any, List
+from abc import ABC, abstractmethod
 
 from radcad.types import (PolicySignal, SimulationResults, StateUpdate,
                           StateUpdateBlock, StateUpdateResult, StateVariables,
@@ -12,12 +13,72 @@ from radcad.utils import default
 
 
 @dataclass
-class SimulationExecution:
+class SimulationExecutionSpecification(ABC):
+    timesteps: int = 0
+    timestep: int = None
+
+    substep_index: int = 0
+    substeps: List = default([])
+
+    state_update_blocks: List[StateUpdateBlock] = default([])
+    result: SimulationResults = default([])
+
+    def execute(
+        self,
+    ) -> SimulationResults:
+        self.before_execution()
+
+        for timestep in range(0, self.timesteps):
+            self.timestep = timestep
+            self.before_step()
+            self.step()
+            self.after_step()
+
+        self.after_execution()
+        return self.result
+
+    @abstractmethod
+    def before_execution(self) -> None:
+        pass
+
+    @abstractmethod
+    def before_step(self) -> None:
+        pass
+
+    def step(self) -> None:
+        self.substeps: List = []
+        for (substep, state_update_block) in enumerate(self.state_update_blocks):
+            self.substep_index = substep
+            self.before_substep()
+            self.substep(state_update_block)
+            self.after_substep()
+
+    @abstractmethod
+    def before_substep(self) -> None:
+        pass
+
+    @abstractmethod
+    def substep(self, state_update_block: StateUpdateBlock) -> List[StateVariables]:
+        pass
+
+    @abstractmethod
+    def after_substep(self) -> None:
+        pass
+
+    @abstractmethod
+    def after_step(self) -> None:
+        pass
+
+    @abstractmethod
+    def after_execution(self) -> None:
+        pass
+
+
+@dataclass
+class SimulationExecution(SimulationExecutionSpecification):
     # Simulation settings
     initial_state: StateVariables = default({})
     params: SystemParameters = default({})
-    state_update_blocks: List[StateUpdateBlock] = default([])
-    timesteps: int = 0
 
     # Execution settings
     enable_deepcopy: bool = True
@@ -26,36 +87,20 @@ class SimulationExecution:
     logger = logging.getLogger("radCAD")
     """Use "radCAD" logging instance to avoid conflict with other projects"""
 
-    # Simulation state
+    # Simulation indices
     simulation_index: int = 0
-    subset_index: int = 0
     run_index: int = 1
+    subset_index: int = 0
     """
     Index starts at +1 to remain compatible with cadCAD implementation
     """
 
     # Simulation runtime state
-    timestep: int = None
-    substep_index: int = None
     previous_state: StateVariables = None
-    substeps: List[StateVariables] = None
-    result: SimulationResults = default([])
 
-    def execute(
-        self,
-    ) -> SimulationResults:
-        self.before_execution()
+    def before_execution(self) -> None:
+        self.logger.info(f"Starting simulation {self.simulation_index} / run {self.run_index} / subset {self.subset_index}")
         self.initialise_state()
-
-        for timestep in range(0, self.timesteps):
-            self.timestep = timestep
-
-            self.before_step()
-            self.process_substeps(self.step())
-            self.after_step()
-
-        self.after_execution()
-        return self.result
 
     def initialise_state(self):
         self.initial_state["simulation"] = self.simulation_index
@@ -68,22 +113,15 @@ class SimulationExecution:
 
         self.result.append([self.initial_state])
 
-    def step(self) -> List[StateVariables]:
+    def before_step(self) -> None:
         self.previous_state: StateVariables = (
             self.result[0][0].copy()
             if self.timestep == 0
             else self.result[-1][-1:][0].copy()
         )
 
-        self.substeps: List = []
-        for (substep, state_update_block) in enumerate(self.state_update_blocks):
-            self.substep_index = substep
-            self.substep(state_update_block)
-
-        return self.substeps or [self.previous_state.copy()]
-
-    def process_substeps(self, substeps: List[StateVariables]) -> None:
-        self.result.append(substeps if not self.drop_substeps else [substeps.pop()])
+    def before_substep(self) -> None:
+        pass
 
     def substep(self, state_update_block: StateUpdateBlock) -> None:
         substate: StateVariables = (
@@ -92,17 +130,27 @@ class SimulationExecution:
 
         signals: PolicySignal = self.execute_policies(substate, state_update_block)
 
-        updated_state: List[StateUpdateResult] = [
+        updated_state: StateVariables = dict([
             self.update_state(substate, signals, state_update)
             for state_update in state_update_block["variables"].items()
-        ]
-        self.process_updated_state(substate, updated_state)
-    
-    def process_updated_state(self, substate: StateVariables, updated_state: List[StateUpdateResult]) -> None:
+        ])
+        self.process_substep(substate, updated_state)
+
+    def process_substep(self, substate: StateVariables, updated_state: StateVariables) -> None:
         substate.update(updated_state)
         substate["timestep"] = (self.previous_state["timestep"] + 1) if self.timestep == 0 else self.timestep + 1
         substate["substep"] = self.substep_index + 1
         self.substeps.append(substate)
+
+    def after_substep(self) -> None:
+        pass
+
+    def after_step(self) -> None:
+        substeps = self.substeps or [self.previous_state.copy()]
+        self.result.append(substeps if not self.drop_substeps else [substeps.pop()])
+
+    def after_execution(self) -> None:
+        pass
 
     def execute_policies(
         self,
@@ -137,17 +185,17 @@ class SimulationExecution:
         _signals = self.deepcopy_method(signals) if self.enable_deepcopy else signals.copy()
 
         state, function = state_update
-        if not state in self.initial_state:
+        if state not in self.initial_state:
             raise KeyError(f"Invalid state key {state} in partial state update block")
         state_key, state_value = function(
             self.params, self.substep, self.result, _substate, _signals
         )
-        if not state_key in self.initial_state:
+        if state_key not in self.initial_state:
             raise KeyError(
                 f"Invalid state key {state} returned from state update function"
             )
         if state == state_key:
-            return (state_key, state_value)
+            return state_key, state_value
         else:
             raise KeyError(
                 f"PSU state key {state} doesn't match function state key {state_key}"
@@ -163,24 +211,11 @@ class SimulationExecution:
         return acc
 
     @staticmethod
-    def deepcopy_method(obj) -> Any:
+    def deepcopy_method(obj: Any) -> Any:
         """
-        Define the default method used for deepcopy operations
-        Must be a function and not a lambda function to ensure multiprocessing can Pickle the object
+        The method used for simulation deepcopy operations
         """
         return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
-
-    def before_execution(self) -> None:
-        self.logger.info(f"Starting simulation {self.simulation_index} / run {self.run_index} / subset {self.subset_index}")
-
-    def before_step(self) -> None:
-        pass
-
-    def after_step(self) -> None:
-        pass
-    
-    def after_execution(self) -> None:
-        pass
 
 
 def multiprocess_wrapper(simulation_execution: SimulationExecution):

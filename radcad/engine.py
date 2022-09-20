@@ -1,6 +1,5 @@
 import copy
 import multiprocessing
-from dataclasses import replace
 from typing import Iterator
 
 import radcad.core as core
@@ -25,23 +24,30 @@ class Engine:
             **deepcopy (bool): Whether to enable deepcopy of State Variables to avoid unintended state mutation. Defaults to `True`.
             **deepcopy_method (Callable): Method to use for deepcopy of State Variables. By default uses Pickle for improved performance, use `copy.deepcopy` for an alternative to Pickle.
             **drop_substeps (bool): Whether to drop simulation result substeps during runtime to save memory and improve performance. Defaults to `False`.
+            **simulation_execution (SimulationExecution): Set a custom radCAD SimulationExecution class instance. Overrides setting of `raise_exceptions`, `deepcopy`, `deepcopy_method`, and `drop_substeps`.
             **_run_generator (tuple_iterator): Generator to generate simulation runs, used to implement custom execution backends. Defaults to  `iter(())`.
         """
         self.executable = None
         self.processes = kwargs.pop("processes", cpu_count)
         self.backend = kwargs.pop("backend", Backend.DEFAULT)
-        self.raise_exceptions = kwargs.pop("raise_exceptions", True)
-        self.deepcopy = kwargs.pop("deepcopy", True)
-        self.deepcopy_method = kwargs.pop("deepcopy_method", core.SimulationExecution.deepcopy_method)
-        self.drop_substeps = kwargs.pop("drop_substeps", False)
-        self._run_generator = iter(())
 
-        self.simulation_execution = core.SimulationExecution(
-            enable_deepcopy=self.deepcopy,
-            drop_substeps=self.drop_substeps,
-            raise_exceptions=self.raise_exceptions,
-        )
-        self.simulation_execution.deepcopy_method = self.deepcopy_method
+        _simulation_execution = kwargs.pop("simulation_execution", None)
+        if _simulation_execution:
+            self.simulation_execution = _simulation_execution
+        else:
+            self.raise_exceptions = kwargs.pop("raise_exceptions", True)
+            self.deepcopy = kwargs.pop("deepcopy", True)
+            self.deepcopy_method = kwargs.pop("deepcopy_method", core.SimulationExecution.deepcopy_method)
+            self.drop_substeps = kwargs.pop("drop_substeps", False)
+
+            self.simulation_execution = core.SimulationExecution(
+                enable_deepcopy=self.deepcopy,
+                drop_substeps=self.drop_substeps,
+                raise_exceptions=self.raise_exceptions,
+            )
+            self.simulation_execution.deepcopy_method = self.deepcopy_method
+
+        self._run_generator = iter(())
 
         if kwargs:
             raise Exception(f"Invalid Engine option in {kwargs}")
