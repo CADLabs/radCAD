@@ -114,8 +114,7 @@ class SimulationExecution(SimulationExecutionSpecification):
             self.initial_state["timestep"] = 0
         assert (
             isinstance(self.initial_state["timestep"], int) and self.initial_state["timestep"] >= 0,
-            f"Simulation initial timestep should be a positive integer, not {self.initial_state['timestep']}"
-        )
+        ), f"Simulation initial timestep should be a positive integer, not {self.initial_state['timestep']}"
         self.timestep = self.initial_state["timestep"]
         self.result.append([self.initial_state])
 
