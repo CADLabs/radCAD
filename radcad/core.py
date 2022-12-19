@@ -28,7 +28,8 @@ class SimulationExecutionSpecification(ABC):
     ) -> SimulationResults:
         self.before_execution()
 
-        for timestep in range(0, self.timesteps):
+        initial_timestep = self.timestep if self.timestep else 0
+        for timestep in range(initial_timestep, initial_timestep + self.timesteps):
             self.timestep = timestep
             self.before_step()
             self.step()
@@ -107,10 +108,15 @@ class SimulationExecution(SimulationExecutionSpecification):
         self.initial_state["subset"] = self.subset_index
         self.initial_state["run"] = self.run_index
         self.initial_state["substep"] = 0
+        # If first timestep is not explicitely set in initial state, start from zero
         # Needed to properly handle model generator
-        if not self.initial_state.get("timestep", False):
+        if not "timestep" in self.initial_state:
             self.initial_state["timestep"] = 0
-
+        assert (
+            isinstance(self.initial_state["timestep"], int) and self.initial_state["timestep"] >= 0,
+            f"Simulation initial timestep should be a positive integer, not {self.initial_state['timestep']}"
+        )
+        self.timestep = self.initial_state["timestep"]
         self.result.append([self.initial_state])
 
     def before_step(self) -> None:
