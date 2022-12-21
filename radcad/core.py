@@ -113,7 +113,7 @@ class SimulationExecution(SimulationExecutionSpecification):
         if not "timestep" in self.initial_state:
             self.initial_state["timestep"] = 0
         assert (
-            isinstance(self.initial_state["timestep"], int) and self.initial_state["timestep"] >= 0,
+            isinstance(self.initial_state["timestep"], int) and self.initial_state["timestep"] >= 0
         ), f"Simulation initial timestep should be a positive integer, not {self.initial_state['timestep']}"
         self.timestep = self.initial_state["timestep"]
         self.result.append([self.initial_state])
@@ -121,7 +121,7 @@ class SimulationExecution(SimulationExecutionSpecification):
     def before_step(self) -> None:
         self.previous_state: StateVariables = (
             self.result[0][0].copy()
-            if self.timestep == 0
+            if len(self.result) == 1
             else self.result[-1][-1:][0].copy()
         )
 
