@@ -170,6 +170,34 @@ def test_generate_nested_dataclass_parameter_sweep():
     ]
 
 
+def test_no_sweep_of_dict():
+    @dataclass
+    class P0:
+        a: Dict = default({0: [1, 2, 3]})
+        b: List = 1
+
+    @dataclass
+    class P1:
+        c: List = 1
+
+    @dataclass
+    class P:
+        p0: P0 = P0()
+        p1: P1 = P1()
+
+    param_sweep = generate_parameter_sweep(P())
+    assert param_sweep == [
+        P(
+            p0 = P0(
+                a = {0: [1, 2, 3]},
+                b = 1
+            ),
+            p1 = P1(
+                c = 1
+            )
+        ),
+    ]
+
 def test_generate_single_value_dataclass_parameter_sweep():
     @dataclass
     class P0:

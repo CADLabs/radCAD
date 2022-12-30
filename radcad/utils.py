@@ -41,10 +41,19 @@ def generate_cartesian_product_parameter_sweep(params):
 
 
 def _get_sweep_lengths(params: Dict) -> Iterator[int]:
-    for value in params.values():
-        if isinstance(value, dict):
+    if is_dataclass(params):
+        children = params.__dict__.items()
+    elif isinstance(params, dict):
+        children = params.items()
+    else:
+        yield []
+
+    for (_key, value) in children:
+        if is_dataclass(value):
             yield from _get_sweep_lengths(value)
-        elif isinstance(value, list):
+        elif not isinstance(value, list):
+            value = [value]
+        if isinstance(value, list):
             yield len(value)
 
 
