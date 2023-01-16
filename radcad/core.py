@@ -1,10 +1,10 @@
 import logging
 import pickle
 import traceback
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import reduce
 from typing import Any, List
-from abc import ABC, abstractmethod
 
 from radcad.types import (PolicySignal, SimulationResults, StateUpdate,
                           StateUpdateBlock, StateUpdateResult, StateVariables,

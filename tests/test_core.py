@@ -63,9 +63,9 @@ def test_generate_dataclass_parameter_sweep():
 nested_params = {
     'a': {
         'b': 1,
-        'c': [2],
+        'c': [2, 0, 0, 0, 0],
         'd': {
-            'e': [3, 4],
+            'e': [3, 4, 0, 0],
             'f': 5
         }
     },
@@ -75,7 +75,7 @@ nested_params = {
 
 @dataclass
 class D:
-    e: List = default([3, 4])
+    e: List = default([3, 4, 0, 0])
     f: int = 5
 
 @dataclass
@@ -92,7 +92,7 @@ class H:
 class NestedDataclassParams:
     a: Dict = default({
         'b': 1,
-        'c': [2],
+        'c': [2, 0, 0, 0, 0],
         'd': D(),
     })
     g: List = default([6, 7, 8])
@@ -105,17 +105,17 @@ nested_dataclass_params = NestedDataclassParams()
 
 def test_nested_asdict():
     assert _nested_asdict(nested_dataclass_params) == {
-        'a': {'b': 1, 'c': [2], 'd': D()},
+        'a': {'b': 1, 'c': [2, 0, 0, 0, 0], 'd': D()},
         'g': [6, 7, 8],
         'h': {'i': {'j': {'k': 9}}},
         'l': 10,
-        'm': {'e': [3, 4], 'f': 5}
+        'm': {'e': [3, 4, 0, 0], 'f': 5}
     }
 
 
 def test_get_sweep_len():
     assert _get_sweep_length(nested_params) == 3
-    assert _get_sweep_length(_nested_asdict(nested_dataclass_params)) == 3
+    assert _get_sweep_length(nested_dataclass_params) == 4
 
 
 def test_generate_nested_parameter_sweep():
@@ -125,9 +125,9 @@ def test_generate_nested_parameter_sweep():
         {
             'a': {
                 'b': 1,
-                'c': [2],
+                'c': [2, 0, 0, 0, 0],
                 'd': {
-                    'e': [3, 4],
+                    'e': [3, 4, 0, 0],
                     'f': 5
                 }
             },
@@ -137,9 +137,9 @@ def test_generate_nested_parameter_sweep():
         {
             'a': {
                 'b': 1,
-                'c': [2],
+                'c': [2, 0, 0, 0, 0],
                 'd': {
-                    'e': [3, 4],
+                    'e': [3, 4, 0, 0],
                     'f': 5
                 }
             },
@@ -149,9 +149,9 @@ def test_generate_nested_parameter_sweep():
         {
             'a': {
                 'b': 1,
-                'c': [2],
+                'c': [2, 0, 0, 0, 0],
                 'd': {
-                    'e': [3, 4],
+                    'e': [3, 4, 0, 0],
                     'f': 5
                 }
             },
@@ -164,9 +164,10 @@ def test_generate_nested_parameter_sweep():
 def test_generate_nested_dataclass_parameter_sweep():
     parameter_sweep = generate_parameter_sweep(nested_dataclass_params)
     assert parameter_sweep == [
-        NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=6, h=H(i=I(j={'k': 9})), l=10, m=D(e=3, f=5)),
-        NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=7, h=H(i=I(j={'k': 9})), l=10, m=D(e=4, f=5)),
-        NestedDataclassParams(a={'b': 1, 'c': [2], 'd': D(e=[3, 4], f=5)}, g=8, h=H(i=I(j={'k': 9})), l=10, m=D(e=4, f=5))
+        NestedDataclassParams(a={'b': 1, 'c': [2, 0, 0, 0, 0], 'd': D(e=[3, 4, 0, 0], f=5)}, g=6, h=H(i=I(j={'k': 9})), l=10, m=D(e=3, f=5)),
+        NestedDataclassParams(a={'b': 1, 'c': [2, 0, 0, 0, 0], 'd': D(e=[3, 4, 0, 0], f=5)}, g=7, h=H(i=I(j={'k': 9})), l=10, m=D(e=4, f=5)),
+        NestedDataclassParams(a={'b': 1, 'c': [2, 0, 0, 0, 0], 'd': D(e=[3, 4, 0, 0], f=5)}, g=8, h=H(i=I(j={'k': 9})), l=10, m=D(e=0, f=5)),
+        NestedDataclassParams(a={'b': 1, 'c': [2, 0, 0, 0, 0], 'd': D(e=[3, 4, 0, 0], f=5)}, g=8, h=H(i=I(j={'k': 9})), l=10, m=D(e=0, f=5))
     ]
 
 
