@@ -20,6 +20,7 @@ class RunArgs(NamedTuple):
     deepcopy: bool = None
     deepcopy_method: bool = None
     drop_substeps: bool = None
+    return_parameters: bool = None
 
 
 @dataclass
@@ -55,6 +56,7 @@ class Model:
         self._deepcopy = True
         self._deepcopy_method = default_deepcopy_method
         self._drop_substeps = False
+        self._return_parameters = False
 
     def __iter__(self):
         while True:
@@ -71,6 +73,7 @@ class Model:
                 deepcopy = self._deepcopy,
                 deepcopy_method = self._deepcopy_method,
                 drop_substeps = self._drop_substeps,
+                return_parameters = self._return_parameters,
             )
             result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
             if exception: self.exceptions.append(exception)
@@ -83,6 +86,7 @@ class Model:
         self._deepcopy = kwargs.pop("deepcopy", True)
         self._deepcopy_method = kwargs.pop("deepcopy_method", default_deepcopy_method)
         self._drop_substeps = kwargs.pop("drop_substeps", False)
+        self._return_parameters = kwargs.pop("return_parameters", False)
         return self
 
 

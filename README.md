@@ -340,6 +340,14 @@ If you don't need the substeps in post-processing, you can both improve simulati
 experiment.engine = Engine(drop_substeps=True)
 ```
 
+#### Including parameters in results
+
+If you'd like to include each run's parameters directly in the experiment results (rather than have to manually construct the corresponding parameters for each run afterwards), you can specify to return parameters as part of the experiment results:
+
+```python
+experiment.engine = Engine(return_parameters=True)
+```
+
 #### Exception handling
 
 radCAD allows you to choose whether to raise exceptions, ending the simulation, or to continue with the remaining runs and return the results along with the exceptions. Failed runs are returned as partial results - the part of the simulation result up until the timestep where the simulation failed.
