@@ -240,7 +240,12 @@ def multiprocess_wrapper(simulation_execution: SimulationExecution):
                     simulation_execution.run_index
                 } / subset {
                     simulation_execution.subset_index
-                } failed! Returning partial results if Engine.raise_exceptions == False."""
+                } failed!
+                {
+                  'Catching exception and returning partial results because option Engine.raise_exceptions == False.'\
+                  if simulation_execution.raise_exceptions\
+                  else 'Raising exception because option Engine.raise_exceptions == True (set to False to catch exception and return partial results).'
+                }"""
             )
         if simulation_execution.raise_exceptions and exception:
             raise exception
