@@ -1,3 +1,8 @@
+"""Backend for single processing
+Also no examples now.
+"""
+
+
 from radcad.backends import Executor
 import radcad.core as core
 

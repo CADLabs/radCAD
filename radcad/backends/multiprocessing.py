@@ -1,3 +1,7 @@
+"""Backend that allows multiprocessing
+No examples now.
+"""
+
 from radcad.backends import Executor
 import radcad.core as core
 
