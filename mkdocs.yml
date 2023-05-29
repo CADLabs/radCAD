@@ -1,7 +1,21 @@
-site_name: My Docs
+site_name: radCAD documentation
+
 
 theme:
   name: "material"
 
+
 plugins:
   - mkdocstrings
+
+markdown_extensions:
+    - toc:
+        permalink: "#"
+
+nav:
+  - Overview: index.md
+  - Getting started: gettingstarted.md
+  - Examples: examples.md
+  - Features: features.md
+  - Reference: reference.md
+  - About: about.md
