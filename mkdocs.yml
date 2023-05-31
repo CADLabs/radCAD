@@ -15,7 +15,16 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Getting started: gettingstarted.md
-  - Examples: examples.md
-  - Features: features.md
-  - Reference: reference.md
+  - Examples:
+    - Examples: examples.md
+    - Examples (accessible): examples_accessible.md
+  - Features:
+    - Features: features.md
+    - Advanced Features: advanced_features.md
+  - Reference: 
+     - Reference: reference.md
+     - Development: development.md
+     - cadCAD Compatibility: cadcad_compatibility.md
+     - Model Architecture: model_architecture.md
+     - FAQ and Troubleshooting: faq_and_troubleshooting.md
   - About: about.md

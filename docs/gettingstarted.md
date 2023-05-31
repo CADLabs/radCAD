@@ -80,7 +80,7 @@ The final sizes of the populations are, prey: 3068.0 and predator: 215.0.
 
 ## Elements of the model
 
-This section contains high level information about the model, for more details please consult [Features](features.md) for information organised by model functionality, [Examples](examples.md) to see some ways how the model can be applied, or [Reference](reference.md) for extra details.
+This section contains high level information about the model, for more details please consult [Features](features.md) for information organised by model functionality, [Model Architecture](/reference/#model-architecture) for more information about the model architecture, [Examples](examples.md) to see some ways how the model can be applied.
 
 ### Main classes
 
@@ -88,7 +88,7 @@ This section contains high level information about the model, for more details p
 
 1. A system is represented in some form as a `Model`
 2. A `Model` can be simulated using a `Simulation`
-3. An `Experiment` consists of one or more `Simulation`s
+3. An `Experiment` consists of one or more `Simulation`
 4. An `Experiment` or a `Simulation` is run by the `Engine`
 
 So, the hierarchy is as follows `Model` > `Simulation` > `Experiment` > `Engine`.

@@ -53,8 +53,11 @@ A simple model that applies the two Lotka-Volterra differential equations, frequ
 
 Original models thanks to [Danilo @danlessa](https://github.com/danlessa/)!
 
-* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](examples/predator_prey_sd/predator-prey-sd.ipynb)
-* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](examples/predator_prey_abm/predator-prey-abm.ipynb)
+[//]: # (* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](examples/predator_prey_sd/predator-prey-sd.ipynb))
+[//]: # (* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](examples/predator_prey_abm/predator-prey-abm.ipynb))
+
+* System dynamics model: [examples/predator_prey_sd/predator-prey-sd.ipynb](https://github.com/CADLabs/radCAD/blob/dev/examples/predator_prey_sd/predator-prey-sd.ipynb)
+* Agent based model: [examples/predator_prey_abm/predator-prey-abm.ipynb](https://github.com/CADLabs/radCAD/blob/dev/examples/predator_prey_abm/predator-prey-abm.ipynb)
 
 For additional educational material about the Predator-Prey model, we recommend the cadCAD courses:
 
