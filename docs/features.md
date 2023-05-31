@@ -73,7 +73,8 @@ RadCAD offers a range of advanced features that allow a wide range of model clas
 
 ### Advanced features - model classes and specifications:
 
-* Model classes are [iterable](/advanced_features/#iterating-over-a-model), so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
+
+* Model classes are [iterable](advanced_features.md#iterating-over-a-model), so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
 * Supports  [state-space analysis](https://en.wikipedia.org/wiki/State-space_representation)  (i.e. simulation of system state over time) and [phase-space analysis](https://en.wikipedia.org/wiki/Phase_space) analysis (i.e. generation of all unique system states in a given experimental setup)
 * Parameters can be a dataclass! This enables typing and dot notation for accessing parameters.
 
@@ -81,10 +82,10 @@ RadCAD offers a range of advanced features that allow a wide range of model clas
 ### Advanced features - model implementation:
 
 
-* [Parallel processing](/advanced_features/#selecting-single-or-multi-process-modes) with multiple backend options: `multiprocessing`, `pathos`, `ray`
-* [Disable `deepcopy`](/advanced_features/#disabling-state-deepcopy) option for improved performance (at cost of mutability)
-* Robust [exception handling](/advanced_features/#exception-handling) with partial results, and tracebacks
-* Distributed computing and [remote execution in a cluster](/advanced_features/#wip-remote-cluster-execution-using-ray) (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
-* [Hooks](advanced_features/#hooks-to-extend-functionality) to easily extend the functionality - e.g. save results to HDF5 file format after completion.
+* [Parallel processing](advanced_features.md#selecting-single-or-multi-process-modes) with multiple backend options: `multiprocessing`, `pathos`, `ray`
+* [Disable `deepcopy`](advanced_features.md#disabling-state-deepcopy) option for improved performance (at cost of mutability)
+* Robust [exception handling](advanced_features.md#exception-handling) with partial results, and tracebacks
+* Distributed computing and [remote execution in a cluster](advanced_features.md#wip-remote-cluster-execution-using-ray) (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
+* [Hooks](advanced_features.md#hooks-to-extend-functionality) to easily extend the functionality - e.g. save results to HDF5 file format after completion.
 
 Please refer to the subsection [advanced features](advanced_features.md) for more details.

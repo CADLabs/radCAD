@@ -41,12 +41,12 @@ Jump to [cadCAD Compatibility](cadcad_compatibility.md) to read more about:
 
 [//]: # ( * [data/](data/): Datasets and API data sources (such as Etherscan.io and Beaconcha.in) used in the model)
 
-* [benchmarks/](benchmarks/): Tests to compare execution time of cadCAD and radCAD.
-* [cluster/](cluster/): Tests to compare execution time of cadCAD and radCAD.
-* [docs/](docs/): Documentation such as auto-generated docs from Python docstrings and Markdown docs
-* [examples/](experiments/): Analysis notebooks and experiment workflow (such as configuration and execution)
-* [radcad/](radcad/): Model software architecture (structural and configuration modules)
-* [tests/](tests/): Unit and integration tests for model and notebooks
+* [benchmarks/](https://github.com/CADLabs/radCAD/tree/dev/benchmarks): Tests to compare execution time of cadCAD and radCAD.
+* [cluster/](https://github.com/CADLabs/radCAD/tree/dev/cluster): Tests to compare execution time of cadCAD and radCAD.
+* [docs/](https://github.com/CADLabs/radCAD/tree/dev/docs): Documentation such as auto-generated docs from Python docstrings and Markdown docs
+* [examples/](https://github.com/CADLabs/radCAD/tree/dev/examples): Analysis notebooks and experiment workflow (such as configuration and execution)
+* [radcad/](https://github.com/CADLabs/radCAD/tree/dev/radcad): Model software architecture (structural and configuration modules)
+* [tests/](https://github.com/CADLabs/radCAD/tree/dev/tests): Unit and integration tests for model and notebooks
 
 ## Model Architecture
 
@@ -60,7 +60,7 @@ Jump to [Model Architecture](model_architecture.md) for more details about the c
 
 To install and use Plotly with Jupyter Lab, you might need NodeJS installed to build Node dependencies, unless you're using the Anaconda/Conda package manager to manage your environment. Alternatively, use Jupyter Notebook which works out the box with Plotly.
 
-See https://plotly.com/python/getting-started/
+See: [Plotly Documentation](https://plotly.com/python/getting-started/)
 
 You might need to install the following "lab extension": 
 ```bash

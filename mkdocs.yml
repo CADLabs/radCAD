@@ -12,6 +12,7 @@ markdown_extensions:
     - toc:
         permalink: "#"
 
+
 nav:
   - Overview: index.md
   - Getting started: gettingstarted.md
@@ -26,5 +27,4 @@ nav:
      - Development: development.md
      - cadCAD Compatibility: cadcad_compatibility.md
      - Model Architecture: model_architecture.md
-     - FAQ and Troubleshooting: faq_and_troubleshooting.md
   - About: about.md
