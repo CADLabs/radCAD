@@ -99,7 +99,6 @@ A modular dynamical-systems model of Fei Protocol's Protocol-controlled Value (P
 Useful links:
 
 * [**Model Assumptions**](https://github.com/CADLabs/fei-protocol-model/blob/main/ASSUMPTIONS.md)
-The model implements the official Ethereum Specification wherever possible, but rests on a few default network-level and validator-level assumptions detailed in the [ASSUMPTIONS.md](ASSUMPTIONS.md) document.
 
 * [**Differential Model Specification**](https://github.com/CADLabs/fei-protocol-model#Differential-Model-Specification)
 

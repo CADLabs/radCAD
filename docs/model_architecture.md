@@ -7,6 +7,7 @@
  - [Main classes](#main-classes) 
  - [Additional Classes](#additional-classes)
  - [Extensions](#extensions)
+ - [All modules, automated documentation](#all-modules-automated-documentation)
 
 
 ---
@@ -82,4 +83,11 @@ In `radcad/compat/cadCAD/engine` the class `Executor` is used to extend the cadC
 ### For remote cluster execution (using Ray)
 
 In `radcad/extensions/backends` the classes `ExecutorRay` and `ExecutorRayRemote` are used to extend the standard radCAD class `Executor`. Jump here to read more about using the [remote cluster execution](advanced_features/#wip-remote-cluster-execution-using-ray).
+
+
+
+## All modules, automated documentation
+
+
+::: radcad
 
