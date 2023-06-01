@@ -80,7 +80,7 @@ The final sizes of the populations are, prey: 3068.0 and predator: 215.0.
 
 ## Elements of the model
 
-This section contains high level information about the model, for more details please consult [Features](features.md) for information organised by model functionality, [Model Architecture](/reference/#model-architecture) for more information about the model architecture, [Examples](examples.md) to see some ways how the model can be applied.
+This section contains high level information about the model. For more details please consult the following sections: [Features](features.md) for information organised by model functionality, [Model Architecture](reference.md#model-architecture) for more information about the model architecture, and [Examples](examples.md) to see some ways how the model can be applied.
 
 ### Main classes
 

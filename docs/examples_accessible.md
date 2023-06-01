@@ -69,6 +69,49 @@ For additional educational material about the Predator-Prey model, we recommend 
 
 ## Open-source Models Using radCAD
 
-* **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
-* **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
-* **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by Reflexer Protocol: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
+
+### Ethereum Economic Model by CADLabs
+
+A modular dynamical-systems model of Ethereum's validator economics.
+
+This open-source model was developed in collaboration with the Ethereum Robust Incentives Group and funded by an Ethereum ESP (Ecosystem Support Program) grant. While originally scoped with purely modelling-educational intent as part of the cadCAD Edu online course [cadCAD Masterclass: Ethereum Validator Economics](https://www.cadcad.education/course/masterclass-ethereum), it has evolved to become a highly versatile, customizable and extensible research model that includes a list of model extension ideas. The model is focused on epoch- and population-level Ethereum validator economics across different deployment types and – at least in its initial setup – abstracts from slot- and agent-level dynamics. 
+
+To learn more about this model, here are the most useful links:
+
+* **Model Assumptions**:
+The model implements the official Ethereum Specification wherever possible, but rests on a few default network-level and validator-level assumptions detailed in the [ASSUMPTIONS.md](https://github.com/CADLabs/ethereum-economic-model/blob/main/ASSUMPTIONS.md) document.
+
+* **Mathematical Model Specification**:
+The [Mathematical Model Specification](https://hackmd.io/@CADLabs/ryLrPm2T_) articulates the relevant system dynamics as a state-space representation, the mathematical modelling paradigm underlying the cadCAD simulation library. It can be understood as a minimum viable formalism necessary to enable solid cadCAD modelling.
+
+* **Differential Model Specification**:
+The [Differential Model Specification](https://hackmd.io/@CADLabs/HyENPQ36u) depicts the model's overall structure across System States, System Inputs, System Parameters, State Update Logic and System Metrics.
+
+* Educational online course [cadCAD Masterclass: Ethereum Validator Economics](https://www.cadcad.education/course/masterclass-ethereum)
+
+* [**Github Repositorium**](https://github.com/CADLabs/ethereum-economic-model)
+
+
+### Fei Protocol Model by CADLabs
+
+A modular dynamical-systems model of Fei Protocol's Protocol-controlled Value (PCV) Monetary Policy and proposed FEI Savings Rate mechanism, based on the open-source Python library radCAD. The code repo is based on the CADLabs Ethereum Economic Model radCAD modelling & simulation project template.
+
+Useful links:
+
+* [**Model Assumptions**](https://github.com/CADLabs/fei-protocol-model/blob/main/ASSUMPTIONS.md)
+The model implements the official Ethereum Specification wherever possible, but rests on a few default network-level and validator-level assumptions detailed in the [ASSUMPTIONS.md](ASSUMPTIONS.md) document.
+
+* [**Differential Model Specification**](https://github.com/CADLabs/fei-protocol-model#Differential-Model-Specification)
+
+* [**Github Repositorium**](https://github.com/CADLabs/fei-protocol-model)
+
+
+### Beacon Runner by Ethereum RIG
+
+[Beacon Runner](https://github.com/ethereum/beaconrunner) An agent-based model of Ethereum's Proof-of-Stake consensus layer
+
+### GEB Controller Simulations by Reflexer Protocol: 
+
+**[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** 
+
+A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
