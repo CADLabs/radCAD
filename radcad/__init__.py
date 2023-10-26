@@ -1,4 +1,4 @@
-__version__ = "0.12.0"
+__version__ = "0.13.0"
 
 from radcad.wrappers import Model, Simulation, Experiment
 from radcad.core import SimulationExecution
