@@ -516,3 +516,7 @@ poetry run python3 -m pytest benchmarks/benchmark_single_process.py
 poetry run python3 -m mprof run benchmarks/benchmark_memory_radcad.py
 poetry run python3 -m mprof plot
 ```
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CADLabs/radCAD&type=Date)](https://star-history.com/#CADLabs/radCAD&Date)
