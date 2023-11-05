@@ -6,7 +6,7 @@
 
 ![Gosper Glider Gun](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
-A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. radCAD extends on [cadCAD](https://github.com/cadCAD-org/cadCAD). See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
+A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
 Goals:
 * simple API for ease of use
