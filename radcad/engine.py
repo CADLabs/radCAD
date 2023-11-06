@@ -22,6 +22,7 @@ class Engine:
             **deepcopy (bool): Whether to enable deepcopy of State Variables to avoid unintended state mutation. Defaults to `True`.
             **deepcopy_method (Callable): Method to use for deepcopy of State Variables. By default uses Pickle for improved performance, use `copy.deepcopy` for an alternative to Pickle.
             **drop_substeps (bool): Whether to drop simulation result substeps during runtime to save memory and improve performance. Defaults to `False`.
+            **return_parameters (bool): Whether to include the parameters used for each run in the simulation results at expense of increased memory usage and reduced performance. Defaults to `False`.
             **_run_generator (tuple_iterator): Generator to generate simulation runs, used to implement custom execution backends. Defaults to  `iter(())`.
         """
         self.executable = None
@@ -31,6 +32,7 @@ class Engine:
         self.deepcopy = kwargs.pop("deepcopy", True)
         self.deepcopy_method = kwargs.pop("deepcopy_method", core.default_deepcopy_method)
         self.drop_substeps = kwargs.pop("drop_substeps", False)
+        self.return_parameters = kwargs.pop("return_parameters", False)
         self._run_generator = iter(())
 
         if kwargs:
@@ -136,6 +138,7 @@ class Engine:
                         deepcopy=self.deepcopy,
                         deepcopy_method=self.deepcopy_method,
                         drop_substeps=self.drop_substeps,
+                        return_parameters=self.return_parameters,
                     ))
                     self.executable._after_subset(context=context)
                 self.executable._after_run(context=context)

@@ -60,6 +60,7 @@ def _single_run(
     deepcopy: bool,
     deepcopy_method: Callable,
     drop_substeps: bool,
+    return_parameters: bool,
 ):
     logger.info(f"Starting simulation {simulation} / run {run} / subset {subset}")
 
@@ -127,6 +128,7 @@ def single_run(
     deepcopy: bool=True,
     deepcopy_method: Callable=default_deepcopy_method,
     drop_substeps: bool=False,
+    return_parameters: bool=False,
 ) -> Tuple[list, Exception, str]:
     result = []
 
@@ -144,6 +146,7 @@ def single_run(
                 deepcopy,
                 deepcopy_method,
                 drop_substeps,
+                return_parameters,
             ),
             None, # Error
             None, # Traceback
@@ -164,6 +167,8 @@ def _single_run_wrapper(args):
         if raise_exceptions and exception:
             raise exception
         else:
+            if run_args.return_parameters:
+                [substep.update(run_args.parameters) for timestep in results for substep in timestep]
             return results, {
                     'exception': exception,
                     'traceback': traceback,
