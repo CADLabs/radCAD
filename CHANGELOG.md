@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.13.0] - 2023-10-26
 ### Added
 - Ability to override the method used for performing deep copies, e.g. using Pickle instead of standard library for better performance
-- Ability to use dataclasses instead of dictionaries to configure State Variables, enabling much better developer experience including typing of State Variables
-- Ability to use nested dataclasses to configure State Variables to enable creating categories or namespaces of State Variables for better management of large models, see tests for examples of how this works
+- Ability to use dataclasses instead of dictionaries to configure System Parameters, enabling much better developer experience including typing of System Parameters
+- Ability to use nested dataclasses to configure System Parameters to enable creating categories or namespaces of System Parameters for better management of large models, see tests for examples of how this works
 - Better typing of all core radCAD code, see `radcad.types`
 
 ### Changed
