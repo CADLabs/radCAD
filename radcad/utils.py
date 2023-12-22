@@ -40,7 +40,7 @@ def generate_cartesian_product_parameter_sweep(params):
     return param_sweep
 
 
-def _get_sweep_lengths(params: Dict) -> Iterator[int]:
+def _get_sweep_lengths(params: SystemParameters) -> Iterator[int]:
     if is_dataclass(params):
         children = params.__dict__.items()
     elif isinstance(params, dict):
@@ -57,7 +57,7 @@ def _get_sweep_lengths(params: Dict) -> Iterator[int]:
             yield len(value)
 
 
-def _get_sweep_length(params: Dict) -> int:
+def _get_sweep_length(params: SystemParameters) -> int:
     sweep_lengths = list(_get_sweep_lengths(params))
     return max(sweep_lengths) if sweep_lengths else 1
 
@@ -144,10 +144,7 @@ def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: 
 
 
 def generate_parameter_sweep(params: SystemParameters) -> List[SystemParameters]:
-    _is_dataclass = is_dataclass(params)
-    _params = _nested_asdict(params) if _is_dataclass else params
-    max_len = _get_sweep_length(_params)
-
+    max_len = _get_sweep_length(params)
     param_sweep = []
     for sweep_index in range(0, max_len):
         param_set = _traverse_sweep_params(params, max_len, sweep_index)

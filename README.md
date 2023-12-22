@@ -6,7 +6,7 @@
 
 ![Gosper Glider Gun](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
-A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. radCAD extends on [cadCAD](https://github.com/cadCAD-org/cadCAD). See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
+A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
 Goals:
 * simple API for ease of use
@@ -27,6 +27,7 @@ Goals:
 * [Testing](#testing)
 * [Jupyter Notebooks](#jupyter-notebooks)
 * [Benchmarking](#benchmarking)
+* [Acknowledgements](#acknowledgements)
 
 ## Open-source Models Using radCAD
 
@@ -125,7 +126,7 @@ result = experiment.run()
 * [x] Distributed computing and remote execution in a cluster (AWS, GCP, Kubernetes, ...) using [Ray - Fast and Simple Distributed Computing](https://ray.io/)
 * [x] Hooks to easily extend the functionality - e.g. save results to HDF5 file format after completion
 * [x] Model classes are iterable, so you can iterate over them step-by-step from one state to the next (useful for gradient descent, live digital twins)
-* [x] Parameters can be a dataclass! This enables typing and dot notation for accessing parameters.
+* [x] Parameters can be configured using nested dataclasses! This enables typing and dot notation for accessing parameters, and the creation of parameter namespaces.
 
 ## Installation
 
@@ -155,6 +156,53 @@ result = simulation.run()
 # result = experiment.run()
 
 df = pd.DataFrame(result)
+```
+
+### Model Parameters
+
+A unique feature of radCAD is being able to use nested dataclasses to configure the model's parameters. This enables typing and dot notation for accessing parameters, and the creation of parameter namespaces, demonstrated below.
+
+```python
+from dataclasses import dataclass
+from radcad.utils import default
+from radcad.types import StateVariables, PolicySignal
+
+...
+
+@dataclass
+class LiquidityPoolParameters:
+    initial_liquidity: int = 100_000
+
+
+@dataclass
+class ProtocolParameters:
+    liquidity_pool: LiquidityPoolParameters = default(LiquidityPoolParameters())
+    ...
+
+
+@dataclass
+class Parameters:
+    protocol: ProtocolParameters = default(ProtocolParameters())
+    agents: AgentParameters = default(AgentParameters())
+    ...
+
+
+models.params = Parameters()
+
+...
+
+def update_liquidity(
+        params: Parameters,
+        substep: int,
+        state_history: List[List[StateVariables]],
+        previous_state: StateVariables,
+        policy_input: PolicySignal
+) -> Tuple[str, int]:
+    if not previous_state["liquidity"]:
+        updated_liquidity = params.protocol.liquidity_pool.initial_liquidity
+    else:
+        updated_liquidity = ...
+    return "liquidity", updated_liquidity
 ```
 
 ### cadCAD Compatibility
@@ -234,6 +282,7 @@ df = pd.DataFrame(result)
 ```
 
 #### cadCAD Compatibility Mode
+
 radCAD is already compatible with the cadCAD generalized dynamical systems model structure; existing state update blocks, policies, and state update functions should work as is. But to more easily refactor existing cadCAD models to use radCAD without changing the cadCAD API and configuration process, there is a compatibility mode. The compatibility mode doesn't guarrantee to handle all cadCAD options, but should work for most cadCAD models by translating the configuration and execution processes into radCAD behind the scenes.
 
 To use the compatibility mode, install radCAD with the `compat` dependencies:
@@ -331,6 +380,27 @@ To improve performance, at the cost of mutability, the `Engine` module has the `
 ```python
 experiment.engine = Engine(deepcopy=False)
 ```
+
+#### Selecting alternative state `deepcopy` method
+
+The `deepcopy` method used for creating deepcopies of state during the simulation can be customised by creating a custom `SimulationExecution` class. This is useful when trying to optimise simulation performance, where certain types of state are better suited to specific `deepcopy` methods.
+
+```python
+class CustomSimulationExecution(SimulationExecution):
+    def __init_subclass__(cls) -> None:
+        return super().__init_subclass__()
+    
+    @staticmethod
+    def deepcopy_method(obj) -> Any:
+        """
+        Use copy.deepcopy instead of default Pickle dumps/loads for deepcopy operations.
+        """
+        return copy.deepcopy(obj)
+
+experiment.engine.simulation_execution = CustomSimulationExecution
+```
+
+This same technique can be used for overriding any of the other simulation methods.
 
 #### Dropping state substeps
 
@@ -525,3 +595,13 @@ poetry run python3 -m pytest benchmarks/benchmark_single_process.py
 poetry run python3 -m mprof run benchmarks/benchmark_memory_radcad.py
 poetry run python3 -m mprof plot
 ```
+
+## Acknowledgements
+
+* [@danlessa](https://github.com/danlessa): Thank you for contribution of Predator-Prey example
+* [@rogervs](https://github.com/rogervs): Thank you for contribution of Harmonic Oscillator example
+* [abzaremba](https://github.com/abzaremba): Thank you for contribution to documentation
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CADLabs/radCAD&type=Date)](https://star-history.com/#CADLabs/radCAD&Date)

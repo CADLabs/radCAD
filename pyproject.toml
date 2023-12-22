@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "radcad"
-version = "0.12.0"
+version = "0.13.0"
 description = "A Python package for dynamical systems modelling & simulation, inspired by and compatible with cadCAD"
 authors = ["CADLabs <benschza@users.noreply.github.com>"]
 packages = [
@@ -14,8 +14,8 @@ pandas = "^1.0.0"
 cadCAD = { version = "^0.4.27", optional = true }
 ray = { version = "^1.1.0", optional = true }
 boto3 = { version = "^1.16.43", optional = true }
-numpy = "^1.23.5"
 py = "^1.11.0"
+numpy = "^1.24.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.2.0"

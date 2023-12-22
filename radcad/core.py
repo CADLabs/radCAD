@@ -1,10 +1,10 @@
 import logging
 import pickle
 import traceback
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import reduce
 from typing import Any, List
-from abc import ABC, abstractmethod
 
 from radcad.types import (PolicySignal, SimulationResults, StateUpdate,
                           StateUpdateBlock, StateUpdateResult, StateVariables,
@@ -233,6 +233,11 @@ def multiprocess_wrapper(simulation_execution: SimulationExecution):
             trace = traceback.format_exc()
             exception = _exception
             print(trace)
+            raise_exceptions_message = (
+              'Catching exception and returning partial results because option Engine.raise_exceptions == False.'
+              if simulation_execution.raise_exceptions
+              else 'Raising exception because option Engine.raise_exceptions == True (set to False to catch exception and return partial results).'
+            )
             simulation_execution.logger.warning(
                 f"""Simulation {
                     simulation_execution.simulation_index
@@ -240,7 +245,8 @@ def multiprocess_wrapper(simulation_execution: SimulationExecution):
                     simulation_execution.run_index
                 } / subset {
                     simulation_execution.subset_index
-                } failed! Returning partial results if Engine.raise_exceptions == False."""
+                } failed!
+                {raise_exceptions_message}"""
             )
         if simulation_execution.raise_exceptions and exception:
             raise exception
