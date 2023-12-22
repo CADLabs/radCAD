@@ -460,6 +460,15 @@ poetry env use python3
 poetry shell
 ```
 
+### Common issues
+
+```
+ERROR:: Could not find a local HDF5 installation.
+You may need to explicitly state where your local HDF5 headers and
+library can be found by setting the ``HDF5_DIR`` environment
+variable or by using the ``--hdf5`` command-line option.
+```
+
 ### Publishing to PyPI
 
 ```bash
