@@ -1,5 +1,4 @@
-from radcad import Model, Simulation, Experiment
-from radcad.wrappers import Context
+from radcad import Model, Simulation, Experiment, Context
 from tests.test_cases import basic
 import pandas as pd
 from pandas._testing import assert_series_equal
@@ -146,3 +145,38 @@ def test_hook_set_initial_state():
     df = pd.DataFrame(results)
 
     assert (df['a'] == df['run']).all()
+
+
+def test_hook_experiment_override():
+    states = {
+        'a': 1
+    }
+    state_update_blocks = [{
+        'policies': {},
+        'variables': {}
+    }]
+    TIMESTEPS = 10
+    RUNS = 5
+
+    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params={})
+    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
+    experiment = Experiment(simulations=[simulation, simulation])
+
+    def set_initial_state_a(context: Context):
+        context.initial_state['a'] = 1
+
+    def set_initial_state_b(context: Context):
+        context.initial_state['a'] = 2
+
+    simulation.before_subset = set_initial_state_a
+    experiment.before_subset = set_initial_state_b
+
+    results_b = experiment.run()
+    df_b = pd.DataFrame(results_b)
+
+    assert (df_b['a'] == 2).all()
+
+    results_a = simulation.run()
+    df_a = pd.DataFrame(results_a)
+
+    assert (df_a['a'] == 1).all()

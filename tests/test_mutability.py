@@ -1,7 +1,6 @@
 from radcad import Model, Simulation, Experiment
 from radcad.engine import Engine, Backend
 
-import pytest
 import pandas as pd
 
 

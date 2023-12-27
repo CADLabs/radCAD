@@ -3,7 +3,7 @@ from radcad.engine import Backend
 from tests.test_cases import basic
 
 import pandas as pd
-import pytest
+from pandas._testing import assert_frame_equal
 
 try:
     import ray
@@ -38,8 +38,8 @@ def test_backend_equality():
     df_single_process = pd.DataFrame(experiment.run())
 
     if _has_ray_extension: assert df_multiprocessing.equals(df_ray)
-    assert df_multiprocessing.equals(df_pathos)
-    assert df_multiprocessing.equals(df_single_process)
+    assert_frame_equal(df_multiprocessing, df_pathos)
+    assert_frame_equal(df_multiprocessing, df_single_process)
 
 def test_backend_single_process():
     states = basic.states
@@ -68,5 +68,5 @@ def test_backend_single_process():
     df_single_process = pd.DataFrame(experiment.run())
 
     if _has_ray_extension: assert df_multiprocessing.equals(df_ray)
-    assert df_multiprocessing.equals(df_pathos)
-    assert df_multiprocessing.equals(df_single_process)
+    assert_frame_equal(df_multiprocessing, df_pathos)
+    assert_frame_equal(df_multiprocessing, df_single_process)

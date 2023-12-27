@@ -10,11 +10,8 @@ class ExecutorMultiprocessing(Executor):
                 processes=self.engine.processes
             ) as pool:
             result = pool.map(
-                core._single_run_wrapper,
-                [
-                    (config, self.engine.raise_exceptions)
-                    for config in self.engine._run_generator
-                ],
+                core.multiprocess_wrapper,
+                self.engine._run_generator,
             )
             pool.close()
             pool.join()

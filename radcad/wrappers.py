@@ -1,39 +1,9 @@
-from typing import List, NamedTuple
-from radcad.core import _single_run_wrapper, generate_parameter_sweep, default_deepcopy_method
-from radcad.engine import Engine
 import copy
-from dataclasses import dataclass
-from radcad.types import SimulationResults, StateUpdateBlock, StateVariables, SystemParameters
 
-
-class RunArgs(NamedTuple):
-    """
-    Immutable arguments passed to each simulation run
-    """
-    simulation: int = None
-    timesteps: int = None
-    run: int = None
-    subset: int = None
-    initial_state: StateVariables = None
-    state_update_blocks: List[StateUpdateBlock] = None
-    parameters: SystemParameters = None
-    deepcopy: bool = None
-    deepcopy_method: bool = None
-    drop_substeps: bool = None
-
-
-@dataclass
-class Context:
-    """
-    Mutable context passed to simulation hooks
-    """
-    simulation: int = None
-    run: int = None
-    subset: int = None
-    timesteps: int = None
-    initial_state: StateVariables = None
-    parameters: SystemParameters = None
-    state_update_blocks: List[StateUpdateBlock] = None
+from radcad.core import SimulationExecution, multiprocess_wrapper
+from radcad.engine import Engine
+from radcad.types import Context, SimulationResults
+from radcad.utils import generate_parameter_sweep
 
 
 class Model:
@@ -53,26 +23,26 @@ class Model:
         self.exceptions = []
         self._raise_exceptions = True
         self._deepcopy = True
-        self._deepcopy_method = default_deepcopy_method
+        self._deepcopy_method = SimulationExecution.deepcopy_method
         self._drop_substeps = False
 
     def __iter__(self):
+        param_sweep = generate_parameter_sweep(self.params)
         while True:
-            param_sweep = generate_parameter_sweep(self.params)
             _params = param_sweep[0] if param_sweep else {}
-            run_args = RunArgs(
-                simulation = 0,
+            simulation_execution = SimulationExecution(
+                # Model / simulation settings
                 timesteps = 1,
-                run = 1,  # +1 to remain compatible with cadCAD implementation
-                subset = 0,
                 initial_state = copy.deepcopy(self.state),
                 state_update_blocks = self.state_update_blocks,
-                parameters = _params,
-                deepcopy = self._deepcopy,
-                deepcopy_method = self._deepcopy_method,
+                params = _params,
+                # Execution settings
+                enable_deepcopy = self._deepcopy,
                 drop_substeps = self._drop_substeps,
+                raise_exceptions = self._raise_exceptions,
             )
-            result, exception = _single_run_wrapper((run_args, self._raise_exceptions))
+            simulation_execution.deepcopy_method = self._deepcopy_method
+            result, exception = multiprocess_wrapper(simulation_execution)
             if exception: self.exceptions.append(exception)
             self.substeps = result.pop()
             self.state = self.substeps[-1] if self.substeps else self.state
@@ -81,7 +51,7 @@ class Model:
     def __call__(self, **kwargs):
         self._raise_exceptions = kwargs.pop("raise_exceptions", True)
         self._deepcopy = kwargs.pop("deepcopy", True)
-        self._deepcopy_method = kwargs.pop("deepcopy_method", default_deepcopy_method)
+        self._deepcopy_method = kwargs.pop("deepcopy_method", SimulationExecution.deepcopy_method)
         self._drop_substeps = kwargs.pop("drop_substeps", False)
         return self
 

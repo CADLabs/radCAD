@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2023-10-26
+### Added
+- Ability to override the method used for performing deep copies, e.g. using Pickle instead of standard library for better performance
+- Ability to use dataclasses instead of dictionaries to configure System Parameters, enabling much better developer experience including typing of System Parameters
+- Ability to use nested dataclasses to configure System Parameters to enable creating categories or namespaces of System Parameters for better management of large models, see tests for examples of how this works
+- Better typing of all core radCAD code, see `radcad.types`
+
+### Changed
+- End of support for Python 3.7, due to dependecies we now only support >= 3.8
+- Major refactor of core code to use specification for simulation execution in the form of an abstract base class named `SimulationExecutionSpecification`, enabling much better understanding, customisation, and extension of radCAD core code
+
 ## [0.12.0] - 2022-09-05
 ### Added
 - Add typing
