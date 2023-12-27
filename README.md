@@ -525,8 +525,8 @@ See https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow for 
 Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
 ```bash
 poetry --help
-poetry install
 poetry env use python3
+poetry install
 poetry shell
 ```
 
