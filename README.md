@@ -1,10 +1,10 @@
 # radCAD
 ![PyPI](https://badge.fury.io/py/radcad.svg)
-[![Build Status](https://github.com/CADLabs/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/CADLabs/radCAD/actions/workflows/python.yml)
-[![Coverage Status](https://coveralls.io/repos/github/CADLabs/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/CADLabs/radCAD?branch=master&service=github)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/CADLabs/radCAD/maintainability)
+[![Build Status](https://github.com/cadCAD-Edu/radCAD/actions/workflows/python.yml/badge.svg)](https://github.com/cadCAD-Edu/radCAD/actions/workflows/python.yml)
+[![Coverage Status](https://coveralls.io/repos/github/cadCAD-Edu/radCAD/badge.svg?branch=master&service=github)](https://coveralls.io/github/cadCAD-Edu/radCAD?branch=master&service=github)
+[![Maintainability](https://api.codeclimate.com/v1/badges/a65a6fb94f052cd804c2/maintainability)](https://codeclimate.com/github/cadCAD-Edu/radCAD/maintainability)
 
-![Gosper Glider Gun](https://github.com/CADLabs/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
+![Gosper Glider Gun](https://github.com/cadCAD-Edu/radCAD/blob/master/examples/game_of_life/gosper-glider-gun.gif)
 
 A Python framework for modelling and simulating [dynamical systems](https://en.wikipedia.org/wiki/Dynamical_system). Models are structured using state transitions for encoding differential equations, or any other logic, as an example. Simulations are configured using methods such as parameter sweeps, Monte Carlo runs, and A/B testing. See [cadCAD.education](https://cadcad.education) for the most comprehensive cadCAD beginner course.
 
@@ -604,4 +604,4 @@ poetry run python3 -m mprof plot
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=CADLabs/radCAD&type=Date)](https://star-history.com/#CADLabs/radCAD&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=cadCAD-Edu/radCAD&type=Date)](https://star-history.com/#cadCAD-Edu/radCAD&Date)
