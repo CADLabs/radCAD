@@ -9,13 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Resolved compatibility issues with Python 3.10
-- Refinded Python version compatibility range in project configuration
+- Refined Python version compatibility range in project configuration to ensure support for Python 3.10
 
 ### Changed
 
-- Updated cadCAD dependency to v0.5.3 to ensure compatibility with Python 3.10
-- Updated minimum Python version to 3.9 to align with cadCAD requirements
+- Updated cadCAD dependency to v0.5.3 and minimum Python version from 3.8 to 3.9 to align with cadCAD requirements and ensure compatibility with Python 3.10
 
 ## [0.13.0] - 2023-10-26
 
