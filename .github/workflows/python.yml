@@ -30,6 +30,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pdm nox
+    - name: Install build dependencies for MacOS
+      if: ${{ matrix.os == 'macOS' }}
+      run: |
+        brew install hdf5 c-blosc
     - name: Install radCAD dependencies for Python 3.8
       if: ${{ matrix.python-minor-version == 8 }}
       run: |
