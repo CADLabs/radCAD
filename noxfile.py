@@ -30,7 +30,8 @@ def tests(session):
     install_dependencies(session)
     session.run(
         'pytest',
-        '-n', 'auto',  # Run tests in parallel using pytest-xdist
+        # Currently failing on Windows due to recursion depth limit
+        # '-n', 'auto',  # Run tests in parallel using pytest-xdist
         'tests'
     )
 
