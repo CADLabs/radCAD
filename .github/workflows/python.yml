@@ -14,8 +14,11 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10', '3.11', '3.12']
+        python-major-version: [3]
+        python-minor-version: [8, 9, 10, 11, 12]
         os: [ubuntu, windows, macOS]
+    env:
+      python-version: ${{ format('{0}.{1}', matrix.python-major-version, matrix.python-minor-version) }}
 
     steps:
     - uses: actions/checkout@v3
@@ -28,11 +31,11 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pdm nox
     - name: Install radCAD dependencies for Python 3.8
-      if: ${{ matrix.python-version < 3.9 }}
+      if: ${{ matrix.python-minor-version == 8 }}
       run: |
         pdm sync -d -G compat --lockfile pdm-py38.lock
     - name: Install radCAD dependencies for Python 3.9+
-      if: ${{ matrix.python-version >= 3.9 }}
+      if: ${{ matrix.python-minor-version >= 9 }}
       run: |
         pdm sync -d -G compat --lockfile pdm.lock
     - name: Run tests using Nox
