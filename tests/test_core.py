@@ -1,15 +1,7 @@
 from typing import Dict, List
-import pytest
 from dataclasses import dataclass
 
-import radcad.core as core
-from radcad.utils import _get_sweep_length, generate_parameter_sweep, _nested_asdict
-
-from radcad import Model, Simulation, Experiment
-from radcad.utils import flatten
-from radcad.utils import default
-
-from tests.test_cases import basic
+from radcad.utils import _get_sweep_length, generate_parameter_sweep, _nested_asdict, default
 
 
 def test_generate_parameter_sweep():
@@ -86,7 +78,7 @@ class I:
 
 @dataclass
 class H:
-    i: I = I()
+    i: I = default(I())
 
 @dataclass
 class NestedDataclassParams:
@@ -96,9 +88,9 @@ class NestedDataclassParams:
         'd': D(),
     })
     g: List = default([6, 7, 8])
-    h: H = H()
+    h: H = default(H())
     l: int = 10
-    m: D = D()
+    m: D = default(D())
 
 nested_dataclass_params = NestedDataclassParams()
 
@@ -183,8 +175,8 @@ def test_no_sweep_of_dict():
 
     @dataclass
     class P:
-        p0: P0 = P0()
-        p1: P1 = P1()
+        p0: P0 = default(P0())
+        p1: P1 = default(P1())
 
     param_sweep = generate_parameter_sweep(P())
     assert param_sweep == [
@@ -252,37 +244,3 @@ def test_generate_single_value_parameter_sweep():
     }
     param_sweep = generate_parameter_sweep(params)
     assert param_sweep == [{'a': 0, 'b': 0, 'c': 0}, {'a': 1, 'b': 1, 'c': 0}, {'a': 2, 'b': 1, 'c': 0}]
-
-
-@pytest.mark.skip(reason="deprecated API")
-def test_reduce_signals():
-    psu = {
-        'policies': {
-            '1': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_b': 100.0, 'signal_d': 0.00000000011111},
-            '2': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_b': -100.0, 'signal_d': 0.00000000011111},
-            '3': lambda params, substep, state_history, previous_state: {'signal_a': 1.0, 'signal_c': 100e52, 'signal_d': 0.00000000011111},
-            '4': lambda params, substep, state_history, previous_state: {},
-        },
-        'variables': {}
-    }
-
-    signals = core.SimulationExecution.reduce_signals({}, 1, [], {}, psu)
-    assert signals['signal_a'] == 3.0
-    assert signals['signal_b'] == 0
-    assert signals['signal_c'] == 100e52
-    assert signals['signal_d'] == 3.3333000000000003e-10
-
-
-@pytest.mark.skip(reason="deprecated API")
-def test_run():
-    states = basic.states
-    state_update_blocks = basic.state_update_blocks
-    params = basic.params
-    TIMESTEPS = basic.TIMESTEPS
-    RUNS = basic.RUNS
-
-    model = Model(initial_state=states, state_update_blocks=state_update_blocks, params=params)
-    simulation = Simulation(model=model, timesteps=TIMESTEPS, runs=RUNS)
-    experiment = Experiment(simulation)
-
-    assert flatten(core.run([simulation])) == experiment.run()
