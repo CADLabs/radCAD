@@ -1,4 +1,6 @@
 import os
+import sys
+import threading
 import nox
 
 # Ensure the Nox virtualenv is used instead of PDM's
@@ -6,6 +8,15 @@ os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 
 # Select the Python versions to test against (these must be installed on the system)
 python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+# Set the platform's hard recursion limit to avoid recursion depth errors on Windows
+# See https://stackoverflow.com/questions/2917210/what-is-the-hard-recursion-limit-for-linux-mac-and-windows
+threading.stack_size(67108864) # 64MB stack, this limit is hit first in practice
+sys.setrecursionlimit(2**32-1) # Arbitrarily high limit, the stack limit is hit first
+
+# Only new threads get the redefined stack size
+thread = threading.Thread(target=main)
+thread.start()
 
 
 def select_lockfile(session):
