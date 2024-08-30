@@ -23,11 +23,18 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies using PDM
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pdm nox
-        pdm sync -d -G compat
+    - name: Install radCAD dependencies for Python 3.8
+      if: ${{ matrix.python-version < 3.9 }}
+      run: |
+        pdm sync -d -G compat --lockfile pdm-py38.lock
+    - name: Install radCAD dependencies for Python 3.9+
+      if: ${{ matrix.python-version >= 3.9 }}
+      run: |
+        pdm sync -d -G compat --lockfile pdm.lock
     - name: Run tests using Nox
       run: |
         python -m nox -s tests-${{ matrix.python_version }}
