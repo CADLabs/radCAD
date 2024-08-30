@@ -5,7 +5,7 @@
 groups = ["default", "compat", "dev", "extension-backend-ray"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:4fe6bbd96397c3bbfc952b1041b4f6767744cee6dd81ecabb80f2ee0907ea0e1"
+content_hash = "sha256:43f1fa57a89e5f1aaf0bb50c0c9c16f43b06e2380cb8a272f13ae7c1013c34ad"
 
 [[metadata.targets]]
 requires_python = ">=3.9,<3.13"
@@ -2568,25 +2568,6 @@ files = [
 ]
 
 [[package]]
-name = "pytest-monitor"
-version = "1.6.6"
-requires_python = ">=3.5"
-summary = "Pytest plugin for analyzing resource usage."
-groups = ["dev"]
-marker = "python_version < \"3.13\" and python_version >= \"3.9\""
-dependencies = [
-    "memory-profiler>=0.58",
-    "psutil>=5.1.0",
-    "pytest",
-    "requests",
-    "wheel",
-]
-files = [
-    {file = "pytest-monitor-1.6.6.tar.gz", hash = "sha256:b0c44dc44a2d6cdd19f84caa18fafeb1227e2b33bcbd11a2071dacd3763e1b6f"},
-    {file = "pytest_monitor-1.6.6-py3-none-any.whl", hash = "sha256:5be37d14aa423fe97af94bd44e3a47a551bd5d94d64921974580bbaadc1c1c94"},
-]
-
-[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
@@ -3410,18 +3391,6 @@ marker = "python_version < \"3.13\" and python_version >= \"3.9\""
 files = [
     {file = "websocket_client-1.8.0-py3-none-any.whl", hash = "sha256:17b44cc997f5c498e809b22cdf2d9c7a9e71c02c8cc2b6c56e7c2d1239bfa526"},
     {file = "websocket_client-1.8.0.tar.gz", hash = "sha256:3239df9f44da632f96012472805d40a23281a991027ce11d2f45a6f24ac4c3da"},
-]
-
-[[package]]
-name = "wheel"
-version = "0.44.0"
-requires_python = ">=3.8"
-summary = "A built-package format for Python"
-groups = ["dev"]
-marker = "python_version < \"3.13\" and python_version >= \"3.9\""
-files = [
-    {file = "wheel-0.44.0-py3-none-any.whl", hash = "sha256:2376a90c98cc337d18623527a97c31797bd02bad0033d41547043a1cbfbe448f"},
-    {file = "wheel-0.44.0.tar.gz", hash = "sha256:a29c3f2817e95ab89aa4660681ad547c0e9547f20e75b0562fe7723c9a2a9d49"},
 ]
 
 [[package]]
