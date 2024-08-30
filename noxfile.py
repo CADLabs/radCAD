@@ -3,8 +3,6 @@ import nox
 
 # Ensure the Nox virtualenv is used instead of PDM's
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
-# os.environ.pop("VIRTUAL_ENV", None)
-# os.environ.pop("PYTHONPATH", None)
 
 # Select the Python versions to test against (these must be installed on the system)
 python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
@@ -19,7 +17,7 @@ def select_lockfile(session):
 def install_dependencies(session):
     '''Install the dependencies for the current Python version'''
     lockfile = select_lockfile(session)
-    session.install('pdm')
+    session.install('pdm', 'pytest-xdist', 'pytest-benchmark')
     session.run_always(
         'pdm', 'sync', '-d',
         '-G', 'compat',
@@ -30,12 +28,17 @@ def install_dependencies(session):
 @nox.session(python=python_versions)
 def tests(session):
     install_dependencies(session)
-    session.run('pdm', 'run', 'pytest', 'tests')
+    session.run(
+        'pytest',
+        '-n', 'auto',  # Run tests in parallel using pytest-xdist
+        'tests'
+    )
 
 @nox.session(python=python_versions)
 def benchmarks(session):
     install_dependencies(session)
-    session.run('pdm', 'run', 'pytest',
+    session.run(
+        'pdm', 'run', 'pytest',
         'benchmarks/benchmark_radcad.py',
         f'--benchmark-save=py{session.python}',
     )
