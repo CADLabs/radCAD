@@ -28,7 +28,7 @@ def select_lockfile(session):
 def install_dependencies(session):
     '''Install the dependencies for the current Python version'''
     lockfile = select_lockfile(session)
-    session.install('pdm', 'pytest-xdist', 'pytest-benchmark')
+    session.install('pdm')  # 'pytest-xdist', 'pytest-benchmark'
     session.run_always(
         'pdm', 'sync', '-d',
         '-G', 'compat',
