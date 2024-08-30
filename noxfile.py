@@ -12,11 +12,11 @@ python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
 # Set the platform's hard recursion limit to avoid recursion depth errors on Windows
 # See https://stackoverflow.com/questions/2917210/what-is-the-hard-recursion-limit-for-linux-mac-and-windows
 threading.stack_size(67108864) # 64MB stack, this limit is hit first in practice
-sys.setrecursionlimit(2**32-1) # Arbitrarily high limit, the stack limit is hit first
+# sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit first
 
 # Only new threads get the redefined stack size
-thread = threading.Thread(target=main)
-thread.start()
+# thread = threading.Thread()
+# thread.start()
 
 
 def select_lockfile(session):
@@ -40,7 +40,7 @@ def install_dependencies(session):
 def tests(session):
     install_dependencies(session)
     session.run(
-        'pytest',
+        'pdm', 'run', 'pytest',
         # Currently failing on Windows due to recursion depth limit
         # '-n', 'auto',  # Run tests in parallel using pytest-xdist
         'tests'
