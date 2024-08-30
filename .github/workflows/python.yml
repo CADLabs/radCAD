@@ -13,6 +13,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         python-major-version: [3]
         python-minor-version: [8, 9, 10, 11, 12]
@@ -44,4 +45,4 @@ jobs:
         pdm sync -d -G compat --lockfile pdm.lock
     - name: Run tests using Nox
       run: |
-        python -m nox -s tests-${{ matrix.python_version }}
+        python -m nox -s tests-${{ env.python_version }}
