@@ -1,4 +1,4 @@
-# This file is used for Streamlit applications; this project is managed by Poetry; see README for further guidance about using pip and generating a requirements.txt file (or just use Poetry!)
+# This file is used for Streamlit applications; this project is managed by PDM; see README for further guidance about using pip and generating a requirements.txt file (or just use PDM!)
 numpy
 radcad==0.5.3
 matplotlib
