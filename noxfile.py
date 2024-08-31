@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import nox
+from radcad import Backend
 
 # Ensure the Nox virtualenv is used instead of PDM's
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
@@ -21,7 +22,7 @@ sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit fi
 # Configure radCAD for tests
 if sys.platform.startswith('win'):
     # Use the multiprocessing backend on Windows to avoid recursion depth errors
-    os.environ['RADCAD_BACKEND'] = 'multiprocessing'
+    os.environ['RADCAD_BACKEND'] = Backend.MULTIPROCESSING
 
 
 def select_lockfile(session):
