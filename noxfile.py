@@ -18,6 +18,11 @@ sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit fi
 # thread = threading.Thread(func=main)
 # thread.start()
 
+# Configure radCAD for tests
+if sys.platform.startswith('win'):
+    # Use the multiprocessing backend on Windows to avoid recursion depth errors
+    os.environ['RADCAD_BACKEND'] = 'multiprocessing'
+
 
 def select_lockfile(session):
     '''Select the PDM package manager lockfile based on the Python version'''

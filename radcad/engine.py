@@ -1,3 +1,4 @@
+import os
 import copy
 import multiprocessing
 from typing import Iterator
@@ -18,7 +19,7 @@ class Engine:
         Handles configuration and execution of experiments and simulations.
 
         Args:
-            **backend (Backend): Which execution backend to use (e.g. Pathos, Multiprocessing, etc.). Defaults to `Backend.DEFAULT` / `Backend.PATHOS`.
+            **backend (Backend): Which execution backend to use (e.g. Pathos, Multiprocessing, etc.). Defaults to `Backend.DEFAULT` / `Backend.PATHOS`. Can be set via the `RADCAD_BACKEND` environment variable which takes precedence.
             **processes (int, optional): Number of system CPU processes to spawn. Defaults to `multiprocessing.cpu_count() - 1 or 1`
             **raise_exceptions (bool): Whether to raise exceptions, or catch them and return exceptions along with partial results. Default to `True`.
             **deepcopy (bool): Whether to enable deepcopy of State Variables to avoid unintended state mutation. Defaults to `True`.
@@ -29,7 +30,7 @@ class Engine:
         """
         self.executable = None
         self.processes = kwargs.pop("processes", cpu_count)
-        self.backend = kwargs.pop("backend", Backend.DEFAULT)
+        self.backend = kwargs.pop("backend", os.getenv('RADCAD_BACKEND', Backend.DEFAULT))
 
         _simulation_execution = kwargs.pop("simulation_execution", None)
         if _simulation_execution:
