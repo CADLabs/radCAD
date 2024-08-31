@@ -30,7 +30,7 @@ class Engine:
         """
         self.executable = None
         self.processes = kwargs.pop("processes", cpu_count)
-        self.backend = kwargs.pop("backend", os.getenv('RADCAD_BACKEND', Backend.DEFAULT))
+        self.backend = kwargs.pop("backend", Backend[os.getenv('RADCAD_BACKEND', Backend.DEFAULT.name)])
 
         _simulation_execution = kwargs.pop("simulation_execution", None)
         if _simulation_execution:

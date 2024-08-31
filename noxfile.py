@@ -22,7 +22,7 @@ sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit fi
 # Configure radCAD for tests
 if sys.platform.startswith('win'):
     # Use the multiprocessing backend on Windows to avoid recursion depth errors
-    os.environ['RADCAD_BACKEND'] = Backend.MULTIPROCESSING
+    os.environ['RADCAD_BACKEND'] = Backend.MULTIPROCESSING.name
 
 
 def select_lockfile(session):
