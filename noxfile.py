@@ -11,9 +11,9 @@ python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
 
 # Configure radCAD for tests
 if sys.platform.startswith('win'):
-    # Use the single process backend on Windows to avoid recursion depth errors
+    # Use the multiprocessing backend on Windows to avoid recursion depth errors
     # TODO Remove this once the recursion depth issue is resolved
-    os.environ['RADCAD_BACKEND'] = Backend.SINGLE_PROCESS.name
+    os.environ['RADCAD_BACKEND'] = Backend.MULTIPROCESSING.name
 
 
 def select_lockfile(session):
