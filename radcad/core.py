@@ -222,9 +222,6 @@ class SimulationExecution(SimulationExecutionSpecification):
         """
         The method used for simulation deepcopy operations
         """
-        # Avoid recursion depth errors on Windows
-        if sys.platform.startswith('win'):
-            return copy.deepcopy(obj)
         return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
 
 

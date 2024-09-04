@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated from using Poetry to PDM to support overriding/ignoring subdependencies and switching based on Python version (e.g. cadCAD, which has removed support for Python 3.8, but which we'd like to continue supporting)
 - Implemented tests and benchmarking across Python versions using Nox (equivalent of Tox that uses Python instead of yaml for configuration)
 - Updated cadCAD dependency to v0.5.3 to ensure compatibility with Python 3.10+ when using "compatibility mode"
+- Added RADCAD_BACKEND environment variable to override radCAD's backend, specifically used for Windows tests to avoid recursion depth errors
 
 ## [0.13.0] - 2023-10-26
 
