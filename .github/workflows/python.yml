@@ -6,8 +6,12 @@ name: Build Status
 on:
   push:
     branches: [ master ]
+    paths:
+    - '**.py'
   pull_request:
     branches: [ master ]
+    paths:
+    - '**.py'
 
 jobs:
   build:
@@ -17,7 +21,7 @@ jobs:
       matrix:
         python-major-version: [3]
         python-minor-version: [8, 9, 10, 11, 12]
-        os: [ubuntu, macOS]  # TODO: windows is not included due to recursion limit error
+        os: [ubuntu, macOS, windows]
     env:
       python-version: ${{ format('{0}.{1}', matrix.python-major-version, matrix.python-minor-version) }}
 

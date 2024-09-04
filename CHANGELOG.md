@@ -5,15 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.14.0] - 2024-08-19
+## [0.14.0] - 2024-09-04
 
 ### Added
 
-- Refined Python version compatibility range in project configuration to ensure support for Python 3.10
+- Support for Python versions 3.11, 3.12
+- GitHub Action CI pipeline tests for Windows, MacOS
 
 ### Changed
 
-- Updated cadCAD dependency to v0.5.3 and minimum Python version from 3.8 to 3.9 to align with cadCAD requirements and ensure compatibility with Python 3.10
+- Migrated from using Poetry to PDM to support overriding/ignoring subdependencies and switching based on Python version (e.g. cadCAD, which has removed support for Python 3.8, but which we'd like to continue supporting)
+- Implemented tests and benchmarking across Python versions using Nox (equivalent of Tox that uses Python instead of yaml for configuration)
+- Updated cadCAD dependency to v0.5.3 to ensure compatibility with Python 3.10+ when using "compatibility mode"
 
 ## [0.13.0] - 2023-10-26
 

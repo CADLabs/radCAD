@@ -10,19 +10,20 @@ os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 # Select the Python versions to test against (these must be installed on the system)
 python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
 
-# Set the platform's hard recursion limit to avoid recursion depth errors on Windows
-# See https://stackoverflow.com/questions/2917210/what-is-the-hard-recursion-limit-for-linux-mac-and-windows
-threading.stack_size(67108864) # 64MB stack, this limit is hit first in practice
-sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit first
-
-# Only new threads get the redefined stack size
-# thread = threading.Thread(func=main)
-# thread.start()
-
 # Configure radCAD for tests
 if sys.platform.startswith('win'):
-    # Use the multiprocessing backend on Windows to avoid recursion depth errors
-    os.environ['RADCAD_BACKEND'] = Backend.MULTIPROCESSING.name
+    # Set the platform's hard recursion limit to avoid recursion depth errors on Windows
+    # See https://stackoverflow.com/questions/2917210/what-is-the-hard-recursion-limit-for-linux-mac-and-windows
+    threading.stack_size(67108864) # 64MB stack, this limit is hit first in practice
+    sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit first
+
+    # Only new threads get the redefined stack size
+    # thread = threading.Thread(func=main)
+    # thread.start()
+
+    # Use the single process backend on Windows to avoid recursion depth errors
+    # TODO Remove this once the recursion depth issue is resolved
+    os.environ['RADCAD_BACKEND'] = Backend.SINGLE_PROCESS.name
 
 
 def select_lockfile(session):
@@ -34,6 +35,11 @@ def select_lockfile(session):
 def install_dependencies(session):
     '''Install the dependencies for the current Python version'''
     lockfile = select_lockfile(session)
+
+    if session.python == '3.8':
+        # Resolves https://github.com/DeepLabCut/DeepLabCut/issues/2342
+        session.run('conda', 'install', 'pytables')
+
     session.install('pdm')  # 'pytest-xdist', 'pytest-benchmark'
     session.run_always(
         'pdm', 'sync', '-d',

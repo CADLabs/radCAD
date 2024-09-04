@@ -34,6 +34,7 @@ Goals:
 * **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
 * **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
 * **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by Reflexer Protocol: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
+* **[Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model)** by CADLabs: A modular dynamical-systems model of Fei Protocol
 
 ## Example Models
 
@@ -117,6 +118,8 @@ result = experiment.run()
 800002  0.003162   999992.0           1       1    1        1    100000
 800003  0.003162  1000002.0           1       1    1        2    100000
 ```
+
+* [x] Tested against Python 3.8 to 3.12 using Ubuntu, MacOS, and Windows
 
 ### Advanced Features
 
