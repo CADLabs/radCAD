@@ -1,11 +1,19 @@
 import os
+import sys
 import nox
+from radcad import Backend
 
 # Ensure the Nox virtualenv is used instead of PDM's
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 
 # Select the Python versions to test against (these must be installed on the system)
 python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+# Configure radCAD for tests
+if sys.platform.startswith('win'):
+    # Use the single process backend on Windows to avoid recursion depth errors
+    # TODO Remove this once the recursion depth issue is resolved
+    os.environ['RADCAD_BACKEND'] = Backend.SINGLE_PROCESS.name
 
 
 def select_lockfile(session):
