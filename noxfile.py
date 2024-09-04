@@ -35,11 +35,6 @@ def select_lockfile(session):
 def install_dependencies(session):
     '''Install the dependencies for the current Python version'''
     lockfile = select_lockfile(session)
-
-    if session.python == '3.8':
-        # Resolves https://github.com/DeepLabCut/DeepLabCut/issues/2342
-        session.run('conda', 'install', 'pytables')
-
     session.install('pdm')  # 'pytest-xdist', 'pytest-benchmark'
     session.run_always(
         'pdm', 'sync', '-d',
