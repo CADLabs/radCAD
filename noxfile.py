@@ -1,29 +1,11 @@
 import os
-import sys
-import threading
 import nox
-from radcad import Backend
 
 # Ensure the Nox virtualenv is used instead of PDM's
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 
 # Select the Python versions to test against (these must be installed on the system)
 python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
-
-# Configure radCAD for tests
-if sys.platform.startswith('win'):
-    # Set the platform's hard recursion limit to avoid recursion depth errors on Windows
-    # See https://stackoverflow.com/questions/2917210/what-is-the-hard-recursion-limit-for-linux-mac-and-windows
-    threading.stack_size(67108864) # 64MB stack, this limit is hit first in practice
-    sys.setrecursionlimit(2**20) # Arbitrarily high limit, the stack limit is hit first
-
-    # Only new threads get the redefined stack size
-    # thread = threading.Thread(func=main)
-    # thread.start()
-
-    # Use the single process backend on Windows to avoid recursion depth errors
-    # TODO Remove this once the recursion depth issue is resolved
-    os.environ['RADCAD_BACKEND'] = Backend.SINGLE_PROCESS.name
 
 
 def select_lockfile(session):

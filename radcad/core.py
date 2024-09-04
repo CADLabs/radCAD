@@ -1,6 +1,8 @@
 import logging
 import pickle
 import traceback
+import sys
+import copy
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import reduce
@@ -220,6 +222,9 @@ class SimulationExecution(SimulationExecutionSpecification):
         """
         The method used for simulation deepcopy operations
         """
+        # Avoid recursion depth errors on Windows
+        if sys.platform.startswith('win'):
+            return copy.deepcopy(obj)
         return pickle.loads(pickle.dumps(obj=obj, protocol=-1))
 
 
