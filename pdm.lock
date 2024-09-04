@@ -5,7 +5,7 @@
 groups = ["default", "compat", "dev", "extension-backend-ray"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:43f1fa57a89e5f1aaf0bb50c0c9c16f43b06e2380cb8a272f13ae7c1013c34ad"
+content_hash = "sha256:f792c0112bbeed6fe16056cf6736df708d87ec0cb2495739ec5dfcc9c926b4ef"
 
 [[metadata.targets]]
 requires_python = ">=3.9,<3.13"
@@ -294,24 +294,24 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.35.9"
+version = "1.35.10"
 requires_python = ">=3.8"
 summary = "The AWS SDK for Python"
 groups = ["extension-backend-ray"]
 marker = "python_version < \"3.13\" and python_version >= \"3.9\""
 dependencies = [
-    "botocore<1.36.0,>=1.35.9",
+    "botocore<1.36.0,>=1.35.10",
     "jmespath<2.0.0,>=0.7.1",
     "s3transfer<0.11.0,>=0.10.0",
 ]
 files = [
-    {file = "boto3-1.35.9-py3-none-any.whl", hash = "sha256:1ee9c52d83e8f4902300e985d62688cf31ca8fc47a80534b4295350ebc418e46"},
-    {file = "boto3-1.35.9.tar.gz", hash = "sha256:07e0f335d801765999da67325455ea8219c1a6d7f06bdaad0975ee505276bcbe"},
+    {file = "boto3-1.35.10-py3-none-any.whl", hash = "sha256:add26dd58e076dfd387013da4704716d5cff215cf14f6d4347c4b9b7fc1f0b8e"},
+    {file = "boto3-1.35.10.tar.gz", hash = "sha256:189ab1e2b4cd86df56f82438d89b4040eb140c92683f1bda7cb2e62624f20ea5"},
 ]
 
 [[package]]
 name = "botocore"
-version = "1.35.9"
+version = "1.35.10"
 requires_python = ">=3.8"
 summary = "Low-level, data-driven core of boto 3."
 groups = ["extension-backend-ray"]
@@ -323,8 +323,8 @@ dependencies = [
     "urllib3<1.27,>=1.25.4; python_version < \"3.10\"",
 ]
 files = [
-    {file = "botocore-1.35.9-py3-none-any.whl", hash = "sha256:92962460e4f35d139a23bca28149722030143257ee2916de442243c2464a7434"},
-    {file = "botocore-1.35.9.tar.gz", hash = "sha256:9e44572fd2401b89dd58bf8b71ac2c36d5b0437f8cbf40de83302c499965fb54"},
+    {file = "botocore-1.35.10-py3-none-any.whl", hash = "sha256:0d96d023b9b0cea99a0a428a431d011329d3a958730aee6ed6a6fec5d9bfbc03"},
+    {file = "botocore-1.35.10.tar.gz", hash = "sha256:6c8a1377b6636a0d80218115e1cd41bcceba0a2f050b79c206f4cf8d002c54d7"},
 ]
 
 [[package]]
