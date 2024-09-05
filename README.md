@@ -34,6 +34,7 @@ Goals:
 * **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
 * **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
 * **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by Reflexer Protocol: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
+* **[Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model)** by CADLabs: A modular dynamical-systems model of Fei Protocol
 
 ## Example Models
 
@@ -117,6 +118,8 @@ result = experiment.run()
 800002  0.003162   999992.0           1       1    1        1    100000
 800003  0.003162  1000002.0           1       1    1        2    100000
 ```
+
+* [x] Tested against Python 3.8 to 3.12 using Ubuntu, MacOS, and Windows
 
 ### Advanced Features
 
@@ -291,6 +294,8 @@ To use the compatibility mode, install radCAD with the `compat` dependencies:
 pip install -e .[compat]
 # Or
 poetry install -E compat
+# Or
+pdm install -G compat
 ```
 
 Then, update the cadCAD imports from `cadCAD._` to `radcad.compat.cadCAD._`
@@ -437,9 +442,11 @@ results = predator_prey_simulation.results
 To use the Ray backend, install radCAD with the `extension-backend-ray` dependencies:
 
 ```bash
-pip install -e .[extension-backend-ray]
+pip install -e ".[extension-backend-ray]"
 # Or
 poetry install -E extension-backend-ray
+# Or
+pdm install -G extension-backend-ray
 ```
 
 Export the following AWS credentials (or see Ray documentation for alternative providers):
@@ -522,12 +529,12 @@ See https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow for 
 
 ## Development
 
-Set up and enter the Python environment with [Poetry](https://python-poetry.org/):
+Set up and enter the Python radCAD development environment with the [PDM](https://pdm-project.org/) package manager:
 ```bash
-poetry --help
-poetry env use python3
-poetry install
-poetry shell
+pdm --help
+pdm use "python3.10"
+# NB: Use pdm-py38.lock for Python3.8 and pdm.lock for Python3.9+
+pdm install --lockfile pdm.lock
 ```
 
 ### Common issues
@@ -547,53 +554,69 @@ variable or by using the ``--hdf5`` command-line option.
 # 3. Submit PR and run tests
 # 4. Merge into master on success
 # 5. Build and publish package
-poetry publish --build
+pdm publish
 # Enter in PyPI package repository credentials
 # 6. Tag master commit with version e.g. `v0.5.0` and push
 ```
 
 ### Pip or alternative package managers
 
-Export `requirements.txt` using Poetry:
+Export `requirements.txt` using PDM:
 ```bash
-poetry export --without-hashes -f requirements.txt --output requirements.txt
+pdm export -o requirements.txt --without-hashes
 ```
 
 Note: the root `requirements.txt` is used for Streamlit app in examples, and is not for development.
 
-## Testing
+## Testing and Benchmarking
 
+This project uses Nox for executing tests and benchmarks across different Python versions. Nox expects that each of the Python versions defined in the tests is available.
+
+> nox is a command-line tool that automates testing in multiple Python environments, similar to tox. Unlike tox, Nox uses a standard Python file for configuration.
+
+To install Nox with `pipx`:
 ```bash
-poetry shell
-python3 -m pytest
-python3 -m unittest
+pipx install nox
 ```
+
+You can also use `pip` in your global python:
+```bash
+python3 -m pip install nox
+```
+
+To run all the tests:
+```bash
+nox --session tests
+```
+
+To run the default radCAD benchmark in [benchmarks/](benchmarks/) across all Python versions:
+```bash
+nox --session benchmarks
+```
+
+See [noxfile.py](noxfile.py) for other session types. 
 
 ## Jupyter Notebooks
 
 ```bash
 # Install kernel
-poetry run python -m ipykernel install --user --name python3-radcad
+pdm run ipykernel install --user --name python3-radcad
 # Start Jupyter
-poetry run python -m jupyter lab
+pdm run jupyter lab
 ```
-
-## Benchmarking
-
-See [benchmarks](benchmarks/)
 
 ### Time Profiling
 
 ```bash
-poetry run python3 -m pytest benchmarks/benchmark_radcad.py
-poetry run python3 -m pytest benchmarks/benchmark_single_process.py
+pdm run pytest benchmarks/benchmark_radcad.py
+pdm run pytest benchmarks/benchmark_single_process.py
 ```
 
 ### Memory Profiling
 
 ```bash
-poetry run python3 -m mprof run benchmarks/benchmark_memory_radcad.py
-poetry run python3 -m mprof plot
+pdm run mprof run benchmarks/benchmark_memory_radcad.py
+pdm run mprof plot
 ```
 
 ## Acknowledgements
