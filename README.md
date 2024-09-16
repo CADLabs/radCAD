@@ -623,7 +623,8 @@ pdm run mprof plot
 
 * [@danlessa](https://github.com/danlessa): Thank you for contribution of Predator-Prey example
 * [@rogervs](https://github.com/rogervs): Thank you for contribution of Harmonic Oscillator example
-* [abzaremba](https://github.com/abzaremba): Thank you for contribution to documentation
+* [@abzaremba](https://github.com/abzaremba): Thank you for contribution to documentation
+* [@smngvlkz](https://github.com/smngvlkz): Thank you for contribution to cadCAD compatibility mode and CI pipeline
 
 ## Star History
 
