@@ -35,7 +35,7 @@ Goals:
 
 * **[Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model)** by CADLabs: A modular dynamical-systems model of Ethereum's validator economics
 * **[Beacon Runner](https://github.com/ethereum/beaconrunner)** by Ethereum RIG: An agent-based model of Ethereum's Proof-of-Stake consensus layer
-* **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by Reflexer Protocol: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
+* **[GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations)** by BlockScience: A Proportional-Integral-Derivative (PID) controller based upon a reference document approach for the Maker DAI market that was never implemented
 * **[Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model)** by CADLabs: A modular dynamical-systems model of Fei Protocol
 
 ## Example Models
