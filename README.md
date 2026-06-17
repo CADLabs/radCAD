@@ -630,4 +630,4 @@ pdm run mprof plot
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=cadCAD-Edu/radCAD&type=Date)](https://star-history.com/#cadCAD-Edu/radCAD&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=CADLabs/radCAD&type=Date)](https://star-history.com/#CADLabs/radCAD&Date)
