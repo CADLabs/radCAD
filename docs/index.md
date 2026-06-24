@@ -77,6 +77,5 @@ df = pd.DataFrame(simulation.run())
 ## Getting help
 
 - 🎓 [cadCAD.education](https://cadcad.education): a cadCAD beginner course.
-- 💬 [cadCAD Discord community](https://discord.gg/HrJUh2FD).
 - 🐛 [GitHub issues](https://github.com/CADLabs/radCAD/issues).
 
