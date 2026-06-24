@@ -1,0 +1,134 @@
+site_name: radCAD
+site_description: A fast, cadCAD-compatible Python framework for modelling and simulating dynamical systems.
+site_author: CADLabs
+site_url: https://cadlabs.github.io/radCAD/
+
+repo_name: CADLabs/radCAD
+repo_url: https://github.com/CADLabs/radCAD
+edit_uri: edit/master/docs/
+
+copyright: Copyright &copy; CADLabs
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - tutorials/index.md
+      - Installation: tutorials/installation.md
+      - Build your first model: tutorials/first-model.md
+  - How-to guides:
+      - how-to/index.md
+      - Run a parameter sweep: how-to/parameter-sweeps.md
+      - Run a Monte Carlo simulation: how-to/monte-carlo.md
+      - Run an A/B test: how-to/ab-testing.md
+      - Choose a processing backend: how-to/choose-a-backend.md
+      - Improve performance: how-to/improve-performance.md
+      - Handle exceptions: how-to/handle-exceptions.md
+      - Extend radCAD with hooks: how-to/use-hooks.md
+      - Iterate over a model: how-to/iterate-over-a-model.md
+      - Use dataclass parameters: how-to/use-dataclass-parameters.md
+      - Migrate from cadCAD: how-to/migrate-from-cadcad.md
+      - Run on a Ray cluster: how-to/run-on-a-ray-cluster.md
+  - Reference:
+      - reference/index.md
+      - Model structure & data: reference/data-structures.md
+      - Engine settings: reference/engine-settings.md
+      - API reference: reference/api.md
+      - Glossary: reference/glossary.md
+  - Explanation:
+      - explanation/index.md
+      - Dynamical systems & the GDS model: explanation/dynamical-systems.md
+      - Architecture & execution flow: explanation/architecture.md
+      - State mutation & performance: explanation/state-mutation-and-performance.md
+      - radCAD and cadCAD: explanation/radcad-and-cadcad.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            docstring_options:
+              # radCAD documents **kwargs options by name (e.g. **deepcopy);
+              # these are popped from **kwargs and aren't literal signature
+              # parameters, so tell griffe not to warn about them.
+              warn_unknown_params: false
+              returns_named_value: false
+              returns_multiple_items: false
+            show_root_heading: true
+            show_source: true
+            show_signature_annotations: true
+            separate_signature: true
+            members_order: source
+            merge_init_into_class: true
+            show_if_no_docstring: false
+
+extra_javascript:
+  - mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/CADLabs/radCAD
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/radcad/
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/HrJUh2FD

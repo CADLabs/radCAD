@@ -3,6 +3,8 @@ import radcad.core as core
 
 
 class ExecutorSingleProcess(Executor):
+    """Run every simulation sequentially in the current process (no parallelism)."""
+
     def execute_runs(self):
         result = [
             core.multiprocess_wrapper(simulation_execution)

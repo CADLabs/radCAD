@@ -1,3 +1,14 @@
+"""Helper functions for parameter sweeps, common State Update Functions, and dataclass params.
+
+The most commonly used helpers here are the generic State Update Functions
+([update_from_signal][radcad.utils.update_from_signal], [accumulate_from_signal][radcad.utils.accumulate_from_signal],
+[update_timestamp][radcad.utils.update_timestamp]) that remove boilerplate from models, and
+[default][radcad.utils.default], required when giving a dataclass field a mutable default such
+as a list or nested dataclass. The remaining functions implement radCAD's
+parameter-sweep expansion and are used internally by the
+[Engine][radcad.engine.Engine].
+"""
+
 import copy
 import datetime
 import itertools
@@ -9,6 +20,7 @@ from radcad.types import Dataclass, SystemParameters
 
 
 def flatten(nested_list):
+    """Flatten a list one level deep, leaving non-list items in place."""
     def generator(nested_list):
         for sublist in nested_list:
             if isinstance(sublist, list):
@@ -30,6 +42,7 @@ def extend_list(list, target_length):
 
 
 def extract_exceptions(results_with_exceptions):
+    """Split backend output into a flat results list and an exceptions list."""
     results, exceptions = zip(*results_with_exceptions)
     return (list(flatten(flatten(list(results)))), list(exceptions))
 
@@ -144,6 +157,18 @@ def _traverse_sweep_params(params: SystemParameters, max_len: int, sweep_index: 
 
 
 def generate_parameter_sweep(params: SystemParameters) -> List[SystemParameters]:
+    """Expand System Parameters into one parameter set per sweep subset.
+
+    Each parameter is a list of values; the sweep length is the longest such
+    list, and shorter lists are extended by repeating their last value. Works
+    with both dict and (nested) dataclass parameters.
+
+    Args:
+        params (SystemParameters): The parameters to expand.
+
+    Returns:
+        list: One concrete parameter set (same type as ``params``) per subset.
+    """
     max_len = _get_sweep_length(params)
     param_sweep = []
     for sweep_index in range(0, max_len):
@@ -170,15 +195,16 @@ def _update_from_signal(
 
 
 def update_from_signal(state_variable, signal_key=None, optional_update=False):
-    """
-    A generic State Update Function to update a State Variable directly from a Policy Signal,
-    useful to avoid boilerplate code.
+    """A generic State Update Function to update a State Variable directly from a
+    Policy Signal, avoiding boilerplate.
+
     Args:
-        state_variable (str): State Variable key
-        signal_key (str, optional): Policy Signal key. Defaults to None.
-        optional_update (bool, optional): If True, only update State Variable if Policy Signal key exists.
+        state_variable (str): State Variable key.
+        signal_key (str, optional): Policy Signal key. Defaults to the State Variable key.
+        optional_update (bool, optional): If True, only update the State Variable when the Policy Signal key exists.
+
     Returns:
-        Callable: A generic State Update Function
+        Callable: A generic State Update Function.
     """
     if not signal_key:
         signal_key = state_variable

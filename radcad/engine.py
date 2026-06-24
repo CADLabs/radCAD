@@ -1,3 +1,13 @@
+"""The execution engine that runs simulations and experiments.
+
+The [Engine][radcad.engine.Engine] turns the declarative description in a
+[Simulation][radcad.wrappers.Simulation] or
+[Experiment][radcad.wrappers.Experiment] into actual computation. It expands
+parameter sweeps and runs, dispatches the work to a chosen parallel-processing
+[Backend][radcad.backends.Backend], fires lifecycle hooks, and gathers the
+results and any exceptions.
+"""
+
 import os
 import copy
 import multiprocessing
@@ -14,6 +24,18 @@ from radcad.utils import extract_exceptions
 cpu_count = multiprocessing.cpu_count() - 1 or 1
 
 class Engine:
+    """Configures and executes experiments and simulations.
+
+    The Engine owns all execution-time settings (which parallel-processing
+    backend to use, how many processes, whether to deepcopy state, how to
+    handle exceptions) and drives the run loop over every simulation, run,
+    and parameter subset. An Engine can be passed to a
+    [Simulation][radcad.wrappers.Simulation] or
+    [Experiment][radcad.wrappers.Experiment] to customise execution.
+
+    See `__init__` for the full list of options.
+    """
+
     def __init__(self, **kwargs):
         """
         Handles configuration and execution of experiments and simulations.
@@ -60,6 +82,21 @@ class Engine:
             raise Exception(f"Invalid Engine option in {kwargs}")
 
     def _run(self, executable=None, **kwargs):
+        """Run an executable end to end and return its flattened results.
+
+        Fires the experiment-level hooks, builds the run generator, selects
+        and invokes the configured backend executor, then splits the raw
+        output into ``results`` and ``exceptions`` on the executable.
+
+        Args:
+            executable (Executable): The Simulation or Experiment to run.
+
+        Returns:
+            SimulationResults: Flattened results across all runs and subsets.
+
+        Raises:
+            Exception: If no executable is given or the backend is invalid.
+        """
         if not executable:
             raise Exception("Experiment or simulation required as Executable argument")
         self.executable = executable
@@ -101,6 +138,13 @@ class Engine:
         return self.executable.results
 
     def _run_stream(self, simulations) -> Iterator[core.SimulationExecution]:
+        """Yield one configured [SimulationExecution][radcad.core.SimulationExecution] per unit of work.
+
+        Iterates over every simulation, run, and parameter subset, expanding
+        parameter sweeps and firing the corresponding lifecycle hooks. Each
+        yielded execution is a deepcopy so backends can run them concurrently
+        without sharing mutable state.
+        """
         for simulation_index, simulation in enumerate(simulations):
             simulation.index = simulation_index
             

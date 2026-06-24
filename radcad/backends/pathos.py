@@ -7,6 +7,12 @@ import os
 
 
 class ExecutorPathos(Executor):
+    """Run simulations across local CPU cores using a ``pathos`` process pool.
+
+    The default backend. Uses ``dill`` for pickling, which handles a wider
+    range of objects (e.g. lambdas, closures) than the standard library.
+    """
+
     def __init__(self, engine):
         super().__init__(engine=engine)
 

@@ -1,0 +1,71 @@
+# Builds the MkDocs documentation site and deploys it to GitHub Pages.
+#
+# Setup (one time, in the repository settings):
+#   Settings > Pages > Build and deployment > Source: "GitHub Actions"
+#
+# After that, every push to `master` that touches the docs, the source, or this
+# workflow rebuilds and publishes https://<owner>.github.io/radCAD/.
+
+name: Documentation
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'radcad/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'radcad/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+# Allow only one concurrent deployment, skipping runs queued between the run
+# in-progress and latest queued. Do not cancel in-progress runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install documentation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Installs radCAD (so mkdocstrings can import it) plus the docs extras
+          python -m pip install -e ".[docs]"
+      - name: Build site (strict)
+        run: mkdocs build --strict
+      - name: Upload Pages artifact
+        # Only publish from master; PRs build for validation only.
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    # Only deploy on push to master / manual dispatch, not on pull requests.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
