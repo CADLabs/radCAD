@@ -5,57 +5,48 @@ description = "A Python framework for designing, testing, and validating complex
 authors = [
     {name = "CADLabs", email = "benschza@users.noreply.github.com"},
 ]
-requires-python = ">=3.8, <3.13"
+requires-python = ">=3.10, <3.13"
 dependencies = [
     "pathos<1.0.0,>=0.2.7",
-    "pandas<=2.0.3; python_version < '3.9'",
-    "pandas>2.0.3; python_version >= '3.9'",
+    "pandas>2.0.3",
     "py<2.0.0,>=1.11.0",
-    "numpy<1.25; python_version < '3.9'",
-    "numpy<1.26.4,>=1.25; python_version >= '3.9'",
+    "numpy<1.26.4,>=1.25",
     "fn-py<1.0.0,>=0.6.0",
 ]
 
 [project.optional-dependencies]
 compat = [
-    "cadCAD<0.5.0; python_version < '3.9'",
-    "cadCAD>=0.5.0; python_version >= '3.9'",
+    "cadCAD>=0.5.0",
 ]
 extension-backend-ray = [
-    "ray<3.0.0,>=2.0.0",
+    # Ray 2.54+ ships patched wheels, but no macOS x86_64 wheels.
+    "ray<3.0.0,>=2.54.0; platform_system != 'Darwin' or platform_machine != 'x86_64'",
     "boto3<2.0.0,>=1.16.43",
 ]
 docs = [
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.25.0",
-    "pymdown-extensions>=10.0",
-    "black>=24.0",  # used by mkdocstrings to format rendered signatures
+    "pymdown-extensions>=10.16.1",
+    "black>=26.3.1",  # used by mkdocstrings to format rendered signatures
 ]
 
 [tool.uv]
 dev-dependencies = [
-    "pytest==8.3.2",
+    "pytest>=9.0.3",
     "coveralls<3.0.0,>=2.2.0",
     "pytest-cov<3.0.0,>=2.10.1",
     "pytest-benchmark==4.0.0",
-    "matplotlib<3.8.0; python_version < '3.9'",
-    "matplotlib>=3.8.0; python_version >= '3.9'",
+    "matplotlib>=3.8.0",
     "plotly<5.0.0,>=4.14.1",
     "ipykernel<7.0,>=6.14",
     "celluloid<1.0.0,>=0.2.0",
     "ipywidgets>=7.5",
     "memory-profiler<1.0.0,>=0.58.0",
-    "black>=24.0",
-    "tables<=3.7.0; python_version < '3.9'",
-    # 3.9 has no macOS arm64 wheel at any version; 3.10.1+ ships arm64 wheels.
-    "tables>3.8.0,<3.10.0; python_version == '3.9'",
-    "tables>=3.10.1; python_version >= '3.10'",
-    # numexpr (a tables dependency) 2.8.6 is the last to support 3.8 but has no
-    # 3.12 wheels; 2.8.7+ ships 3.12 wheels but requires >=3.9.
-    "numexpr<=2.8.6; python_version < '3.9'",
-    "numexpr>=2.8.7; python_version >= '3.9'",
+    "black>=26.3.1",
+    "tables>=3.10.1",
+    "numexpr>=2.8.7",
     "jupyter<2.0.0,>=1.0.0",
-    "jupyterlab>=4.0.0",
+    "jupyterlab>=4.5.7",
     "jupyter-console<7.0.0,>=6.6.3",
 ]
 

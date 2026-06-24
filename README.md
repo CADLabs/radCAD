@@ -20,7 +20,7 @@ You describe a system as a set of **state transitions** (encoding differential e
 * **Extensible**: [hooks](https://cadlabs.github.io/radCAD/how-to/use-hooks/), [iterable models](https://cadlabs.github.io/radCAD/how-to/iterate-over-a-model/), and typed [dataclass parameters](https://cadlabs.github.io/radCAD/how-to/use-dataclass-parameters/).
 * **Robust exception handling**: failed runs return [partial results and tracebacks](https://cadlabs.github.io/radCAD/how-to/handle-exceptions/), so one error won't discard a long-running simulation.
 * **Distributed execution**: parallel processing across [multiple backends](https://cadlabs.github.io/radCAD/how-to/choose-a-backend/), including [remote Ray clusters](https://cadlabs.github.io/radCAD/how-to/run-on-a-ray-cluster/).
-* **Tested**: against Python 3.8–3.12 on Linux, macOS, and Windows.
+* **Tested**: against Python 3.10–3.12 on Linux, macOS, and Windows.
 
 ## Installation
 

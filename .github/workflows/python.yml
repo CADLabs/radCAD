@@ -15,17 +15,12 @@ on:
 
 jobs:
   build:
-    # `macOS-latest` is arm64 (macos-14+). PyTables only ships macOS arm64
-    # wheels from 3.10.1 (Python 3.10+); Python 3.8/3.9 use older `tables` with
-    # x86_64-only wheels, so route those to the Intel `macos-13` runner to avoid
-    # a source build. Python 3.10+ runs on arm64. Ubuntu and Windows keep
-    # `*-latest`.
-    runs-on: ${{ (matrix.os == 'macOS' && matrix.python-minor-version < 10) && 'macos-13' || format('{0}-latest', matrix.os) }}
+    runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       fail-fast: false
       matrix:
         python-major-version: [3]
-        python-minor-version: [8, 9, 10, 11, 12]
+        python-minor-version: [10, 11, 12]
         os: [ubuntu, macOS, windows]
     env:
       python-version: ${{ format('{0}.{1}', matrix.python-major-version, matrix.python-minor-version) }}

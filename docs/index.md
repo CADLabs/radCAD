@@ -65,7 +65,7 @@ df = pd.DataFrame(simulation.run())
 - **Extensible**: [hooks](how-to/use-hooks.md), [iterable models](how-to/iterate-over-a-model.md), and typed [dataclass parameters](how-to/use-dataclass-parameters.md).
 - **Robust exception handling**: failed runs return [partial results and tracebacks](how-to/handle-exceptions.md), so one error won't discard a long-running simulation.
 - **Distributed execution**: parallel processing across [multiple backends](how-to/choose-a-backend.md), including [remote Ray clusters](how-to/run-on-a-ray-cluster.md).
-- **Tested**: against Python 3.8–3.12 on Linux, macOS, and Windows.
+- **Tested**: against Python 3.10–3.12 on Linux, macOS, and Windows.
 
 ## Open-source models using radCAD
 
