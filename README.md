@@ -10,7 +10,7 @@
 
 You describe a system as a set of **state transitions** (encoding differential equations, agent behaviour, or other logic), then run **parameter sweeps**, **Monte Carlo runs**, and **A/B tests** over it in parallel across multiple processing backends. radCAD is compatible with cadCAD: its functions, data structures, and simulation results follow the same conventions, so existing cadCAD models run with minimal changes.
 
-📚 **[Read the documentation](https://cadlabs.github.io/radCAD/)** &nbsp;|&nbsp; 🎓 **[cadCAD.education](https://cadcad.education)** beginner course &nbsp;|&nbsp; 💬 **[cadCAD Discord](https://discord.gg/HrJUh2FD)**
+📚 **[Read the documentation](https://cadlabs.github.io/radCAD/)** &nbsp;|&nbsp; 🎓 **[cadCAD.education courses](https://cadcad.education)**
 
 ### Why radCAD?
 
