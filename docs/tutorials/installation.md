@@ -36,11 +36,11 @@ radCAD ships several optional dependency groups. Install only the ones you need:
     poetry install -E extension-backend-ray
     ```
 
-=== "PDM"
+=== "uv"
 
     ```bash
-    pdm install -G compat
-    pdm install -G extension-backend-ray
+    uv add "radcad[compat]"
+    uv add "radcad[extension-backend-ray]"
     ```
 
 See [Migrate from cadCAD](../how-to/migrate-from-cadcad.md) and [Run on a Ray cluster](../how-to/run-on-a-ray-cluster.md) for when you need these.

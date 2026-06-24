@@ -40,13 +40,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install documentation dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Installs radCAD (so mkdocstrings can import it) plus the docs extras
-          python -m pip install -e ".[docs]"
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
       - name: Build site (strict)
-        run: mkdocs build --strict
+        # `uv run` syncs radCAD plus the docs extras (no dev group) from the
+        # lockfile, then runs mkdocs in that environment.
+        run: uv run --frozen --extra docs --no-dev mkdocs build --strict
       - name: Upload Pages artifact
         # Only publish from master; PRs build for validation only.
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'

@@ -94,8 +94,7 @@ Docs are published to GitHub Pages at <https://cadlabs.github.io/radCAD/>.
 Build locally:
 
 ```bash
-pdm install -G docs
-pdm run mkdocs serve
+uv run --extra docs mkdocs serve
 ```
 
 ## Examples
@@ -115,14 +114,11 @@ pdm run mkdocs serve
 
 ## Development
 
-Set up the development environment with [PDM](https://pdm-project.org/):
+Set up the development environment with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pdm use "python3.10"
-pdm install --lockfile pdm.lock
+uv sync
 ```
-
-Use `pdm-py38.lock` for Python 3.8.
 
 Run tests and benchmarks with Nox:
 

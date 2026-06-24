@@ -15,9 +15,9 @@ For workloads too large for a single machine, radCAD can distribute runs across 
     ```bash
     poetry install -E extension-backend-ray
     ```
-=== "PDM"
+=== "uv"
     ```bash
-    pdm install -G extension-backend-ray
+    uv sync --extra extension-backend-ray
     ```
 
 ## Provision a cluster

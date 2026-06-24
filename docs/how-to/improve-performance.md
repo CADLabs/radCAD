@@ -54,12 +54,12 @@ The repository includes time and memory benchmarks under [`benchmarks/`](https:/
 
 ```bash
 # Time profiling
-pdm run pytest benchmarks/benchmark_radcad.py
-pdm run pytest benchmarks/benchmark_single_process.py
+uv run pytest benchmarks/benchmark_radcad.py
+uv run pytest benchmarks/benchmark_single_process.py
 
 # Memory profiling
-pdm run mprof run benchmarks/benchmark_memory_radcad.py
-pdm run mprof plot
+uv run mprof run benchmarks/benchmark_memory_radcad.py
+uv run mprof plot
 ```
 
 ## See also

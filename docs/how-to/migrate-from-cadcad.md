@@ -71,9 +71,9 @@ Compatibility mode translates the cadCAD configuration and execution process int
     ```bash
     poetry install -E compat
     ```
-=== "PDM"
+=== "uv"
     ```bash
-    pdm install -G compat
+    uv sync --extra compat
     ```
 
 **2. Repoint your cadCAD imports** from `cadCAD.*` to `radcad.compat.cadCAD.*`:

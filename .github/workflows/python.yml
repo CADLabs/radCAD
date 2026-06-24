@@ -15,7 +15,12 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}-latest
+    # `macOS-latest` is arm64 (macos-14+). PyTables only ships macOS arm64
+    # wheels from 3.10.1 (Python 3.10+); Python 3.8/3.9 use older `tables` with
+    # x86_64-only wheels, so route those to the Intel `macos-13` runner to avoid
+    # a source build. Python 3.10+ runs on arm64. Ubuntu and Windows keep
+    # `*-latest`.
+    runs-on: ${{ (matrix.os == 'macOS' && matrix.python-minor-version < 10) && 'macos-13' || format('{0}-latest', matrix.os) }}
     strategy:
       fail-fast: false
       matrix:
@@ -31,22 +36,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ env.python-version }}
-    - name: Install build dependencies
+    - name: Install uv and Nox
       run: |
-        python -m pip install --upgrade pip setuptools wheel
-        python -m pip install pdm nox
-    - name: Install build dependencies for MacOS
-      if: ${{ matrix.os == 'macOS' }}
-      run: |
-        brew install hdf5 c-blosc
-    - name: Install radCAD dependencies for Python 3.8
-      if: ${{ matrix.python-minor-version == 8 }}
-      run: |
-        pdm sync -d -G compat --lockfile pdm-py38.lock
-    - name: Install radCAD dependencies for Python 3.9+
-      if: ${{ matrix.python-minor-version >= 9 }}
-      run: |
-        pdm sync -d -G compat --lockfile pdm.lock
+        python -m pip install --upgrade pip
+        python -m pip install uv nox
     - name: Run tests using Nox
+      # Nox creates the per-version venv and uses `uv sync --frozen` (single
+      # uv.lock) to install the project and dependencies into it.
       run: |
         python -m nox -s tests-${{ env.python-version }}

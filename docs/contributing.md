@@ -4,14 +4,13 @@ How to set up a radCAD development environment and run the project's tooling.
 
 ## Development environment
 
-Set up the environment with the [PDM](https://pdm-project.org/) package manager:
+Set up the environment with the [uv](https://docs.astral.sh/uv/) package manager. This creates a virtual environment and installs the project with its dependencies from `uv.lock`:
 
 ```bash
-pdm use "python3.10"
-pdm install --lockfile pdm.lock
+uv sync
 ```
 
-Use `pdm-py38.lock` for Python 3.8 and `pdm.lock` for Python 3.9+.
+Add the optional extras when you need them, for example `uv sync --extra compat` or `uv sync --extra extension-backend-ray`.
 
 ## Run the tests
 
@@ -47,11 +46,11 @@ See [`noxfile.py`](https://github.com/CADLabs/radCAD/blob/master/noxfile.py) for
 
 ## Run the example notebooks
 
-To register the PDM-managed environment as a Jupyter kernel and start JupyterLab:
+To register the project environment as a Jupyter kernel and start JupyterLab:
 
 ```bash
-pdm run ipykernel install --user --name python3-radcad
-pdm run jupyter lab
+uv run ipykernel install --user --name python3-radcad
+uv run jupyter lab
 ```
 
 See [Run the example notebooks](tutorials/installation.md#run-the-example-notebooks) for the general setup.
@@ -61,13 +60,12 @@ See [Run the example notebooks](tutorials/installation.md#run-the-example-notebo
 The documentation site is built with MkDocs Material:
 
 ```bash
-pdm install -G docs
-pdm run mkdocs serve
+uv run --extra docs mkdocs serve
 ```
 
 ## Release a new version
 
-Maintainers publish to PyPI with PDM:
+Maintainers publish to PyPI with uv:
 
 ```bash
 # 1. Update the version in pyproject.toml (semantic versioning)
@@ -75,14 +73,15 @@ Maintainers publish to PyPI with PDM:
 # 3. Open a PR and run the tests
 # 4. Merge into master once green
 # 5. Build and publish
-pdm publish
+uv build
+uv publish
 # 6. Tag the master commit with the version, e.g. v0.5.0, and push
 ```
 
 ### Export requirements.txt
 
 ```bash
-pdm export -o requirements.txt --without-hashes
+uv export --no-dev --no-hashes -o requirements.txt
 ```
 
 The root `requirements.txt` is used by the Streamlit example app, not for development.
