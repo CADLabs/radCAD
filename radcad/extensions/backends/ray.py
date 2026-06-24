@@ -15,10 +15,12 @@ import radcad.core as core
 
 
 class ExecutorRay(Executor):
+    """Run simulations locally with Ray, initialising a local Ray instance."""
+
     @ray.remote
     def _proxy_single_run(run_args):
         return core.multiprocess_wrapper(run_args)
-    
+
     def execute_runs(self):
         ray.init(num_cpus=self.engine.processes, ignore_reinit_error=True)
         futures = [
@@ -28,6 +30,12 @@ class ExecutorRay(Executor):
         return ray.get(futures)
 
 class ExecutorRayRemote(Executor):
+    """Run simulations on a remote Ray cluster.
+
+    Requires Ray to already be connected to the cluster head via
+    ``ray.init(address=..., ...)`` before the run.
+    """
+
     @ray.remote
     def _proxy_single_run(run_args):
         return core.multiprocess_wrapper(run_args)

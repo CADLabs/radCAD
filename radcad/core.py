@@ -1,3 +1,15 @@
+"""The core simulation loop that evaluates a single run of a model.
+
+A [SimulationExecution][radcad.core.SimulationExecution] represents one fully-specified unit of work, a
+single run of a single parameter subset. Stepping through it produces the raw
+simulation result. The [Engine][radcad.engine.Engine] creates one of these per
+run/subset and hands it to a backend, which calls [multiprocess_wrapper][radcad.core.multiprocess_wrapper]
+to execute it (with exception handling) in a worker process.
+
+Most models never touch this module directly; it is documented here because its
+state-transition logic defines radCAD's execution semantics.
+"""
+
 import logging
 import pickle
 import traceback
@@ -16,6 +28,15 @@ from radcad.utils import default
 
 @dataclass
 class SimulationExecutionSpecification(ABC):
+    """Abstract template for the simulation loop, independent of state semantics.
+
+    Defines the nested execution structure (execution > timestep > substep) as
+    a sequence of overridable hook methods (``before_step``, ``substep``,
+    ``after_step``, ...). [SimulationExecution][radcad.core.SimulationExecution] implements these hooks
+    with radCAD's concrete state-transition behaviour. Separating the two
+    makes the loop structure explicit and the behaviour easy to customise.
+    """
+
     timesteps: int = 0
     timestep: int = None
 
@@ -28,6 +49,15 @@ class SimulationExecutionSpecification(ABC):
     def execute(
         self,
     ) -> SimulationResults:
+        """Run the full simulation loop and return the accumulated result.
+
+        Calls `before_execution`, iterates over each timestep (which in
+        turn iterates over substeps via `step`), then
+        `after_execution`.
+
+        Returns:
+            SimulationResults: The per-timestep, per-substep state history.
+        """
         self.before_execution()
 
         initial_timestep = self.timestep if self.timestep else 0
@@ -49,6 +79,11 @@ class SimulationExecutionSpecification(ABC):
         pass
 
     def step(self) -> None:
+        """Advance the system by one timestep, evaluating every substep.
+
+        Each Partial State Update Block in ``state_update_blocks`` is one
+        substep; they are evaluated in order, each building on the previous.
+        """
         self.substeps: List = []
         for (substep, state_update_block) in enumerate(self.state_update_blocks):
             self.substep_index = substep
@@ -79,6 +114,19 @@ class SimulationExecutionSpecification(ABC):
 
 @dataclass
 class SimulationExecution(SimulationExecutionSpecification):
+    """One executable run of a model: a single run of a single parameter subset.
+
+    Implements radCAD's state-transition semantics on top of
+    [SimulationExecutionSpecification][radcad.core.SimulationExecutionSpecification]. For each substep it executes the
+    block's Policy Functions, aggregates their signals, applies the State
+    Update Functions, and appends the new state to the result. Execution
+    options such as `enable_deepcopy`, `drop_substeps`, and
+    `raise_exceptions` control performance and error behaviour.
+
+    Subclass it and override `deepcopy_method` (or other methods) to
+    customise execution; see the README for an example.
+    """
+
     # Simulation settings
     initial_state: StateVariables = default({})
     params: SystemParameters = default({})
@@ -106,6 +154,11 @@ class SimulationExecution(SimulationExecutionSpecification):
         self.initialise_state()
 
     def initialise_state(self):
+        """Stamp bookkeeping keys onto the initial state and seed the result.
+
+        Sets the ``simulation``/``subset``/``run``/``substep``/``timestep``
+        keys and appends the initial state as the first entry of the result.
+        """
         self.initial_state["simulation"] = self.simulation_index
         self.initial_state["subset"] = self.subset_index
         self.initial_state["run"] = self.run_index
@@ -131,6 +184,12 @@ class SimulationExecution(SimulationExecutionSpecification):
         pass
 
     def substep(self, state_update_block: StateUpdateBlock) -> None:
+        """Evaluate a single Partial State Update Block.
+
+        Runs the block's policies to produce aggregated signals, applies each
+        State Update Function to compute the new State Variable values, and
+        records the resulting substate.
+        """
         substate: StateVariables = (
             self.previous_state.copy() if self.substep_index == 0 else self.substeps[self.substep_index - 1].copy()
         )
@@ -164,6 +223,12 @@ class SimulationExecution(SimulationExecutionSpecification):
         substate: StateVariables,
         state_update_block: StateUpdateBlock,
     ) -> PolicySignal:
+        """Run a block's Policy Functions and merge their signals into one dict.
+
+        Each policy receives ``(params, substep, state_history, substate)``.
+        Where multiple policies emit the same signal key, their values are
+        summed (see `add_signals`).
+        """
         policy_results: List[PolicySignal] = list(
             map(lambda function: function(
                 self.params,
@@ -188,6 +253,18 @@ class SimulationExecution(SimulationExecutionSpecification):
         signals: PolicySignal,
         state_update: StateUpdate,
     ) -> StateUpdateResult:
+        """Apply one State Update Function and validate its returned key.
+
+        Calls ``function(params, substep, state_history, substate, signals)``
+        and checks that the returned key matches the declared State Variable
+        and exists in the initial state.
+
+        Returns:
+            StateUpdateResult: The ``(key, value)`` produced by the function.
+
+        Raises:
+            KeyError: If the declared or returned key is unknown, or they differ.
+        """
         _substate = self.deepcopy_method(substate) if self.enable_deepcopy else substate.copy()
         _signals = self.deepcopy_method(signals) if self.enable_deepcopy else signals.copy()
 
@@ -210,6 +287,7 @@ class SimulationExecution(SimulationExecutionSpecification):
 
     @staticmethod
     def add_signals(acc: PolicySignal, a: PolicySignal) -> PolicySignal:
+        """Reduce two Policy Signals by summing values that share a key."""
         for (key, value) in a.items():
             if acc.get(key, None):
                 acc[key] += value
@@ -226,6 +304,21 @@ class SimulationExecution(SimulationExecutionSpecification):
 
 
 def multiprocess_wrapper(simulation_execution: SimulationExecution):
+    """Execute one [SimulationExecution][radcad.core.SimulationExecution], handling exceptions per policy.
+
+    This is the function dispatched to worker processes by every backend. If
+    ``raise_exceptions`` is ``True`` the exception propagates; otherwise the
+    partial result up to the failing timestep is returned alongside an
+    exception/traceback metadata dict.
+
+    Args:
+        simulation_execution (SimulationExecution): The run to execute.
+
+    Returns:
+        tuple: ``(result, exception_metadata)``, the per-substep result and a
+        dict describing any exception (with ``exception``/``traceback`` set to
+        ``None`` on success).
+    """
     exception = None
     trace = None
     try:

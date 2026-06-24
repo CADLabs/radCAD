@@ -25,10 +25,15 @@ extension-backend-ray = [
     "ray<3.0.0,>=2.0.0",
     "boto3<2.0.0,>=1.16.43",
 ]
+docs = [
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.25.0",
+    "pymdown-extensions>=10.0",
+    "black>=24.0",  # used by mkdocstrings to format rendered signatures
+]
 
-[tool.pdm]
-[tool.pdm.dev-dependencies]
-dev = [
+[tool.uv]
+dev-dependencies = [
     "pytest==8.3.2",
     "coveralls<3.0.0,>=2.2.0",
     "pytest-cov<3.0.0,>=2.10.1",
@@ -40,18 +45,23 @@ dev = [
     "celluloid<1.0.0,>=0.2.0",
     "ipywidgets>=7.5",
     "memory-profiler<1.0.0,>=0.58.0",
-    "black<21.0,>=20.8b1",
+    "black>=24.0",
     "tables<=3.7.0; python_version < '3.9'",
-    "tables>3.8.0; python_version >= '3.9'",
+    # 3.9 has no macOS arm64 wheel at any version; 3.10.1+ ships arm64 wheels.
+    "tables>3.8.0,<3.10.0; python_version == '3.9'",
+    "tables>=3.10.1; python_version >= '3.10'",
+    # numexpr (a tables dependency) 2.8.6 is the last to support 3.8 but has no
+    # 3.12 wheels; 2.8.7+ ships 3.12 wheels but requires >=3.9.
+    "numexpr<=2.8.6; python_version < '3.9'",
+    "numexpr>=2.8.7; python_version >= '3.9'",
     "jupyter<2.0.0,>=1.0.0",
-    "pdoc3<1.0.0,>=0.9.2",
-    "jupyterlab<4.0.0,>=3.0.16",
+    "jupyterlab>=4.0.0",
     "jupyter-console<7.0.0,>=6.6.3",
 ]
 
-[tool.pdm.build]
-includes = ["radcad"]
+[tool.hatch.build.targets.wheel]
+packages = ["radcad"]
 
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

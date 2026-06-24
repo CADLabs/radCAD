@@ -5,6 +5,12 @@ import multiprocessing
 
 
 class ExecutorMultiprocessing(Executor):
+    """Run simulations across local CPU cores using the standard ``multiprocessing`` library.
+
+    Uses a ``spawn`` context for cross-platform consistency. Functions must be
+    standard-library picklable; use the ``pathos`` backend for closures/lambdas.
+    """
+
     def execute_runs(self):
         with multiprocessing.get_context("spawn").Pool(
                 processes=self.engine.processes
