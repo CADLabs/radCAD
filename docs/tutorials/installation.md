@@ -4,7 +4,7 @@ In this tutorial you will install radCAD and confirm it runs.
 
 ## Requirements
 
-- Python **3.8 – 3.12**
+- Python **3.10 – 3.12**
 - A package manager such as `pip`
 
 ## Install from PyPI

@@ -1,6 +1,6 @@
-# This file is used for Streamlit applications; this project is managed by PDM; see README for further guidance about using pip and generating a requirements.txt file (or just use PDM!)
+# This file is used for Streamlit applications; the project itself is managed with uv.
 numpy
-radcad==0.5.3
+radcad==0.13.0
 matplotlib
-streamlit
+streamlit>=1.54.0
 pandas

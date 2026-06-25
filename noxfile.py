@@ -3,7 +3,7 @@ import sys
 import nox
 
 # Select the Python versions to test against (these must be installed on the system)
-python_versions = ['3.8', '3.9', '3.10', '3.11', '3.12']
+python_versions = ['3.10', '3.11', '3.12']
 
 # Configure radCAD for tests
 if sys.platform.startswith('win'):
