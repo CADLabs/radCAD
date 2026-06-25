@@ -22,6 +22,15 @@ You describe a system as a set of **state transitions** (encoding differential e
 * **Distributed execution**: parallel processing across [multiple backends](https://cadlabs.github.io/radCAD/how-to/choose-a-backend/), including [remote Ray clusters](https://cadlabs.github.io/radCAD/how-to/run-on-a-ray-cluster/).
 * **Tested**: against Python 3.10–3.12 on Linux, macOS, and Windows.
 
+## Open-source models using radCAD
+
+- [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model) by CADLabs.
+- [Beacon Runner](https://github.com/ethereum/beaconrunner) by Ethereum RIG.
+- [GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations) by BlockScience.
+- [Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model) by CADLabs.
+- [QTM Interface](https://github.com/OutlierVentures/QTM-Interface) by Outlier Ventures.
+- [Polygon 2.0 Economic Model](https://github.com/0xPolygon/polygon2.0-economic-model) by Polygon.
+
 ## Installation
 
 ```bash
@@ -104,13 +113,6 @@ uv run --extra docs mkdocs serve
 - [Predator-prey system dynamics](examples/predator_prey_sd/predator-prey-sd.ipynb): Lotka-Volterra equations.
 - [Predator-prey agent-based model](examples/predator_prey_abm/predator-prey-abm.ipynb): agent-based ecological model.
 - [Harmonic oscillator](examples/harmonic_oscillator/harmonic_oscillator.ipynb): oscillatory system example.
-
-## Open-source models using radCAD
-
-- [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model) by CADLabs.
-- [Beacon Runner](https://github.com/ethereum/beaconrunner) by Ethereum RIG.
-- [GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations) by BlockScience.
-- [Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model) by CADLabs.
 
 ## Development
 
