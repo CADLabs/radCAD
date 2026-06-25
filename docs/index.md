@@ -73,6 +73,8 @@ df = pd.DataFrame(simulation.run())
 - [Beacon Runner](https://github.com/ethereum/beaconrunner) by Ethereum RIG.
 - [GEB Controller Simulations](https://github.com/reflexer-labs/geb-simulations) by BlockScience.
 - [Fei Protocol Model](https://github.com/CADLabs/fei-protocol-model) by CADLabs.
+- [QTM Interface](https://github.com/OutlierVentures/QTM-Interface) by Outlier Ventures.
+- [Polygon 2.0 Economic Model](https://github.com/0xPolygon/polygon2.0-economic-model) by Polygon.
 
 ## Getting help
 
