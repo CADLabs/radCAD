@@ -1,5 +1,16 @@
 from radcad import Model, Simulation, Experiment
+from radcad.engine import Engine, Backend
 from tests.test_cases import basic
+
+def test_radcad_backend_env_sets_default(monkeypatch):
+    monkeypatch.setenv('RADCAD_BACKEND', 'SINGLE_PROCESS')
+    assert Engine().backend == Backend.SINGLE_PROCESS
+
+
+def test_radcad_backend_env_overrides_explicit_backend(monkeypatch):
+    monkeypatch.setenv('RADCAD_BACKEND', 'SINGLE_PROCESS')
+    assert Engine(backend=Backend.PATHOS).backend == Backend.SINGLE_PROCESS
+
 
 def test_run():
     states = basic.states
