@@ -15,6 +15,7 @@ on:
 
 jobs:
   build:
+    timeout-minutes: 20
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       fail-fast: false
@@ -26,9 +27,9 @@ jobs:
       python-version: ${{ format('{0}.{1}', matrix.python-major-version, matrix.python-minor-version) }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.python-version }}
     - name: Install uv and Nox
@@ -36,6 +37,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install uv nox
     - name: Run tests using Nox
+      timeout-minutes: 15
       # Nox creates the per-version venv and uses `uv sync --frozen` (single
       # uv.lock) to install the project and dependencies into it.
       run: |
